@@ -272,7 +272,7 @@
     </div>
     <!-- Header -->
     <div class="header">
-      <img src="../American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
+      <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
       <div class="header-content">
         <h1>PILER INFORMATION INPUT</h1>
         <div class="subtitle">American Crystal Sugar • Harvest Crew</div>
@@ -337,7 +337,41 @@
       <button onclick="window.open('History.html', '_blank')">📜 View History</button>
     </div>
     <div class="hint no-print">
-      Clicking <strong>Save Now</strong> saves locally + downloads a dated file like <code>data-2026-06-18-Wednesday.json</code> (commit the latest to GitHub as data.json or dated for history). Use <strong>View History</strong> to see past daily versions.
+      <strong>Save Now</strong> saves locally + downloads dated JSON + (if token configured) auto-pushes <code>data.json</code> to GitHub. Paste your token above to enable automatic updates.
+    </div>
+
+    <!-- GitHub Auto-Sync Settings (for automatic push) -->
+    <div style="margin-top: 20px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #fafafa;">
+      <strong>GitHub Auto-Sync (Optional)</strong><br>
+      <small>Enter a token below so "Save Now" can automatically push <code>data.json</code> to GitHub.</small><br><br>
+
+      <input id="github-token" type="password" placeholder="Paste your token here" style="width: 100%; max-width: 400px; padding: 4px;">
+      <button onclick="saveGitHubToken()" style="margin-left: 8px;">Save Token</button>
+      <button onclick="clearGitHubToken()" style="margin-left: 4px;">Clear</button>
+      <div id="github-sync-status" style="margin-top: 6px; font-size: 12px; color: #555;"></div>
+
+      <details style="margin-top: 12px; font-size: 13px;">
+        <summary><strong>Click here for step-by-step token instructions (very important!)</strong></summary>
+        <br>
+        <strong>Recommended right now: Use a Classic token (much easier)</strong><br>
+        1. Go to GitHub → click your profile picture (top right) → <strong>Settings</strong><br>
+        2. On the left: <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong><br>
+        3. Click the green button <strong>Generate new token</strong> (you may need to enter your password)<br>
+        4. Give it a name like <strong>Piler Auto Update</strong><br>
+        5. Scroll down and <strong>check the box next to "public_repo"</strong> (this is the important one for public repos)<br>
+        6. Scroll all the way to the bottom and click <strong>Generate token</strong><br>
+        7. Copy the whole token and paste it into the box above. Then click "Save Token".<br><br>
+
+        <strong>For Fine-grained token (if you want the more modern one):</strong><br>
+        1. In Developer settings, click <strong>Fine-grained tokens</strong><br>
+        2. Click <strong>Generate new token</strong><br>
+        3. Choose your account<br>
+        4. Under Repository access, select <strong>Only select repositories</strong> → pick <strong>Beet-Harvest-North-Hillsboro-Yard-day</strong><br>
+        5. <strong>Important:</strong> Only after you select the repo will "Repository permissions" appear below<br>
+        6. Scroll down and find <strong>Repository permissions</strong><br>
+        7. Set <strong>Contents</strong> to <strong>Read and write</strong><br>
+        8. Generate and paste the token above.
+      </details>
     </div>
   </div>
 
@@ -472,8 +506,19 @@
         btns.forEach((b, i) => b.textContent = origText[i] || b.textContent);
       }, 1400);
 
-      // Also export for GitHub so you can commit the latest data
+      // Export locally
       exportDataForGitHub();
+
+      // Auto push to GitHub if token is configured
+      pushDataToGitHub(data).then(success => {
+        if (success) {
+          const status = document.getElementById('github-sync-status');
+          if (status) {
+            status.textContent = '✓ Pushed to GitHub successfully!';
+            setTimeout(updateGitHubStatus, 2500);
+          }
+        }
+      });
     }
 
     function saveToHistory(data) {
@@ -523,6 +568,94 @@
       const day = String(d.getDate()).padStart(2, '0');
       const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
       return `data-${year}-${month}-${day}-${dayName}.json`;
+    }
+
+    // === GitHub Auto-Push using Personal Access Token ===
+    const GITHUB_TOKEN_KEY = 'githubPAT';
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+
+    function saveGitHubToken() {
+      const input = document.getElementById('github-token');
+      if (input && input.value.trim()) {
+        localStorage.setItem(GITHUB_TOKEN_KEY, input.value.trim());
+        updateGitHubStatus();
+        alert('Token saved locally in this browser.');
+      }
+    }
+
+    function clearGitHubToken() {
+      localStorage.removeItem(GITHUB_TOKEN_KEY);
+      const input = document.getElementById('github-token');
+      if (input) input.value = '';
+      updateGitHubStatus();
+    }
+
+    function updateGitHubStatus() {
+      const status = document.getElementById('github-sync-status');
+      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
+      if (status) {
+        status.textContent = token ? '✓ Token saved. Save Now will try to push to GitHub.' : 'No token saved. Paste one above to enable auto-push.';
+        status.style.color = token ? 'green' : '#666';
+      }
+      const input = document.getElementById('github-token');
+      if (input && token) input.value = '••••••••••••••••'; // mask
+    }
+
+    async function pushDataToGitHub(data) {
+      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
+      if (!token) {
+        console.log('No GitHub token - skipping auto push.');
+        return false;
+      }
+
+      const path = 'data.json';
+      const message = `Auto-update crew data ${new Date().toISOString()}`;
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+      // First get current sha if file exists
+      let sha = null;
+      try {
+        const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        }
+      } catch (e) {}
+
+      const body = {
+        message: message,
+        content: content,
+        branch: 'main'
+      };
+      if (sha) body.sha = sha;
+
+      try {
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (putRes.ok) {
+          console.log('Successfully pushed data.json to GitHub');
+          return true;
+        } else {
+          const err = await putRes.text();
+          console.error('GitHub push failed:', err);
+          alert('GitHub push failed. Check your token permissions.');
+          return false;
+        }
+      } catch (e) {
+        console.error('Error pushing to GitHub:', e);
+        return false;
+      }
     }
 
     async function loadFromDataJson(silent = true) {
@@ -676,6 +809,9 @@
       });
 
       console.log('%c[Piler Information Input] Ready. Auto-load + auto-save enabled for easy updates.', 'color:#666');
+
+      // Show GitHub token status if present
+      updateGitHubStatus();
     }
 
     // Boot the page
