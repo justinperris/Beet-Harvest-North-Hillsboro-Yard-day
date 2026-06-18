@@ -464,7 +464,32 @@
       <button onclick="window.open('History.html', '_blank')">📜 View Crew History</button>
     </div>
     <div class="hint no-print">
-      Piler columns load from data.json on GitHub (or local). Skid-Steer/Loader and Foreman auto-remember. Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
+      Piler columns load from data.json. Skid-Steer/Loader and Foreman now also save to GitHub (set token above). Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
+    </div>
+
+    <!-- GitHub Auto-Sync Settings (for automatic push of skid/foreman) -->
+    <div style="margin-top: 20px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #fafafa;">
+      <strong>GitHub Auto-Sync (Optional)</strong><br>
+      <small>Enter a token so "Save Now" can automatically push skid-steer and foreman names to GitHub.</small><br><br>
+
+      <input id="github-token" type="password" placeholder="Paste your token here" style="width: 100%; max-width: 400px; padding: 4px;">
+      <button onclick="saveGitHubToken()" style="margin-left: 8px;">Save Token</button>
+      <button onclick="clearGitHubToken()" style="margin-left: 4px;">Clear</button>
+      <div id="github-sync-status" style="margin-top: 6px; font-size: 12px; color: #555;"></div>
+
+      <details style="margin-top: 12px; font-size: 13px;">
+        <summary><strong>Click here for step-by-step token instructions</strong></summary>
+        <br>
+        <strong>Recommended: Use a Classic token (easiest)</strong><br>
+        1. GitHub → profile → Settings → Developer settings → Personal access tokens → Tokens (classic)<br>
+        2. Generate new token<br>
+        3. Name it, e.g. "Piler Signin Update"<br>
+        4. Check <strong>public_repo</strong><br>
+        5. Generate and copy the token (ghp_...)<br>
+        6. Paste above and click Save Token.<br><br>
+
+        For fine-grained: select the repo, then under Repository permissions set Contents to Read and write.
+      </details>
     </div>
   </div>
 
@@ -709,12 +734,24 @@
     function saveToLocal() {
       const data = getAllData();
       localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+
       const btns = document.querySelectorAll('button');
       const origText = [];
       btns.forEach((b, i) => { origText[i] = b.textContent; b.textContent = 'Saved ✓'; });
       setTimeout(() => {
         btns.forEach((b, i) => b.textContent = origText[i] || b.textContent);
       }, 1400);
+
+      // Auto push skid/foreman to GitHub if token set
+      pushSignInToGitHub().then(success => {
+        if (success) {
+          const status = document.getElementById('github-sync-status');
+          if (status) {
+            status.textContent = '✓ Pushed skid/foreman to GitHub!';
+            setTimeout(updateGitHubStatus, 2000);
+          }
+        }
+      });
     }
 
     function loadFromLocal(silent = false) {
@@ -810,6 +847,124 @@
       if (el) el.textContent = count;
     }
 
+    // === GitHub Auto-Sync for sign-in (skid/foreman) ===
+    const GITHUB_TOKEN_KEY = 'githubPAT';
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+
+    function saveGitHubToken() {
+      const input = document.getElementById('github-token');
+      if (input && input.value.trim()) {
+        localStorage.setItem(GITHUB_TOKEN_KEY, input.value.trim());
+        updateGitHubStatus();
+        alert('Token saved. Save Now will try to push skid/foreman to GitHub.');
+      }
+    }
+
+    function clearGitHubToken() {
+      localStorage.removeItem(GITHUB_TOKEN_KEY);
+      const input = document.getElementById('github-token');
+      if (input) input.value = '';
+      updateGitHubStatus();
+    }
+
+    function updateGitHubStatus() {
+      const status = document.getElementById('github-sync-status');
+      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
+      if (status) {
+        status.textContent = token ? '✓ Token saved. Save Now will auto-push skid/foreman.' : 'No token. Add one to auto-update GitHub.';
+        status.style.color = token ? 'green' : '#666';
+      }
+    }
+
+    async function pushSignInToGitHub() {
+      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
+      if (!token) return false;
+
+      const skidContainer = document.getElementById('skid-list');
+      const foremanContainer = document.getElementById('foreman-list');
+
+      const skidSteer = [];
+      if (skidContainer) {
+        skidContainer.querySelectorAll('input[type="text"]').forEach(inp => {
+          if (inp.value.trim()) skidSteer.push(inp.value.trim());
+        });
+      }
+
+      const foreman = [];
+      if (foremanContainer) {
+        foremanContainer.querySelectorAll('input[type="text"]').forEach(inp => {
+          if (inp.value.trim()) foreman.push(inp.value.trim());
+        });
+      }
+
+      const signinData = { skidSteer, foreman };
+
+      const path = 'current-signin.json';
+      const message = `Auto-update sign-in ${new Date().toISOString()}`;
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(signinData, null, 2))));
+
+      let sha = null;
+      try {
+        const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        }
+      } catch (e) {}
+
+      const body = { message, content, branch: 'main' };
+      if (sha) body.sha = sha;
+
+      try {
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        return putRes.ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function loadSignInFromGitHub() {
+      try {
+        const res = await fetch('current-signin.json');
+        if (!res.ok) return false;
+        const data = await res.json();
+
+        // Populate skid
+        const skidContainer = document.getElementById('skid-list');
+        if (skidContainer && data.skidSteer) {
+          const inputs = skidContainer.querySelectorAll('input[type="text"]');
+          data.skidSteer.forEach((val, i) => {
+            if (inputs[i]) inputs[i].value = val;
+          });
+        }
+
+        // Populate foreman
+        const foremanContainer = document.getElementById('foreman-list');
+        if (foremanContainer && data.foreman) {
+          const inputs = foremanContainer.querySelectorAll('input[type="text"]');
+          data.foreman.forEach((val, i) => {
+            if (inputs[i]) inputs[i].value = val;
+          });
+        }
+
+        updatePeopleCount();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
     function init() {
       // Initial count
       updatePeopleCount();
@@ -818,20 +973,25 @@
       renderSideList('skid-list', 1, INITIAL_SKID_ROWS);
       renderSideList('foreman-list', 1, INITIAL_FOREMAN_ROWS);
 
-      // Auto-load previous draft (including skid/foreman boxes) so they remember
-      loadFromLocal(true);
-      updatePeopleCount();  // update with restored skid/foreman (piler will update later)
+      // Try to load from GitHub first (for shared link), then local draft
+      loadSignInFromGitHub().then(loadedFromGitHub => {
+        if (!loadedFromGitHub) {
+          loadFromLocal(true);
+        }
+        updatePeopleCount();
 
-      // If no date was restored from draft, set today's date
-      if (!document.getElementById('date').value) {
-        setTodayDate();
-      }
+        if (!document.getElementById('date').value) {
+          setTodayDate();
+        }
+      });
 
       // Ensure piler columns are loaded from info (in case no draft or after load)
       loadPilerNames();
 
       // Attach auto-save listeners so skid/foreman (and other edits) are remembered automatically
       attachSignInAutoListeners();
+
+      updateGitHubStatus();
 
       // Update people count live when editing piler/skid/foreman names
       ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list'].forEach(id => {
