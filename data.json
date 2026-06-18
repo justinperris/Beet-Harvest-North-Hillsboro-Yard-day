@@ -22,28 +22,28 @@
       "name": "Trista",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": true
     },
     {
       "name": "Gina",
       "piler": "8",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": true
     },
     {
       "name": "Tom",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false
     },
     {
       "name": "susan",
       "piler": "8",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false
     },
     {
