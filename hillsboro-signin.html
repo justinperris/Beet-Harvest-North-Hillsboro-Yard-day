@@ -37,7 +37,7 @@
       position: relative;
     }
     .header img {
-      height: 109.375px;
+      height: 125px;
       width: auto;
       flex-shrink: 0;
     }
@@ -59,8 +59,8 @@
     }
 
     .people-count-circle {
-      width: 78px;
-      height: 78px;
+      width: 80px;
+      height: 80px;
       border: 6px solid #003366;
       border-radius: 50%;
       display: flex;
@@ -71,21 +71,22 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       flex-shrink: 0;
       margin-left: auto;
+      padding: 2px;
     }
     .people-count-circle .label {
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 700;
       color: #003366;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       text-align: center;
       line-height: 1;
       margin-bottom: 0px;
     }
     .people-count-circle .number {
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 800;
       color: #003366;
-      line-height: 0.95;
+      line-height: 0.9;
       text-align: center;
     }
     .piler-warnings {
@@ -312,31 +313,51 @@
         background: white;
         padding: 0;
       }
+      html, body, .container, .header, .piler-list, .piler-col, .side-box,
+      .color-legend, .color-swatch, .people-count-circle {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       .container {
         max-width: 100%;
         box-shadow: none;
         border: none;
-        padding: 12px 24px;
+        padding: 10px 20px;
+      }
+      .header {
+        padding-bottom: 6px;
+        margin-bottom: 8px;
       }
       .header img {
-        height: 85.9375px;
+        height: 105px;
       }
       .header-content h1 {
-        font-size: 22px;
+        font-size: 20px;
+      }
+      .color-legend {
+        font-size: 9px;
+        margin: 4px 0 8px;
+      }
+      .color-swatch {
+        width: 11px;
+        height: 11px;
       }
       .people-count-circle {
-        width: 55px;
-        height: 55px;
-        border-width: 4px;
+        width: 78px;
+        height: 78px;
+        border-width: 5px;
+        box-shadow: none;
+        padding: 1px;
       }
       .people-count-circle .label {
-        font-size: 7px;
+        font-size: 8px;
+        margin-bottom: 0;
       }
       .people-count-circle .number {
-        font-size: 22px;
+        font-size: 26px;
       }
       .meta-row, .side-box {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
       }
       .actions, .hint, .no-print {
         display: none !important;
@@ -344,7 +365,7 @@
       .entry input, .meta-field input {
         border-bottom: 1px solid #000;
         padding: 2px 0;
-        font-size: 13px;
+        font-size: 12px;
       }
       .piler-list .entry.operator input { background-color: #86efac !important; }
       .piler-list .entry.relief input { background-color: #d9f99d !important; }
@@ -354,10 +375,10 @@
       }
       .notes-section textarea {
         border: 1px solid #000;
-        height: 50px;
+        height: 45px;
       }
       .form-grid {
-        gap: 18px;
+        gap: 14px;
       }
     }
     @media (max-width: 640px) {
@@ -376,7 +397,7 @@
 </head>
 <body>
   <div class="container">
-    <div style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
+    <div class="no-print" style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
       <a href="index.html" style="color:#003366; text-decoration:none;">← Home</a>
     </div>
     <!-- Header -->
@@ -410,7 +431,7 @@
     </div>
 
     <!-- Color legend for Piler columns -->
-    <div class="color-legend no-print">
+    <div class="color-legend">
       <span><strong>Color Legend:</strong></span>
       <span class="legend-item"><span class="color-swatch operator"></span> Operator</span>
       <span class="legend-item"><span class="color-swatch relief"></span> Relief</span>
