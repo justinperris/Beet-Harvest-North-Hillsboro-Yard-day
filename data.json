@@ -14,7 +14,7 @@
     {
       "name": "Wendi",
       "piler": "8",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
@@ -28,7 +28,7 @@
     {
       "name": "Gina",
       "piler": "8",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": true
     },
