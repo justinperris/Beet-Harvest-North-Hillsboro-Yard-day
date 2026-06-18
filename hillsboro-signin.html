@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hillsboro North Sign-In Sheet</title>
+  <style>
+    :root {
+      --sugar-red: #c8102e;
+      --sugar-blue: #003366;
+      --line: #222;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8f8f8;
+      color: #111;
+      line-height: 1.4;
+    }
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 24px 32px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 3px solid var(--sugar-blue);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .header img {
+      height: 109.375px;
+      width: auto;
+      flex-shrink: 0;
+    }
+    .header-content h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--sugar-blue);
+    }
+    .header-content .subtitle {
+      font-size: 13px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    .meta-field {
+      flex: 1;
+      min-width: 180px;
+    }
+    .meta-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 4px;
+    }
+    .meta-field input {
+      width: 100%;
+      font-size: 16px;
+      padding: 6px 0;
+      border: none;
+      border-bottom: 2px solid var(--line);
+      outline: none;
+      background: transparent;
+    }
+    .meta-field input:focus {
+      border-bottom-color: var(--sugar-red);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 28px;
+      margin-bottom: 20px;
+    }
+    .piler-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .piler-col h2 {
+      font-size: 13px;
+      margin: 0 0 6px;
+      color: var(--sugar-blue);
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .piler-list .entry {
+      margin-bottom: 4px;
+    }
+    .piler-list .entry input {
+      font-size: 14px;
+    }
+    .piler-list .entry.operator input {
+      background-color: #86efac !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.relief input {
+      background-color: #d9f99d !important;
+    }
+    .piler-list .entry.boom input {
+      background-color: #fde047 !important;
+    }
+    .color-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin: 2px 0 10px;
+      font-size: 10px;
+      color: #555;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .color-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border: 1px solid #999;
+      vertical-align: middle;
+    }
+    .color-swatch.operator { background-color: #86efac; }
+    .color-swatch.relief { background-color: #d9f99d; }
+    .color-swatch.boom { background-color: #fde047; }
+    .entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .entry .num {
+      width: 26px;
+      font-size: 13px;
+      color: #666;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .entry input {
+      flex: 1;
+      font-size: 15px;
+      padding: 4px 6px;
+      border: none;
+      border-bottom: 1px solid #999;
+      background: transparent;
+      outline: none;
+    }
+    .entry input:focus {
+      border-bottom-color: var(--sugar-red);
+      background: #fffdf5;
+    }
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (min-width: 700px) {
+      .side-panel {
+        flex-direction: row;
+        gap: 16px;
+      }
+      .side-panel .side-box {
+        flex: 1;
+      }
+    }
+    .side-box {
+      border: 2px solid var(--sugar-blue);
+      padding: 12px 14px;
+      border-radius: 4px;
+    }
+    .side-box h3 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sugar-blue);
+    }
+    .side-box .entry {
+      margin-bottom: 5px;
+    }
+    .side-box .entry .num {
+      width: 20px;
+      font-size: 12px;
+    }
+    .side-box .entry input {
+      font-size: 14px;
+    }
+    .notes-section {
+      margin-bottom: 18px;
+    }
+    .notes-section label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 4px;
+    }
+    .notes-section textarea {
+      width: 100%;
+      height: 68px;
+      font-size: 14px;
+      padding: 8px;
+      border: 1px solid #999;
+      border-radius: 3px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+    button {
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid var(--sugar-blue);
+      background: white;
+      color: var(--sugar-blue);
+      border-radius: 4px;
+      transition: all 0.1s ease;
+    }
+    button:hover {
+      background: var(--sugar-blue);
+      color: white;
+    }
+    button.primary {
+      background: var(--sugar-red);
+      border-color: var(--sugar-red);
+      color: white;
+    }
+    button.primary:hover {
+      background: #a00d25;
+      border-color: #a00d25;
+    }
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .row-count {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+        padding: 12px 24px;
+      }
+      .header img {
+        height: 85.9375px;
+      }
+      .header-content h1 {
+        font-size: 22px;
+      }
+      .meta-row, .side-box {
+        margin-bottom: 10px;
+      }
+      .actions, .hint, .no-print {
+        display: none !important;
+      }
+      .entry input, .meta-field input {
+        border-bottom: 1px solid #000;
+        padding: 2px 0;
+        font-size: 13px;
+      }
+      .piler-list .entry.operator input { background-color: #86efac !important; }
+      .piler-list .entry.relief input { background-color: #d9f99d !important; }
+      .piler-list .entry.boom input { background-color: #fde047 !important; }
+      .entry input:focus {
+        background: transparent;
+      }
+      .notes-section textarea {
+        border: 1px solid #000;
+        height: 50px;
+      }
+      .form-grid {
+        gap: 18px;
+      }
+    }
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .side-panel {
+        flex-direction: row;
+        gap: 12px;
+      }
+      .side-box {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
+      <a href="index.html" style="color:#003366; text-decoration:none;">← Home</a>
+    </div>
+    <!-- Header -->
+    <div class="header">
+      <img src="../American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
+      <div class="header-content">
+        <h1>HILLSBORO NORTH SIGN-IN SHEET</h1>
+        <div class="subtitle">American Crystal Sugar • Hillsboro Yard North</div>
+      </div>
+    </div>
+
+    <!-- Top meta fields -->
+    <div class="meta-row">
+      <div class="meta-field">
+        <label>Day</label>
+        <input type="text" id="day" placeholder="e.g. Monday">
+      </div>
+      <div class="meta-field">
+        <label>Date</label>
+        <input type="date" id="date">
+      </div>
+      <div class="meta-field">
+        <label>Location / Field / Site</label>
+        <input type="text" id="location" value="Hillsboro Yard North">
+      </div>
+    </div>
+
+    <!-- Color legend for Piler columns -->
+    <div class="color-legend no-print">
+      <span><strong>Color Legend:</strong></span>
+      <span class="legend-item"><span class="color-swatch operator"></span> Operator</span>
+      <span class="legend-item"><span class="color-swatch relief"></span> Relief</span>
+      <span class="legend-item"><span class="color-swatch boom"></span> Boom</span>
+      <span class="legend-item">Other (A-Z)</span>
+    </div>
+
+    <!-- Piler #7 and #8 Name Columns (auto-filled from piler-info) -->
+    <div class="piler-columns">
+      <div class="piler-col">
+        <h2>Piler #7</h2>
+        <div id="piler7-list" class="piler-list"></div>
+      </div>
+      <div class="piler-col">
+        <h2>Piler #8</h2>
+        <div id="piler8-list" class="piler-list"></div>
+      </div>
+    </div>
+
+    <!-- Side panels (Skid-Steer/Loader and Foreman) -->
+    <div class="side-panel" style="margin-bottom: 16px;">
+      <!-- Skid-Steer / Loader -->
+      <div class="side-box">
+        <h3>Skid-Steer / Loader</h3>
+        <div id="skid-list"></div>
+      </div>
+
+      <!-- Foreman -->
+      <div class="side-box">
+        <h3>Foreman</h3>
+        <div id="foreman-list"></div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="notes-section">
+      <label>Notes / Issues / Special Instructions</label>
+      <textarea id="notes" placeholder="Equipment issues, weather, incidents, etc."></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions no-print">
+      <button class="primary" onclick="printForm()">🖨️ Print / Save as PDF</button>
+      <button onclick="window.open('piler-info.html', '_blank')">⬅️ Back to Info Page</button>
+      <button onclick="clearForm()">Clear All</button>
+      <button onclick="saveToLocal()">Save Now</button>
+      <button onclick="loadFromLocal()">Load Saved Data</button>
+      <button onclick="loadPilerNames()">Reload from Piler Info</button>
+      <button onclick="window.open('History.html', '_blank')">📜 View Crew History</button>
+    </div>
+    <div class="hint no-print">
+      Piler columns load from data.json on GitHub (or local). Skid-Steer/Loader and Foreman auto-remember. Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const INITIAL_SKID_ROWS = 3;
+    const INITIAL_FOREMAN_ROWS = 3;
+
+    function createEntry(num, extraClass = '') {
+      const div = document.createElement('div');
+      div.className = `entry ${extraClass}`;
+      div.innerHTML = `
+        <span class="num">${num}</span>
+        <input type="text" placeholder="">
+      `;
+      return div;
+    }
+
+    function renderSideList(containerId, startNum, count) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        container.appendChild(createEntry(startNum + i));
+      }
+    }
+
+    // === New: Load names from piler-info (data.json on GitHub or localStorage) ===
+    async function loadPilerNames() {
+      const p7Container = document.getElementById('piler7-list');
+      const p8Container = document.getElementById('piler8-list');
+      if (!p7Container || !p8Container) return;
+
+      p7Container.innerHTML = '';
+      p8Container.innerHTML = '';
+
+      let data = null;
+
+      // First, try to load from data.json (for GitHub Pages shared link)
+      try {
+        const res = await fetch('data.json');
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (e) {
+        // ignore, fallback to localStorage
+      }
+
+      // Fallback to localStorage (for local file use or personal saves)
+      if (!data) {
+        const raw = localStorage.getItem('pilerInfoDraft');
+        if (raw) {
+          try { data = JSON.parse(raw); } catch(e) { data = null; }
+        }
+      }
+
+      if (!data || !data.rows || data.rows.length === 0) {
+        // No piler data yet - leave blank lists
+        return;
+      }
+
+      function normalizePiler(p) {
+        if (!p) return '';
+        return p.toString().trim().replace(/[^0-9]/g, '');
+      }
+
+      const piler7People = [];
+      const piler8People = [];
+
+      data.rows.forEach(row => {
+        const num = normalizePiler(row.piler);
+        const name = (row.name || '').trim();
+        if (!name) return;
+        if (num === '7') piler7People.push(row);
+        else if (num === '8') piler8People.push(row);
+      });
+
+      function groupAndSort(people) {
+        const ops = [], rels = [], bms = [], oth = [];
+        people.forEach(p => {
+          const n = (p.name || '').trim();
+          if (!n) return;
+          if (p.operator) ops.push(n);
+          else if (p.relief) rels.push(n);
+          else if (p.boom) bms.push(n);
+          else oth.push(n);
+        });
+        ops.sort((a,b) => a.localeCompare(b));
+        rels.sort((a,b) => a.localeCompare(b));
+        bms.sort((a,b) => a.localeCompare(b));
+        oth.sort((a,b) => a.localeCompare(b));
+
+        const result = [];
+        ops.forEach(n => result.push({name: n, cls: 'operator'}));
+        rels.forEach(n => result.push({name: n, cls: 'relief'}));
+        bms.forEach(n => result.push({name: n, cls: 'boom'}));
+        oth.forEach(n => result.push({name: n, cls: ''}));
+        return result;
+      }
+
+      const list7 = groupAndSort(piler7People);
+      const list8 = groupAndSort(piler8People);
+
+      function renderPilerList(container, list) {
+        list.forEach((item, i) => {
+          const div = document.createElement('div');
+          div.className = `entry ${item.cls}`;
+          div.innerHTML = `
+            <span class="num">${i + 1}</span>
+            <input type="text" value="${item.name}" class="piler-name-input">
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      renderPilerList(p7Container, list7);
+      renderPilerList(p8Container, list8);
+    }
+
+    function setTodayDate() {
+      const dateInput = document.getElementById('date');
+      const today = new Date();
+      const iso = today.toISOString().split('T')[0];
+      dateInput.value = iso;
+
+      // Also prefill Day if empty
+      const dayInput = document.getElementById('day');
+      if (!dayInput.value) {
+        const dayName = today.toLocaleDateString(undefined, { weekday: 'long' });
+        dayInput.value = dayName;
+      }
+    }
+
+    function printForm() {
+      // Set print title with date + location if available
+      const dateVal = document.getElementById('date').value;
+      const locVal = document.getElementById('location').value || '';
+      let title = 'Hillsboro North Sign-In Sheet';
+      if (dateVal) {
+        const d = new Date(dateVal);
+        title += ' - ' + d.toLocaleDateString();
+      }
+      if (locVal) title += ' - ' + locVal;
+      document.title = title;
+
+      window.print();
+
+      // Restore a generic title after print dialog
+      setTimeout(() => {
+        document.title = 'Hillsboro North Sign-In Sheet';
+      }, 1000);
+    }
+
+    function clearForm() {
+      if (!confirm('Clear the entire form?')) return;
+
+      // Clear inputs
+      document.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => i.value = '');
+      document.getElementById('notes').value = '';
+
+      // Reset side lists
+      renderSideList('skid-list', 1, INITIAL_SKID_ROWS);
+      renderSideList('foreman-list', 1, INITIAL_FOREMAN_ROWS);
+
+      // Reload piler names from info sheet (don't clear them)
+      loadPilerNames();
+
+      setTodayDate();
+      document.getElementById('location').value = 'Hillsboro Yard North';
+
+      // Persist the cleared state so sides/foreman remember as empty
+      debouncedSaveSignIn();
+    }
+
+    function getAllData() {
+      const data = {
+        day: document.getElementById('day').value,
+        date: document.getElementById('date').value,
+        location: document.getElementById('location').value,
+        notes: document.getElementById('notes').value,
+        skidSteer: [],
+        foreman: [],
+        pilerNames: []
+      };
+
+      // Piler names (from the two columns)
+      document.querySelectorAll('#piler7-list .entry input, #piler8-list .entry input').forEach(inp => {
+        data.pilerNames = data.pilerNames || [];
+        data.pilerNames.push(inp.value.trim());
+      });
+
+      // Skid
+      document.querySelectorAll('#skid-list .entry input').forEach(inp => {
+        data.skidSteer.push(inp.value.trim());
+      });
+
+      // Foreman
+      document.querySelectorAll('#foreman-list .entry input').forEach(inp => {
+        data.foreman.push(inp.value.trim());
+      });
+
+      return data;
+    }
+
+    function saveToLocal() {
+      const data = getAllData();
+      localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+      const btns = document.querySelectorAll('button');
+      const origText = [];
+      btns.forEach((b, i) => { origText[i] = b.textContent; b.textContent = 'Saved ✓'; });
+      setTimeout(() => {
+        btns.forEach((b, i) => b.textContent = origText[i] || b.textContent);
+      }, 1400);
+    }
+
+    function loadFromLocal(silent = false) {
+      const raw = localStorage.getItem('hillsboroNorthSignInDraft');
+      if (!raw) {
+        if (!silent) alert('No saved draft found.');
+        return false;
+      }
+      const data = JSON.parse(raw);
+
+      // Restore meta
+      document.getElementById('day').value = data.day || '';
+      document.getElementById('date').value = data.date || '';
+      document.getElementById('location').value = data.location || '';
+      document.getElementById('notes').value = data.notes || '';
+
+      // Restore skid
+      const skidContainer = document.getElementById('skid-list');
+      skidContainer.innerHTML = '';
+      (data.skidSteer || []).forEach((val, idx) => {
+        const el = createEntry(idx + 1);
+        el.querySelector('input').value = val;
+        skidContainer.appendChild(el);
+      });
+      // pad if needed
+      while (skidContainer.children.length < INITIAL_SKID_ROWS) {
+        skidContainer.appendChild(createEntry(skidContainer.children.length + 1));
+      }
+
+      // Restore foreman
+      const foremanContainer = document.getElementById('foreman-list');
+      foremanContainer.innerHTML = '';
+      (data.foreman || []).forEach((val, idx) => {
+        const el = createEntry(idx + 1);
+        el.querySelector('input').value = val;
+        foremanContainer.appendChild(el);
+      });
+      while (foremanContainer.children.length < INITIAL_FOREMAN_ROWS) {
+        foremanContainer.appendChild(createEntry(foremanContainer.children.length + 1));
+      }
+
+      // Reload piler names from Piler Info (dynamic)
+      loadPilerNames();
+      return true;
+    }
+
+    // Auto-save for remembering skid/foreman (and other) boxes
+    let signInSaveTimeout = null;
+
+    function debouncedSaveSignIn() {
+      clearTimeout(signInSaveTimeout);
+      signInSaveTimeout = setTimeout(() => {
+        const data = getAllData();
+        localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+      }, 650);
+    }
+
+    function attachSignInAutoListeners() {
+      const containers = [
+        document.getElementById('skid-list'),
+        document.getElementById('foreman-list'),
+        document.getElementById('piler7-list'),
+        document.getElementById('piler8-list')
+      ];
+      containers.forEach(el => {
+        if (el) {
+          el.addEventListener('input', debouncedSaveSignIn);
+          el.addEventListener('change', debouncedSaveSignIn);
+        }
+      });
+
+      // Also watch meta fields and notes for full form memory
+      ['day', 'date', 'location', 'notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', debouncedSaveSignIn);
+          el.addEventListener('change', debouncedSaveSignIn);
+        }
+      });
+    }
+
+    function init() {
+      // Render side lists (will be overwritten if draft loads)
+      renderSideList('skid-list', 1, INITIAL_SKID_ROWS);
+      renderSideList('foreman-list', 1, INITIAL_FOREMAN_ROWS);
+
+      // Auto-load previous draft (including skid/foreman boxes) so they remember
+      loadFromLocal(true);
+
+      // If no date was restored from draft, set today's date
+      if (!document.getElementById('date').value) {
+        setTodayDate();
+      }
+
+      // Ensure piler columns are loaded from info (in case no draft or after load)
+      loadPilerNames();
+
+      // Attach auto-save listeners so skid/foreman (and other edits) are remembered automatically
+      attachSignInAutoListeners();
+
+      // Keyboard support: Ctrl/Cmd + P also triggers our print (optional enhancement)
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+          // Let the browser handle it, but we can also prepare title
+          const dateVal = document.getElementById('date').value;
+          if (dateVal) {
+            document.title = 'Hillsboro North Sign-In Sheet - ' + new Date(dateVal).toLocaleDateString();
+          }
+        }
+      });
+
+      // Accessibility / enter key behavior is default fine
+      console.log('%c[Hillsboro North Sign-In] Ready. Skid/foreman remember via auto-save. Piler colors have legend.', 'color:#666');
+    }
+
+    // Boot
+    init();
+  </script>
+</body>
+</html>

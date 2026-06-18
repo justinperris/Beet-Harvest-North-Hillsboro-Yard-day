@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piler Crew History</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 20px;
+      background: #f8f8f8;
+      color: #111;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #003366;
+      margin-top: 0;
+    }
+    .entry {
+      border: 1px solid #ddd;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .entry:hover {
+      background: #f9f9f9;
+    }
+    .date {
+      font-weight: 600;
+      color: #003366;
+    }
+    .summary {
+      color: #555;
+      font-size: 13px;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid #003366;
+      background: white;
+      color: #003366;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #003366;
+      color: white;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .no-history {
+      color: #666;
+      font-style: italic;
+    }
+    .back-btn {
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="margin-bottom:10px; font-size:0.9rem;">
+      <a href="index.html" style="color:#003366; text-decoration:none;">← Home</a>
+    </div>
+    <a href="piler-info.html" class="back-btn">← Back to Piler Info</a>
+    <h1>📜 Piler Crew History</h1>
+    <p>Daily snapshots of the crew roster (saved locally on this device). 
+    Exports now use dated filenames like <code>data-2026-06-18-Wednesday.json</code>. 
+    For permanent/shared history, commit dated files to your GitHub repo.</p>
+
+    <div id="history-list"></div>
+
+    <script>
+      const HISTORY_KEY = 'pilerInfoHistory';
+
+      function formatDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleString(undefined, {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+      }
+
+      function getHistory() {
+        try {
+          const raw = localStorage.getItem(HISTORY_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function renderHistory() {
+        const container = document.getElementById('history-list');
+        const history = getHistory();
+
+        if (history.length === 0) {
+          container.innerHTML = '<p class="no-history">No history yet. Save on the Piler Info page to start recording daily versions.</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+
+        history.forEach((entry, index) => {
+          const dateStr = formatDate(entry.timestamp);
+          const rows = entry.data.rows ? entry.data.rows.length : 0;
+          const hasData = rows > 0;
+
+          const div = document.createElement('div');
+          div.className = 'entry';
+
+          div.innerHTML = `
+            <div>
+              <div class="date">${dateStr}</div>
+              <div class="summary">${rows} crew members • ${entry.data.location || 'No location'}</div>
+            </div>
+            <div class="actions">
+              <button onclick="loadVersion(${index})">Load into Info Page</button>
+              <button onclick="exportVersion(${index})">Export JSON</button>
+              <button onclick="deleteVersion(${index})" style="border-color:#c8102e; color:#c8102e;">Delete</button>
+            </div>
+          `;
+
+          container.appendChild(div);
+        });
+      }
+
+      function loadVersion(index) {
+        const history = getHistory();
+        const entry = history[index];
+        if (!entry) return;
+
+        // Set as current
+        localStorage.setItem('pilerInfoDraft', JSON.stringify(entry.data));
+
+        // Open the info page
+        window.location.href = 'piler-info.html';
+      }
+
+      function exportVersion(index) {
+        const history = getHistory();
+        const entry = history[index];
+        if (!entry) return;
+
+        const date = new Date(entry.timestamp);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const filename = `data-${year}-${month}-${day}-${dayName}.json`;
+
+        const jsonStr = JSON.stringify(entry.data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function deleteVersion(index) {
+        if (!confirm('Delete this history entry?')) return;
+
+        let history = getHistory();
+        history.splice(index, 1);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        renderHistory();
+      }
+
+      // Boot
+      renderHistory();
+    </script>
+  </div>
+</body>
+</html>
