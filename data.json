@@ -8,13 +8,13 @@
       "name": "Dan",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false
     },
     {
       "name": "Wendi",
       "piler": "8",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false
     },
