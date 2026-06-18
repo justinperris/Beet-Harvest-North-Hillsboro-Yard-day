@@ -1,6 +1,6 @@
 {
   "date": "2026-06-18",
-  "location": "",
+  "location": "Hillsboro north",
   "day": "Thursday",
   "notes": "",
   "rows": [
@@ -71,7 +71,7 @@
       "name": "Cody C",
       "piler": "8",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false
     },
     {
