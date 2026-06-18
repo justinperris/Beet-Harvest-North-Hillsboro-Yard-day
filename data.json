@@ -28,7 +28,7 @@
     {
       "name": "Gina",
       "piler": "8",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": true
     },
@@ -49,7 +49,7 @@
     {
       "name": "bobby K",
       "piler": "7",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false
     },
