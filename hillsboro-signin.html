@@ -30,10 +30,11 @@
     .header {
       display: flex;
       align-items: center;
-      gap: 20px;
+      justify-content: space-between;
       border-bottom: 3px solid var(--sugar-blue);
       padding-bottom: 12px;
       margin-bottom: 16px;
+      position: relative;
     }
     .header img {
       height: 109.375px;
@@ -51,6 +52,46 @@
       font-size: 13px;
       color: #555;
       margin-top: 2px;
+    }
+    .header-content {
+      text-align: center;
+      flex: 1;
+    }
+
+    .people-count-circle {
+      width: 78px;
+      height: 78px;
+      border: 6px solid #003366;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .people-count-circle .label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #003366;
+      letter-spacing: 0.5px;
+      text-align: center;
+      line-height: 1;
+      margin-bottom: 0px;
+    }
+    .people-count-circle .number {
+      font-size: 32px;
+      font-weight: 800;
+      color: #003366;
+      line-height: 0.95;
+      text-align: center;
+    }
+    .piler-warnings {
+      margin-bottom: 4px;
+      font-size: 12px;
+      line-height: 1.2;
     }
     .meta-row {
       display: flex;
@@ -283,6 +324,17 @@
       .header-content h1 {
         font-size: 22px;
       }
+      .people-count-circle {
+        width: 55px;
+        height: 55px;
+        border-width: 4px;
+      }
+      .people-count-circle .label {
+        font-size: 7px;
+      }
+      .people-count-circle .number {
+        font-size: 22px;
+      }
       .meta-row, .side-box {
         margin-bottom: 10px;
       }
@@ -334,6 +386,11 @@
         <h1>HILLSBORO NORTH SIGN-IN SHEET</h1>
         <div class="subtitle">American Crystal Sugar • Hillsboro Yard North</div>
       </div>
+      <!-- People in Yard count - circled for attention -->
+      <div class="people-count-circle">
+        <div class="label">PEOPLE IN YARD</div>
+        <div id="people-in-yard" class="number">0</div>
+      </div>
     </div>
 
     <!-- Top meta fields -->
@@ -365,10 +422,12 @@
     <div class="piler-columns">
       <div class="piler-col">
         <h2>Piler #7</h2>
+        <div id="piler7-warnings" class="piler-warnings"></div>
         <div id="piler7-list" class="piler-list"></div>
       </div>
       <div class="piler-col">
         <h2>Piler #8</h2>
+        <div id="piler8-warnings" class="piler-warnings"></div>
         <div id="piler8-list" class="piler-list"></div>
       </div>
     </div>
@@ -441,6 +500,11 @@
       p7Container.innerHTML = '';
       p8Container.innerHTML = '';
 
+      const w7 = document.getElementById('piler7-warnings');
+      const w8 = document.getElementById('piler8-warnings');
+      if (w7) w7.innerHTML = '';
+      if (w8) w8.innerHTML = '';
+
       let data = null;
 
       // First, try to load from data.json (for GitHub Pages shared link)
@@ -463,6 +527,7 @@
 
       if (!data || !data.rows || data.rows.length === 0) {
         // No piler data yet - leave blank lists
+        updatePeopleCount();
         return;
       }
 
@@ -508,6 +573,36 @@
       const list7 = groupAndSort(piler7People);
       const list8 = groupAndSort(piler8People);
 
+      function checkPilerWarnings(list, warningsId) {
+        const warningsDiv = document.getElementById(warningsId);
+        if (!warningsDiv) return;
+        warningsDiv.innerHTML = '';
+
+        if (list.length === 0) return; // no people for this piler, no role warnings needed
+
+        const hasOperator = list.some(item => item.cls === 'operator');
+        const hasRelief = list.some(item => item.cls === 'relief');
+        const hasBoom = list.some(item => item.cls === 'boom');
+
+        const missing = [];
+        if (!hasOperator) missing.push('Operator');
+        if (!hasRelief) missing.push('Relief');
+        if (!hasBoom) missing.push('Boom');
+
+        if (missing.length > 0) {
+          missing.forEach(role => {
+            const div = document.createElement('div');
+            div.style.color = 'red';
+            div.style.fontWeight = 'bold';
+            div.textContent = `Warning: ${role} missing`;
+            warningsDiv.appendChild(div);
+          });
+        }
+      }
+
+      checkPilerWarnings(list7, 'piler7-warnings');
+      checkPilerWarnings(list8, 'piler8-warnings');
+
       function renderPilerList(container, list) {
         list.forEach((item, i) => {
           const div = document.createElement('div');
@@ -522,6 +617,8 @@
 
       renderPilerList(p7Container, list7);
       renderPilerList(p8Container, list8);
+
+      updatePeopleCount();
     }
 
     function setTodayDate() {
@@ -659,6 +756,7 @@
         foremanContainer.appendChild(createEntry(foremanContainer.children.length + 1));
       }
 
+      updatePeopleCount();
       return true;
     }
 
@@ -697,13 +795,32 @@
       });
     }
 
+    function updatePeopleCount() {
+      let count = 0;
+      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list'].forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+          container.querySelectorAll('input[type="text"]').forEach(inp => {
+            if (inp.value.trim() !== '') count++;
+          });
+        }
+      });
+
+      const el = document.getElementById('people-in-yard');
+      if (el) el.textContent = count;
+    }
+
     function init() {
+      // Initial count
+      updatePeopleCount();
+
       // Render side lists (will be overwritten if draft loads)
       renderSideList('skid-list', 1, INITIAL_SKID_ROWS);
       renderSideList('foreman-list', 1, INITIAL_FOREMAN_ROWS);
 
       // Auto-load previous draft (including skid/foreman boxes) so they remember
       loadFromLocal(true);
+      updatePeopleCount();  // update with restored skid/foreman (piler will update later)
 
       // If no date was restored from draft, set today's date
       if (!document.getElementById('date').value) {
@@ -715,6 +832,17 @@
 
       // Attach auto-save listeners so skid/foreman (and other edits) are remembered automatically
       attachSignInAutoListeners();
+
+      // Update people count live when editing piler/skid/foreman names
+      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updatePeopleCount);
+        }
+      });
+
+      // Make sure count is up to date after everything
+      updatePeopleCount();
 
       // Keyboard support: Ctrl/Cmd + P also triggers our print (optional enhancement)
       document.addEventListener('keydown', function(e) {
