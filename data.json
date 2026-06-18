@@ -1,0 +1,148 @@
+{
+  "date": "2026-06-18",
+  "location": "",
+  "day": "Thursday",
+  "notes": "",
+  "rows": [
+    {
+      "name": "Dan",
+      "piler": "7",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "Wendi",
+      "piler": "8",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "Trista",
+      "piler": "7",
+      "operator": false,
+      "boom": false,
+      "relief": true
+    },
+    {
+      "name": "Gina",
+      "piler": "8",
+      "operator": false,
+      "boom": false,
+      "relief": true
+    },
+    {
+      "name": "Tom",
+      "piler": "7",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "susan",
+      "piler": "8",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "bobby K",
+      "piler": "7",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "tonya",
+      "piler": "7",
+      "operator": true,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "Larry",
+      "piler": "8",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "Cody C",
+      "piler": "8",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false
+    }
+  ]
+}
