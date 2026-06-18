@@ -7,14 +7,14 @@
     {
       "name": "Dan",
       "piler": "7",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false
     },
     {
       "name": "Wendi",
       "piler": "8",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false
     },
@@ -22,14 +22,14 @@
       "name": "Trista",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": true
     },
     {
       "name": "Gina",
       "piler": "8",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": true
     },
     {
