@@ -32,7 +32,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 3px solid var(--sugar-blue);
-      padding-bottom: 12px;
+      padding-bottom: 14px;
       margin-bottom: 16px;
       position: relative;
     }
@@ -70,7 +70,6 @@
       background: #fff;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       flex-shrink: 0;
-      margin-left: auto;
       padding: 2px;
     }
     .people-count-circle .label {
@@ -89,6 +88,26 @@
       line-height: 0.9;
       text-align: center;
     }
+
+    .people-count-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .yard-disclaimer {
+      font-size: 6.5px;
+      color: #555;
+      text-align: center;
+      line-height: 1.1;
+      max-width: 105px;
+      margin-top: 2px;
+      font-weight: 500;
+      white-space: normal;
+    }
+
     .piler-warnings {
       margin-bottom: 4px;
       font-size: 12px;
@@ -314,7 +333,7 @@
         padding: 0;
       }
       html, body, .container, .header, .piler-list, .piler-col, .side-box,
-      .color-legend, .color-swatch, .people-count-circle {
+      .color-legend, .color-swatch, .people-count-circle, .people-count-wrapper, .yard-disclaimer {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -325,7 +344,7 @@
         padding: 10px 20px;
       }
       .header {
-        padding-bottom: 6px;
+        padding-bottom: 8px;
         margin-bottom: 8px;
       }
       .header img {
@@ -355,6 +374,16 @@
       }
       .people-count-circle .number {
         font-size: 26px;
+      }
+      .people-count-wrapper {
+        margin-left: auto;
+      }
+      .yard-disclaimer {
+        font-size: 5.5px;
+        max-width: 100px;
+        margin-top: 1px;
+        color: #333;
+        line-height: 1.05;
       }
       .meta-row, .side-box {
         margin-bottom: 8px;
@@ -408,9 +437,12 @@
         <div class="subtitle">American Crystal Sugar • Hillsboro Yard North</div>
       </div>
       <!-- People in Yard count - circled for attention -->
-      <div class="people-count-circle">
-        <div class="label">PEOPLE IN YARD</div>
-        <div id="people-in-yard" class="number">0</div>
+      <div class="people-count-wrapper">
+        <div class="people-count-circle">
+          <div class="label">PEOPLE IN YARD</div>
+          <div id="people-in-yard" class="number">0</div>
+        </div>
+        <div class="yard-disclaimer">Scalehouse personel not included in yard count</div>
       </div>
     </div>
 
@@ -425,7 +457,7 @@
         <input type="date" id="date">
       </div>
       <div class="meta-field">
-        <label>Location / Field / Site</label>
+        <label>Location / Field / Superviser</label>
         <input type="text" id="location" value="Hillsboro Yard North">
       </div>
     </div>
