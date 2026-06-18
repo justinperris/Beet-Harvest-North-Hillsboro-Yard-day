@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Settings - Piler Tools</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    .box { border: 1px solid #ccc; padding: 16px; border-radius: 8px; background: #fafafa; margin-bottom: 20px; }
+    input { width: 100%; padding: 8px; font-size: 16px; }
+    button { padding: 8px 16px; margin: 4px; }
+    .status { margin-top: 8px; font-size: 14px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Admin / GitHub Settings</h1>
+  <p><strong>This page is not linked from the main tools.</strong> Bookmark it if needed.</p>
+
+  <div class="box">
+    <h3>GitHub Auto-Sync Token</h3>
+    <p>Paste your Personal Access Token here. This enables automatic updates to GitHub when you click Save Now on the main pages.</p>
+
+    <input id="github-token" type="password" placeholder="Paste token here">
+    <br><br>
+    <button onclick="saveToken()">Save Token</button>
+    <button onclick="clearToken()">Clear Token</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <div class="box">
+    <h3>Instructions</h3>
+    <p>Use a <strong>classic token</strong> with <code>public_repo</code> scope (easiest for public repos).</p>
+    <ol>
+      <li>GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
+      <li>Generate new token</li>
+      <li>Name it (e.g. "Piler Tools")</li>
+      <li>Check <strong>public_repo</strong></li>
+      <li>Generate and copy the token</li>
+      <li>Paste above and click Save Token</li>
+    </ol>
+    <p>Once saved, "Save Now" on the info page or sign-in sheet will try to push updates to GitHub automatically.</p>
+  </div>
+
+  <p><a href="index.html">Back to main tools</a></p>
+
+  <script>
+    const TOKEN_KEY = 'githubPAT';
+
+    function saveToken() {
+      const input = document.getElementById('github-token');
+      if (input && input.value.trim()) {
+        localStorage.setItem(TOKEN_KEY, input.value.trim());
+        updateStatus();
+        alert('Token saved in this browser. It will be used by the other pages.');
+      }
+    }
+
+    function clearToken() {
+      localStorage.removeItem(TOKEN_KEY);
+      const input = document.getElementById('github-token');
+      if (input) input.value = '';
+      updateStatus();
+    }
+
+    function updateStatus() {
+      const status = document.getElementById('status');
+      const hasToken = !!localStorage.getItem(TOKEN_KEY);
+      if (status) {
+        status.textContent = hasToken 
+          ? '✓ Token is saved in this browser.' 
+          : 'No token saved.';
+        status.style.color = hasToken ? 'green' : '#666';
+      }
+    }
+
+    // Init
+    window.onload = function() {
+      updateStatus();
+      const input = document.getElementById('github-token');
+      if (input && localStorage.getItem(TOKEN_KEY)) {
+        input.value = '••••••••••••••••';
+      }
+    }
+  </script>
+</body>
+</html>

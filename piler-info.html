@@ -340,39 +340,6 @@
       <strong>Save Now</strong> saves locally + downloads dated JSON + (if token configured) auto-pushes <code>data.json</code> to GitHub. Paste your token above to enable automatic updates.
     </div>
 
-    <!-- GitHub Auto-Sync Settings (for automatic push) -->
-    <div style="margin-top: 20px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #fafafa;">
-      <strong>GitHub Auto-Sync (Optional)</strong><br>
-      <small>Enter a token below so "Save Now" can automatically push <code>data.json</code> to GitHub.</small><br><br>
-
-      <input id="github-token" type="password" placeholder="Paste your token here" style="width: 100%; max-width: 400px; padding: 4px;">
-      <button onclick="saveGitHubToken()" style="margin-left: 8px;">Save Token</button>
-      <button onclick="clearGitHubToken()" style="margin-left: 4px;">Clear</button>
-      <div id="github-sync-status" style="margin-top: 6px; font-size: 12px; color: #555;"></div>
-
-      <details style="margin-top: 12px; font-size: 13px;">
-        <summary><strong>Click here for step-by-step token instructions (very important!)</strong></summary>
-        <br>
-        <strong>Recommended right now: Use a Classic token (much easier)</strong><br>
-        1. Go to GitHub → click your profile picture (top right) → <strong>Settings</strong><br>
-        2. On the left: <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong><br>
-        3. Click the green button <strong>Generate new token</strong> (you may need to enter your password)<br>
-        4. Give it a name like <strong>Piler Auto Update</strong><br>
-        5. Scroll down and <strong>check the box next to "public_repo"</strong> (this is the important one for public repos)<br>
-        6. Scroll all the way to the bottom and click <strong>Generate token</strong><br>
-        7. Copy the whole token and paste it into the box above. Then click "Save Token".<br><br>
-
-        <strong>For Fine-grained token (if you want the more modern one):</strong><br>
-        1. In Developer settings, click <strong>Fine-grained tokens</strong><br>
-        2. Click <strong>Generate new token</strong><br>
-        3. Choose your account<br>
-        4. Under Repository access, select <strong>Only select repositories</strong> → pick <strong>Beet-Harvest-North-Hillsboro-Yard-day</strong><br>
-        5. <strong>Important:</strong> Only after you select the repo will "Repository permissions" appear below<br>
-        6. Scroll down and find <strong>Repository permissions</strong><br>
-        7. Set <strong>Contents</strong> to <strong>Read and write</strong><br>
-        8. Generate and paste the token above.
-      </details>
-    </div>
   </div>
 
   <script>

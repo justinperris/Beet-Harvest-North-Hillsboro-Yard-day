@@ -467,30 +467,6 @@
       Piler columns load from data.json. Skid-Steer/Loader and Foreman now also save to GitHub (set token above). Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
     </div>
 
-    <!-- GitHub Auto-Sync Settings (for automatic push of skid/foreman) -->
-    <div style="margin-top: 20px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #fafafa;">
-      <strong>GitHub Auto-Sync (Optional)</strong><br>
-      <small>Enter a token so "Save Now" can automatically push skid-steer and foreman names to GitHub.</small><br><br>
-
-      <input id="github-token" type="password" placeholder="Paste your token here" style="width: 100%; max-width: 400px; padding: 4px;">
-      <button onclick="saveGitHubToken()" style="margin-left: 8px;">Save Token</button>
-      <button onclick="clearGitHubToken()" style="margin-left: 4px;">Clear</button>
-      <div id="github-sync-status" style="margin-top: 6px; font-size: 12px; color: #555;"></div>
-
-      <details style="margin-top: 12px; font-size: 13px;">
-        <summary><strong>Click here for step-by-step token instructions</strong></summary>
-        <br>
-        <strong>Recommended: Use a Classic token (easiest)</strong><br>
-        1. GitHub → profile → Settings → Developer settings → Personal access tokens → Tokens (classic)<br>
-        2. Generate new token<br>
-        3. Name it, e.g. "Piler Signin Update"<br>
-        4. Check <strong>public_repo</strong><br>
-        5. Generate and copy the token (ghp_...)<br>
-        6. Paste above and click Save Token.<br><br>
-
-        For fine-grained: select the repo, then under Repository permissions set Contents to Read and write.
-      </details>
-    </div>
   </div>
 
   <script>
