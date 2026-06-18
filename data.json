@@ -8,7 +8,7 @@
       "name": "Dan",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false
     },
     {
@@ -49,14 +49,14 @@
     {
       "name": "bobby K",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
     {
       "name": "tonya",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
@@ -71,7 +71,7 @@
       "name": "Cody C",
       "piler": "8",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false
     },
     {
