@@ -111,14 +111,14 @@
     },
     {
       "name": "Dave stewart",
-      "piler": "",
+      "piler": "7",
       "operator": true,
       "boom": false,
       "relief": false
     },
     {
       "name": "Linda",
-      "piler": "",
+      "piler": "7",
       "operator": false,
       "boom": false,
       "relief": true
