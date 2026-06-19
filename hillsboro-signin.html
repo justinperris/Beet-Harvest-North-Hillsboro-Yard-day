@@ -181,6 +181,27 @@
     .piler-list .entry.boom input {
       background-color: #fde047 !important;
     }
+
+    /* Unassigned names in red */
+    .piler-list .entry.unassigned input {
+      color: red !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.unassigned.operator input {
+      background-color: #86efac !important;
+      color: red !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.unassigned.relief input {
+      background-color: #d9f99d !important;
+      color: red !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.unassigned.boom input {
+      background-color: #fde047 !important;
+      color: red !important;
+      font-weight: 600;
+    }
     .color-legend {
       display: flex;
       flex-wrap: wrap;
@@ -399,6 +420,10 @@
       .piler-list .entry.operator input { background-color: #86efac !important; }
       .piler-list .entry.relief input { background-color: #d9f99d !important; }
       .piler-list .entry.boom input { background-color: #fde047 !important; }
+      .piler-list .entry.unassigned input { color: red !important; font-weight: 600; }
+      .piler-list .entry.unassigned.operator input { background-color: #86efac !important; color: red !important; font-weight: 600; }
+      .piler-list .entry.unassigned.relief input { background-color: #d9f99d !important; color: red !important; font-weight: 600; }
+      .piler-list .entry.unassigned.boom input { background-color: #fde047 !important; color: red !important; font-weight: 600; }
       .entry input:focus {
         background: transparent;
       }
@@ -477,6 +502,8 @@
         <h2>Piler #7</h2>
         <div id="piler7-warnings" class="piler-warnings"></div>
         <div id="piler7-list" class="piler-list"></div>
+        <div id="unassigned-header" style="color: red; font-weight: bold; font-size: 11px; margin-top: 8px; display: none;">Unassigned</div>
+        <div id="unassigned-list" class="piler-list"></div>
       </div>
       <div class="piler-col">
         <h2>Piler #8</h2>
@@ -549,10 +576,14 @@
     async function loadPilerNames() {
       const p7Container = document.getElementById('piler7-list');
       const p8Container = document.getElementById('piler8-list');
+      const unassignedHeader = document.getElementById('unassigned-header');
+      const unassignedContainer = document.getElementById('unassigned-list');
       if (!p7Container || !p8Container) return;
 
       p7Container.innerHTML = '';
       p8Container.innerHTML = '';
+      if (unassignedContainer) unassignedContainer.innerHTML = '';
+      if (unassignedHeader) unassignedHeader.style.display = 'none';
 
       const w7 = document.getElementById('piler7-warnings');
       const w8 = document.getElementById('piler8-warnings');
@@ -592,6 +623,7 @@
 
       const piler7People = [];
       const piler8People = [];
+      const unassignedPeople = [];
 
       data.rows.forEach(row => {
         const num = normalizePiler(row.piler);
@@ -599,6 +631,9 @@
         if (!name) return;
         if (num === '7') piler7People.push(row);
         else if (num === '8') piler8People.push(row);
+        else {
+          unassignedPeople.push(row);
+        }
       });
 
       function groupAndSort(people) {
@@ -626,6 +661,7 @@
 
       const list7 = groupAndSort(piler7People);
       const list8 = groupAndSort(piler8People);
+      const listUnassigned = groupAndSort(unassignedPeople);
 
       function checkPilerWarnings(list, warningsId) {
         const warningsDiv = document.getElementById(warningsId);
@@ -669,8 +705,27 @@
         });
       }
 
+      function renderUnassignedList(container, list) {
+        list.forEach((item, i) => {
+          const div = document.createElement('div');
+          div.className = `entry ${item.cls} unassigned`;
+          div.innerHTML = `
+            <span class="num">${i + 1}</span>
+            <input type="text" value="${item.name}" class="piler-name-input">
+          `;
+          container.appendChild(div);
+        });
+      }
+
       renderPilerList(p7Container, list7);
       renderPilerList(p8Container, list8);
+
+      // Render unassigned names (no piler #) in red under Piler #7 column
+      if (unassignedContainer) unassignedContainer.innerHTML = '';
+      if (unassignedHeader) unassignedHeader.style.display = (listUnassigned.length > 0) ? 'block' : 'none';
+      if (listUnassigned.length > 0 && unassignedContainer) {
+        renderUnassignedList(unassignedContainer, listUnassigned);
+      }
 
       updatePeopleCount();
     }

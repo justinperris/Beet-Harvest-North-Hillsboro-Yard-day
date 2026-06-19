@@ -366,6 +366,10 @@
     function saveNameToList(name) {
       if (!name || name.length < 2) return;
       let names = getSavedNames();
+
+      // Clean up previous partial keystroke entries that are prefixes of this full name
+      names = names.filter(existing => !(name.startsWith(existing) && existing !== name));
+
       if (!names.includes(name)) {
         names.push(name);
         names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
@@ -377,8 +381,19 @@
     function populateNameDatalist() {
       const datalist = document.getElementById('piler-name-list');
       if (!datalist) return;
+
+      let names = getSavedNames();
+
+      // One-time cleanup: remove any names that are prefixes of longer saved names
+      names = names.filter((name, idx, arr) =>
+        !arr.some(other => other !== name && other.startsWith(name))
+      );
+
+      if (JSON.stringify(names) !== JSON.stringify(getSavedNames())) {
+        localStorage.setItem(NAMES_KEY, JSON.stringify(names));
+      }
+
       datalist.innerHTML = '';
-      const names = getSavedNames();
       names.forEach(n => {
         const opt = document.createElement('option');
         opt.value = n;
@@ -388,19 +403,11 @@
 
     function mergeSavedNames(newNames) {
       if (!Array.isArray(newNames)) return;
-      let names = getSavedNames();
-      let updated = false;
       newNames.forEach(n => {
-        if (n && n.length >= 2 && !names.includes(n)) {
-          names.push(n);
-          updated = true;
+        if (n && n.length >= 2) {
+          saveNameToList(n);
         }
       });
-      if (updated) {
-        names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-        localStorage.setItem(NAMES_KEY, JSON.stringify(names));
-        populateNameDatalist();
-      }
     }
 
     function createPilerRow(num) {
@@ -825,15 +832,7 @@
     function attachAutoSaveListeners() {
       const table = document.getElementById('piler-table');
       if (table) {
-        table.addEventListener('input', (e) => {
-          debouncedAutoSave();
-          if (e.target.classList.contains('name-input')) {
-            const val = e.target.value.trim();
-            if (val.length >= 2) {
-              saveNameToList(val);
-            }
-          }
-        });
+        table.addEventListener('input', debouncedAutoSave);
         table.addEventListener('change', debouncedAutoSave); // checkboxes
         // Also save name on blur for better UX
         table.addEventListener('blur', (e) => {
