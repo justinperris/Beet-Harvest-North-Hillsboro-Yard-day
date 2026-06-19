@@ -1,10 +1,4 @@
 {
-  "skidSteer": [
-    "john",
-    "Joanne"
-  ],
-  "foreman": [
-    "Dave",
-    "Bill"
-  ]
+  "skidSteer": [],
+  "foreman": []
 }
