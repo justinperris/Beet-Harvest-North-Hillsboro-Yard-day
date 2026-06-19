@@ -334,6 +334,8 @@
       <button class="primary" onclick="printForm()">🖨️ Print / Save as PDF</button>
       <button onclick="window.open('hillsboro-signin.html', '_blank')">📋 Go to Sign-In Sheet</button>
       <button onclick="clearForm()">Clear All</button>
+      <button onclick="clearNameSuggestions()" style="background:#fff3cd; border-color:#856404; color:#856404;">Clear remembered names (dropdown)</button>
+      <button onclick="clearAllLocalData()" style="background:#f8d7da; border-color:#721c24; color:#721c24;">Wipe ALL local data (full reset)</button>
       <button onclick="saveToLocal()">Save Now</button>
       <button onclick="exportDataForGitHub()">Export data.json (for GitHub)</button>
       <button onclick="loadFromLocal()">Load Saved Data</button>
@@ -496,6 +498,26 @@
 
       // Persist the fresh cleared state
       saveToLocal();
+    }
+
+    function clearNameSuggestions() {
+      if (!confirm('Clear all remembered names from the dropdown suggestions?')) return;
+      localStorage.removeItem('pilerSavedNames');
+      const datalist = document.getElementById('piler-name-list');
+      if (datalist) datalist.innerHTML = '';
+      alert('Remembered names cleared. Refresh the page if needed.');
+    }
+
+    function clearAllLocalData() {
+      if (!confirm('This will completely wipe ALL local data for this app (drafts, name suggestions, and history). Are you sure?')) return;
+      localStorage.removeItem('pilerInfoDraft');
+      localStorage.removeItem('pilerSavedNames');
+      localStorage.removeItem('pilerInfoHistory');
+      localStorage.removeItem('hillsboroNorthSignInDraft');
+      const datalist = document.getElementById('piler-name-list');
+      if (datalist) datalist.innerHTML = '';
+      alert('All local data cleared. The page will now start completely fresh.');
+      location.reload();
     }
 
     function getAllData() {

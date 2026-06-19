@@ -538,6 +538,7 @@
       <button class="primary" onclick="printForm()">🖨️ Print / Save as PDF</button>
       <button onclick="window.open('piler-info.html', '_blank')">⬅️ Back to Info Page</button>
       <button onclick="clearForm()">Clear All</button>
+      <button onclick="clearSignInLocalData()" style="background:#f8d7da; border-color:#721c24; color:#721c24;">Wipe local draft (full reset)</button>
       <button onclick="saveToLocal()">Save Now</button>
       <button onclick="loadFromLocal()">Load Saved Data</button>
       <button onclick="loadPilerNames()">Reload from Piler Info</button>
@@ -783,6 +784,13 @@
 
       // Persist the cleared state so sides/foreman remember as empty
       debouncedSaveSignIn();
+    }
+
+    function clearSignInLocalData() {
+      if (!confirm('This will wipe the local draft for the sign-in page (skid/foreman fields etc.). Continue?')) return;
+      localStorage.removeItem('hillsboroNorthSignInDraft');
+      alert('Local sign-in draft cleared. Reloading...');
+      location.reload();
     }
 
     function getAllData() {
