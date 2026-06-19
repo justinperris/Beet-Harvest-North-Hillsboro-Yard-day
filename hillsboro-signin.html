@@ -918,7 +918,7 @@
 
     function updatePeopleCount() {
       let count = 0;
-      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list'].forEach(id => {
+      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
         const container = document.getElementById(id);
         if (container) {
           container.querySelectorAll('input[type="text"]').forEach(inp => {
@@ -1078,7 +1078,7 @@
       updateGitHubStatus();
 
       // Update people count live when editing piler/skid/foreman names
-      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list'].forEach(id => {
+      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.addEventListener('input', updatePeopleCount);
