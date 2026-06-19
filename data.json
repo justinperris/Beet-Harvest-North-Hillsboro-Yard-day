@@ -14,7 +14,7 @@
     {
       "name": "Wendi",
       "piler": "8",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
@@ -22,7 +22,7 @@
       "name": "Trista",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false
     },
     {
@@ -30,7 +30,7 @@
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": true
+      "relief": false
     },
     {
       "name": "Tom",
@@ -111,17 +111,17 @@
     },
     {
       "name": "Dave stewart",
-      "piler": "7",
-      "operator": true,
+      "piler": "",
+      "operator": false,
       "boom": false,
       "relief": false
     },
     {
       "name": "Linda",
-      "piler": "7",
+      "piler": "",
       "operator": false,
       "boom": false,
-      "relief": true
+      "relief": false
     },
     {
       "name": "",
