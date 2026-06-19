@@ -318,6 +318,9 @@
         </span>
         <span id="auto-save-status" style="font-size: 10px; color: #4a7c59; min-height: 1em;"></span>
       </div>
+
+      <!-- Datalist for name autocomplete / remembering previous names -->
+      <datalist id="piler-name-list"></datalist>
     </div>
 
     <!-- Notes -->
@@ -347,12 +350,64 @@
     let currentRowCount = 0;
     const STORAGE_KEY = 'pilerInfoDraft';
     const HISTORY_KEY = 'pilerInfoHistory';
+    const NAMES_KEY = 'pilerSavedNames';
+
+    function getSavedNames() {
+      try {
+        const raw = localStorage.getItem(NAMES_KEY);
+        if (raw) {
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr : [];
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveNameToList(name) {
+      if (!name || name.length < 2) return;
+      let names = getSavedNames();
+      if (!names.includes(name)) {
+        names.push(name);
+        names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+        localStorage.setItem(NAMES_KEY, JSON.stringify(names));
+        populateNameDatalist();
+      }
+    }
+
+    function populateNameDatalist() {
+      const datalist = document.getElementById('piler-name-list');
+      if (!datalist) return;
+      datalist.innerHTML = '';
+      const names = getSavedNames();
+      names.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        datalist.appendChild(opt);
+      });
+    }
+
+    function mergeSavedNames(newNames) {
+      if (!Array.isArray(newNames)) return;
+      let names = getSavedNames();
+      let updated = false;
+      newNames.forEach(n => {
+        if (n && n.length >= 2 && !names.includes(n)) {
+          names.push(n);
+          updated = true;
+        }
+      });
+      if (updated) {
+        names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+        localStorage.setItem(NAMES_KEY, JSON.stringify(names));
+        populateNameDatalist();
+      }
+    }
 
     function createPilerRow(num) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="num">${num}</td>
-        <td class="name-col"><input type="text" class="name-input" placeholder=""></td>
+        <td class="name-col"><input type="text" class="name-input" placeholder="" list="piler-name-list"></td>
         <td class="piler-col"><input type="text" class="piler-input" placeholder=""></td>
         <td class="cb-col"><input type="checkbox" class="role-cb" data-role="operator"></td>
         <td class="cb-col"><input type="checkbox" class="role-cb" data-role="boom"></td>
@@ -456,12 +511,24 @@
         data.rows.push({ name, piler, operator, boom, relief });
       });
 
+      data.savedNames = getSavedNames();
+
       return data;
     }
 
     function saveToLocal() {
+      // Ensure all names from current rows are in the suggestions list first
+      const tbody = document.getElementById('piler-tbody');
+      tbody.querySelectorAll('.name-input').forEach(inp => {
+        const v = inp.value.trim();
+        if (v) saveNameToList(v);
+      });
+
       const data = getAllData();
+      // getAllData now includes the latest savedNames
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+      populateNameDatalist();
 
       // Save to history for daily changes
       saveToHistory(data);
@@ -664,6 +731,19 @@
 
         // Also save to localStorage so sign-in can use it
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+        // Merge savedNames from data.json if present, plus seed current rows
+        if (data.savedNames) mergeSavedNames(data.savedNames);
+        document.querySelectorAll('.name-input').forEach(inp => {
+          const v = inp.value.trim();
+          if (v) saveNameToList(v);
+        });
+        populateNameDatalist();
+
+        // Re-save to local with updated savedNames
+        const updatedData = getAllData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+
         return true;
       } catch (e) {
         return false;
@@ -705,6 +785,19 @@
         tbody.appendChild(createPilerRow(currentRowCount));
       }
       updateRowCount();
+
+      // Merge savedNames from loaded data if present, plus seed current rows
+      if (data.savedNames) mergeSavedNames(data.savedNames);
+      document.querySelectorAll('.name-input').forEach(inp => {
+        const v = inp.value.trim();
+        if (v) saveNameToList(v);
+      });
+      populateNameDatalist();
+
+      // Re-save to local with updated savedNames
+      const updatedData = getAllData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+
       return true;
     }
 
@@ -732,8 +825,23 @@
     function attachAutoSaveListeners() {
       const table = document.getElementById('piler-table');
       if (table) {
-        table.addEventListener('input', debouncedAutoSave);
+        table.addEventListener('input', (e) => {
+          debouncedAutoSave();
+          if (e.target.classList.contains('name-input')) {
+            const val = e.target.value.trim();
+            if (val.length >= 2) {
+              saveNameToList(val);
+            }
+          }
+        });
         table.addEventListener('change', debouncedAutoSave); // checkboxes
+        // Also save name on blur for better UX
+        table.addEventListener('blur', (e) => {
+          if (e.target.classList.contains('name-input')) {
+            const val = e.target.value.trim();
+            if (val) saveNameToList(val);
+          }
+        }, true);
       }
 
       // Top fields + notes
@@ -750,6 +858,9 @@
       // Render initial 20 rows (empty)
       renderPilerRows(INITIAL_ROWS);
 
+      // Populate any previously remembered names (for datalist dropdown)
+      populateNameDatalist();
+
       // Attach auto-save listeners early (delegation on table + fields)
       attachAutoSaveListeners();
 
@@ -763,6 +874,13 @@
         if (!document.getElementById('date').value) {
           setTodayDate();
         }
+        // Populate name suggestions (seed from loaded + saved list)
+        populateNameDatalist();
+        // Seed any names from current form into the datalist
+        document.querySelectorAll('.name-input').forEach(inp => {
+          const v = inp.value.trim();
+          if (v) saveNameToList(v);
+        });
       });
 
       // Keyboard print title helper
