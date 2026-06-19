@@ -5,16 +5,16 @@
   "notes": "loader need fuel",
   "rows": [
     {
-      "name": "Dan",
+      "name": "",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
     {
       "name": "Wendi",
       "piler": "8",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
@@ -23,27 +23,27 @@
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": true
+      "relief": false
     },
     {
       "name": "Gina",
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": true
+      "relief": false
     },
     {
       "name": "Tom",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false
     },
     {
-      "name": "susan",
+      "name": "Susan Best",
       "piler": "8",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false
     },
     {
@@ -75,8 +75,8 @@
       "relief": false
     },
     {
-      "name": "",
-      "piler": "",
+      "name": "Dave Stewart",
+      "piler": "8",
       "operator": false,
       "boom": false,
       "relief": false
@@ -144,5 +144,36 @@
       "boom": false,
       "relief": false
     }
+  ],
+  "savedNames": [
+    "bobby K",
+    "Chris",
+    "Cody C",
+    "da",
+    "Dan",
+    "dav",
+    "dave",
+    "dave s",
+    "dave st",
+    "dave ste",
+    "dave stew",
+    "dave stewa",
+    "dave stewar",
+    "dave stewart",
+    "Dave stewart",
+    "Dave Stewart",
+    "Gina",
+    "Larry",
+    "Ronny",
+    "susan",
+    "susan B",
+    "susan Be",
+    "susan Bes",
+    "susan Best",
+    "Susan Best",
+    "Tom",
+    "tonya",
+    "Trista",
+    "Wendi"
   ]
 }
