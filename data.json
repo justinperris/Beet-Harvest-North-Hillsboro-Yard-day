@@ -1,6 +1,6 @@
 {
   "date": "2026-07-02",
-  "location": "Hillsboro ND North Yard",
+  "location": "Hillsboro ND North Yard / Kody",
   "day": "Thursday",
   "notes": "",
   "rows": [
@@ -12,9 +12,9 @@
       "relief": false
     },
     {
-      "name": "Wendi",
+      "name": "",
       "piler": "8",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
