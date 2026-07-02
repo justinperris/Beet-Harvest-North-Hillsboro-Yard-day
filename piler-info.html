@@ -342,7 +342,8 @@
       <button onclick="window.open('History.html', '_blank')">📜 View History</button>
     </div>
     <div class="hint no-print">
-      <strong>Save Now</strong> saves locally + downloads dated JSON + (if token configured) auto-pushes <code>data.json</code> to GitHub. Paste your token above to enable automatic updates.
+      <strong>Save Now</strong> saves locally + downloads dated JSON + automatically pushes <code>data.json</code> to GitHub (if a token is already configured in browser storage).<br>
+      <strong>To get a clean data.json right now:</strong> Use "Wipe ALL local data (full reset)" below, then click Save Now or Export. Rename the downloaded file to <code>data.json</code> and upload it to your repo root.
     </div>
 
   </div>
@@ -452,14 +453,14 @@
 
     function setTodayDate() {
       const dateInput = document.getElementById('date');
-      const today = new Date();
-      const iso = today.toISOString().split('T')[0];
-      dateInput.value = iso;
-
       const dayInput = document.getElementById('day');
-      if (!dayInput.value) {
-        const dayName = today.toLocaleDateString(undefined, { weekday: 'long' });
-        dayInput.value = dayName;
+      if (!dateInput.value) {
+        const today = new Date();
+        dateInput.value = today.toISOString().split('T')[0];
+      }
+      if (!dayInput.value && dateInput.value) {
+        const d = new Date(dateInput.value + 'T00:00:00');
+        dayInput.value = d.toLocaleDateString(undefined, { weekday: 'long' });
       }
     }
 
@@ -572,14 +573,10 @@
       // Export locally
       exportDataForGitHub();
 
-      // Auto push to GitHub if token is configured
+      // Auto push to GitHub if token is configured (silent if no UI)
       pushDataToGitHub(data).then(success => {
         if (success) {
-          const status = document.getElementById('github-sync-status');
-          if (status) {
-            status.textContent = '✓ Pushed to GitHub successfully!';
-            setTimeout(updateGitHubStatus, 2500);
-          }
+          console.log('✓ Pushed to GitHub successfully!');
         }
       });
     }
@@ -633,37 +630,10 @@
       return `data-${year}-${month}-${day}-${dayName}.json`;
     }
 
-    // === GitHub Auto-Push using Personal Access Token ===
+    // === GitHub Auto-Push using Personal Access Token (token set via admin.html or console) ===
     const GITHUB_TOKEN_KEY = 'githubPAT';
     const GITHUB_OWNER = 'justinperris';
     const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
-
-    function saveGitHubToken() {
-      const input = document.getElementById('github-token');
-      if (input && input.value.trim()) {
-        localStorage.setItem(GITHUB_TOKEN_KEY, input.value.trim());
-        updateGitHubStatus();
-        alert('Token saved locally in this browser.');
-      }
-    }
-
-    function clearGitHubToken() {
-      localStorage.removeItem(GITHUB_TOKEN_KEY);
-      const input = document.getElementById('github-token');
-      if (input) input.value = '';
-      updateGitHubStatus();
-    }
-
-    function updateGitHubStatus() {
-      const status = document.getElementById('github-sync-status');
-      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
-      if (status) {
-        status.textContent = token ? '✓ Token saved. Save Now will try to push to GitHub.' : 'No token saved. Paste one above to enable auto-push.';
-        status.style.color = token ? 'green' : '#666';
-      }
-      const input = document.getElementById('github-token');
-      if (input && token) input.value = '••••••••••••••••'; // mask
-    }
 
     async function pushDataToGitHub(data) {
       const token = localStorage.getItem(GITHUB_TOKEN_KEY);
@@ -761,12 +731,16 @@
         // Also save to localStorage so sign-in can use it
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-        // Merge savedNames from data.json if present, plus seed current rows
-        if (data.savedNames) mergeSavedNames(data.savedNames);
-        document.querySelectorAll('.name-input').forEach(inp => {
-          const v = inp.value.trim();
-          if (v) saveNameToList(v);
-        });
+        // Replace local suggestions with the ones from data.json (for clean shared reset)
+        if (data.hasOwnProperty('savedNames')) {
+          localStorage.setItem(NAMES_KEY, JSON.stringify(data.savedNames || []));
+        } else {
+          // fallback for old data without savedNames
+          document.querySelectorAll('.name-input').forEach(inp => {
+            const v = inp.value.trim();
+            if (v) saveNameToList(v);
+          });
+        }
         populateNameDatalist();
 
         // Re-save to local with updated savedNames
@@ -815,12 +789,15 @@
       }
       updateRowCount();
 
-      // Merge savedNames from loaded data if present, plus seed current rows
-      if (data.savedNames) mergeSavedNames(data.savedNames);
-      document.querySelectorAll('.name-input').forEach(inp => {
-        const v = inp.value.trim();
-        if (v) saveNameToList(v);
-      });
+      // Replace local suggestions with the ones from the loaded data (for clean reset)
+      if (data.hasOwnProperty('savedNames')) {
+        localStorage.setItem(NAMES_KEY, JSON.stringify(data.savedNames || []));
+      } else {
+        document.querySelectorAll('.name-input').forEach(inp => {
+          const v = inp.value.trim();
+          if (v) saveNameToList(v);
+        });
+      }
       populateNameDatalist();
 
       // Re-save to local with updated savedNames
@@ -891,9 +868,18 @@
         if (!loadedFromJson) {
           loadFromLocal(true);
         }
-        // Set today's date only if none was loaded
-        if (!document.getElementById('date').value) {
-          setTodayDate();
+        // Ensure auto date and day of week (keep loaded date if present, set day if missing)
+        setTodayDate();
+        // Auto update day of week when date changes
+        const dateEl = document.getElementById('date');
+        const dayEl = document.getElementById('day');
+        if (dateEl && dayEl) {
+          dateEl.addEventListener('change', () => {
+            if (dateEl.value) {
+              const d = new Date(dateEl.value + 'T00:00:00');
+              dayEl.value = d.toLocaleDateString(undefined, { weekday: 'long' });
+            }
+          });
         }
         // Populate name suggestions (seed from loaded + saved list)
         populateNameDatalist();
@@ -915,9 +901,6 @@
       });
 
       console.log('%c[Piler Information Input] Ready. Auto-load + auto-save enabled for easy updates.', 'color:#666');
-
-      // Show GitHub token status if present
-      updateGitHubStatus();
     }
 
     // Boot the page

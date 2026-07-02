@@ -545,7 +545,7 @@
       <button onclick="window.open('History.html', '_blank')">📜 View Crew History</button>
     </div>
     <div class="hint no-print">
-      Piler columns load from data.json. Skid-Steer/Loader and Foreman now also save to GitHub (set token above). Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
+      Piler columns load from data.json. Skid-Steer/Loader and Foreman automatically save to GitHub if a token is configured (via admin.html or console). Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
     </div>
 
   </div>
@@ -617,6 +617,22 @@
         return;
       }
 
+      // Sync date/day/location from piler info (piler-info page)
+      const dateEl = document.getElementById('date');
+      const dayEl = document.getElementById('day');
+      const locEl = document.getElementById('location');
+      if (dateEl && data.date) dateEl.value = data.date;
+      if (dayEl && data.day) dayEl.value = data.day;
+      if (locEl && data.location) locEl.value = data.location || 'Hillsboro Yard North';
+
+      // Get date, day, location from piler info page
+      const dateEl = document.getElementById('date');
+      const dayEl = document.getElementById('day');
+      const locEl = document.getElementById('location');
+      if (dateEl && data.date) dateEl.value = data.date;
+      if (dayEl && data.day) dayEl.value = data.day;
+      if (locEl && data.location) locEl.value = data.location;
+
       function normalizePiler(p) {
         if (!p) return '';
         return p.toString().trim().replace(/[^0-9]/g, '');
@@ -664,6 +680,12 @@
       const list8 = groupAndSort(piler8People);
       const listUnassigned = groupAndSort(unassignedPeople);
 
+      const warningColors = {
+        'Operator': '#166534',
+        'Relief': '#166534',
+        'Boom': '#854d0e'
+      };
+
       function checkPilerWarnings(list, warningsId) {
         const warningsDiv = document.getElementById(warningsId);
         if (!warningsDiv) return;
@@ -683,7 +705,7 @@
         if (missing.length > 0) {
           missing.forEach(role => {
             const div = document.createElement('div');
-            div.style.color = 'red';
+            div.style.color = warningColors[role] || 'red';
             div.style.fontWeight = 'bold';
             div.textContent = `Warning: ${role} missing`;
             warningsDiv.appendChild(div);
@@ -834,14 +856,10 @@
         btns.forEach((b, i) => b.textContent = origText[i] || b.textContent);
       }, 1400);
 
-      // Auto push skid/foreman to GitHub if token set
+      // Auto push skid/foreman to GitHub if token set (silent)
       pushSignInToGitHub().then(success => {
         if (success) {
-          const status = document.getElementById('github-sync-status');
-          if (status) {
-            status.textContent = '✓ Pushed skid/foreman to GitHub!';
-            setTimeout(updateGitHubStatus, 2000);
-          }
+          console.log('✓ Pushed skid/foreman to GitHub!');
         }
       });
     }
@@ -943,31 +961,6 @@
     const GITHUB_TOKEN_KEY = 'githubPAT';
     const GITHUB_OWNER = 'justinperris';
     const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
-
-    function saveGitHubToken() {
-      const input = document.getElementById('github-token');
-      if (input && input.value.trim()) {
-        localStorage.setItem(GITHUB_TOKEN_KEY, input.value.trim());
-        updateGitHubStatus();
-        alert('Token saved. Save Now will try to push skid/foreman to GitHub.');
-      }
-    }
-
-    function clearGitHubToken() {
-      localStorage.removeItem(GITHUB_TOKEN_KEY);
-      const input = document.getElementById('github-token');
-      if (input) input.value = '';
-      updateGitHubStatus();
-    }
-
-    function updateGitHubStatus() {
-      const status = document.getElementById('github-sync-status');
-      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
-      if (status) {
-        status.textContent = token ? '✓ Token saved. Save Now will auto-push skid/foreman.' : 'No token. Add one to auto-update GitHub.';
-        status.style.color = token ? 'green' : '#666';
-      }
-    }
 
     async function pushSignInToGitHub() {
       const token = localStorage.getItem(GITHUB_TOKEN_KEY);
@@ -1082,8 +1075,6 @@
 
       // Attach auto-save listeners so skid/foreman (and other edits) are remembered automatically
       attachSignInAutoListeners();
-
-      updateGitHubStatus();
 
       // Update people count live when editing piler/skid/foreman names
       ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
