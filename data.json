@@ -1,13 +1,13 @@
 {
   "date": "2026-07-02",
-  "location": "Hillsboro ND North Yard",
+  "location": "",
   "day": "Thursday",
   "notes": "",
   "rows": [
     {
-      "name": "Dave Stewart",
-      "piler": "7",
-      "operator": true,
+      "name": "",
+      "piler": "",
+      "operator": false,
       "boom": false,
       "relief": false
     },
