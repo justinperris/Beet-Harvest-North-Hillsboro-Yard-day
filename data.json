@@ -6,8 +6,8 @@
   "rows": [
     {
       "name": "Dave Stewart",
-      "piler": "",
-      "operator": false,
+      "piler": "7",
+      "operator": true,
       "boom": false,
       "relief": false
     },
