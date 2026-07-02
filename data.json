@@ -1,11 +1,11 @@
 {
   "date": "2026-06-19",
-  "location": "",
+  "location": "Hillsboro ND North",
   "day": "Friday",
   "notes": "",
   "rows": [
     {
-      "name": "",
+      "name": "Dave Stewart",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -145,5 +145,7 @@
       "relief": false
     }
   ],
-  "savedNames": []
+  "savedNames": [
+    "Dave Stewart"
+  ]
 }
