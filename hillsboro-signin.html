@@ -617,21 +617,13 @@
         return;
       }
 
-      // Sync date/day/location from piler info (piler-info page)
+      // Sync date/day/location from piler info page (override sign-in draft)
       const dateEl = document.getElementById('date');
       const dayEl = document.getElementById('day');
       const locEl = document.getElementById('location');
       if (dateEl && data.date) dateEl.value = data.date;
       if (dayEl && data.day) dayEl.value = data.day;
       if (locEl && data.location) locEl.value = data.location || 'Hillsboro Yard North';
-
-      // Get date, day, location from piler info page
-      const dateEl = document.getElementById('date');
-      const dayEl = document.getElementById('day');
-      const locEl = document.getElementById('location');
-      if (dateEl && data.date) dateEl.value = data.date;
-      if (dayEl && data.day) dayEl.value = data.day;
-      if (locEl && data.location) locEl.value = data.location;
 
       function normalizePiler(p) {
         if (!p) return '';

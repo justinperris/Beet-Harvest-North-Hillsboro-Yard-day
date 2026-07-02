@@ -862,25 +862,27 @@
       // Attach auto-save listeners early (delegation on table + fields)
       attachAutoSaveListeners();
 
+      // Ensure auto date and day of week even before async load
+      setTodayDate();
+      const dateEl = document.getElementById('date');
+      const dayEl = document.getElementById('day');
+      if (dateEl && dayEl) {
+        dateEl.addEventListener('change', () => {
+          if (dateEl.value) {
+            const d = new Date(dateEl.value + 'T00:00:00');
+            dayEl.value = d.toLocaleDateString(undefined, { weekday: 'long' });
+          }
+        });
+      }
+
       // Try to load master data from data.json (for GitHub shared link)
       // Falls back to localStorage for local use
       loadFromDataJson(true).then(loadedFromJson => {
         if (!loadedFromJson) {
           loadFromLocal(true);
         }
-        // Ensure auto date and day of week (keep loaded date if present, set day if missing)
+        // Ensure auto date and day of week after load (if not set by data)
         setTodayDate();
-        // Auto update day of week when date changes
-        const dateEl = document.getElementById('date');
-        const dayEl = document.getElementById('day');
-        if (dateEl && dayEl) {
-          dateEl.addEventListener('change', () => {
-            if (dateEl.value) {
-              const d = new Date(dateEl.value + 'T00:00:00');
-              dayEl.value = d.toLocaleDateString(undefined, { weekday: 'long' });
-            }
-          });
-        }
         // Populate name suggestions (seed from loaded + saved list)
         populateNameDatalist();
         // Seed any names from current form into the datalist
