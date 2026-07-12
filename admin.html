@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Settings - Piler Tools</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; color: #222; }
+    .box { border: 1px solid #ccc; padding: 16px; border-radius: 8px; background: #fafafa; margin-bottom: 20px; }
+    input { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; }
+    button { padding: 10px 16px; margin: 4px 4px 4px 0; cursor: pointer; font-size: 14px; }
+    button.primary { background: #003366; color: #fff; border: none; border-radius: 4px; }
+    button.danger { background: #8b1a1a; color: #fff; border: none; border-radius: 4px; }
+    .banner {
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border: 2px solid;
+    }
+    .banner.ok { background: #e8f5e9; color: #1b5e20; border-color: #4caf50; }
+    .banner.missing { background: #fff3e0; color: #e65100; border-color: #ff9800; }
+    .banner.error { background: #ffebee; color: #b71c1c; border-color: #f44336; }
+    .banner.info { background: #e3f2fd; color: #0d47a1; border-color: #2196f3; }
+    .detail { font-size: 13px; font-weight: normal; margin-top: 6px; line-height: 1.4; }
+    .hint { font-size: 13px; color: #555; margin-top: 8px; }
+    code { background: #eee; padding: 1px 5px; border-radius: 3px; }
+    ol { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Admin / GitHub Settings</h1>
+  <p><strong>This page is not linked from the main tools.</strong> Bookmark it if needed.</p>
+
+  <!-- Always-visible status -->
+  <div id="banner" class="banner missing">Checking for saved token…</div>
+
+  <div class="box">
+    <h3>GitHub Auto-Sync Token</h3>
+    <p>Paste a Personal Access Token below, then click <strong>Save Token</strong>. This is what lets <strong>Save Now</strong> on piler-info update GitHub.</p>
+
+    <label for="github-token"><strong>Paste new token here</strong></label>
+    <input id="github-token" type="password" placeholder="ghp_… paste token, then click Save Token" autocomplete="off">
+    <p class="hint">“No expiration” on GitHub is fine. Leave the field empty unless you are entering a new token.</p>
+
+    <button class="primary" onclick="saveToken()">Save Token</button>
+    <button onclick="testToken()">Test GitHub Connection</button>
+    <button class="danger" onclick="clearToken()">Clear Token</button>
+
+    <div id="test-result" class="detail" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="box">
+    <h3>Why status might look empty / Save doesn’t update GitHub</h3>
+    <ul>
+      <li><strong>Token is only in this browser</strong> — not inside the HTML file on disk.</li>
+      <li><strong>Local file vs live site are different.</strong>
+        <br>Local: <code>file:///…/admin.html</code>
+        <br>Live: <code>https://justinperris.github.io/…/admin.html</code>
+        <br>You need the token saved on the <em>same</em> place you use piler-info.
+      </li>
+      <li><strong>Chrome and Edge do not share tokens.</strong></li>
+      <li><strong>No expiration is OK.</strong> GitHub classic tokens can say “No expiration.”</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h3>Create / fix a token (recommended: classic)</h3>
+    <ol>
+      <li>GitHub → click your profile photo → <strong>Settings</strong></li>
+      <li><strong>Developer settings</strong> (bottom left) → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong></li>
+      <li><strong>Generate new token (classic)</strong></li>
+      <li>Name: e.g. <code>Piler Tools</code></li>
+      <li>Expiration: <strong>No expiration</strong> is fine (or pick 90 days if you prefer)</li>
+      <li>Check scope: <strong>public_repo</strong></li>
+      <li>Generate → <strong>copy the token once</strong> (starts with <code>ghp_</code>)</li>
+      <li>Paste above → <strong>Save Token</strong> → <strong>Test GitHub Connection</strong></li>
+      <li>Open piler-info in <em>this same browser</em> and click <strong>Save Now</strong></li>
+    </ol>
+    <p class="hint">If you use a <strong>fine-grained</strong> token instead: give it access to repo <code>Beet-Harvest-North-Hillsboro-Yard-day</code> and permission <strong>Contents: Read and write</strong> (not read-only).</p>
+  </div>
+
+  <p>
+    <a href="piler-info.html">Open Piler Info</a> ·
+    <a href="index.html">Main tools</a> ·
+    <a href="https://justinperris.github.io/Beet-Harvest-North-Hillsboro-Yard-day/admin.html" target="_blank">Open live admin (github.io)</a>
+  </p>
+
+  <script>
+    const TOKEN_KEY = 'githubPAT';
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+
+    function getToken() {
+      try {
+        return (localStorage.getItem(TOKEN_KEY) || '').trim();
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function maskToken(token) {
+      if (!token || token.length < 8) return '(too short / invalid)';
+      return token.slice(0, 4) + '…' + token.slice(-4);
+    }
+
+    function updateStatus() {
+      const banner = document.getElementById('banner');
+      const token = getToken();
+      const origin = location.origin || location.href;
+
+      if (!banner) return;
+
+      try {
+        // Touch localStorage so we detect blocked storage
+        localStorage.setItem('__piler_storage_probe', '1');
+        localStorage.removeItem('__piler_storage_probe');
+      } catch (e) {
+        banner.className = 'banner error';
+        banner.innerHTML =
+          'Browser blocked saving tokens on this page.' +
+          '<div class="detail">Open the <strong>live</strong> admin page on github.io instead of a local file, or allow site data for this origin.<br>This page: <code>' +
+          origin + '</code></div>';
+        return;
+      }
+
+      if (token) {
+        banner.className = 'banner ok';
+        banner.innerHTML =
+          '✓ Token IS saved in this browser' +
+          '<div class="detail">Looks like: <code>' + maskToken(token) +
+          '</code><br>Length: ' + token.length +
+          ' characters<br>Origin: <code>' + origin +
+          '</code><br>Use <strong>Test GitHub Connection</strong> to verify it still works.</div>';
+      } else {
+        banner.className = 'banner missing';
+        banner.innerHTML =
+          '✗ No token saved in this browser' +
+          '<div class="detail">Paste a token below and click <strong>Save Token</strong>.<br>This page: <code>' +
+          origin + '</code><br>If you already set a token on the live site, open the live admin link at the bottom — local and live storage are separate.</div>';
+      }
+    }
+
+    function saveToken() {
+      const input = document.getElementById('github-token');
+      const raw = (input && input.value || '').trim();
+      const testResult = document.getElementById('test-result');
+
+      if (!raw) {
+        alert('Paste a token first, then click Save Token.');
+        return;
+      }
+      // Never save the old placeholder dots
+      if (/^[•·\.]+$/.test(raw) || raw === '••••••••••••••••') {
+        alert('That is not a real token. Paste the actual ghp_… token from GitHub.');
+        return;
+      }
+
+      try {
+        localStorage.setItem(TOKEN_KEY, raw);
+      } catch (e) {
+        alert('Could not save token. Browser blocked localStorage for this page. Use the live github.io admin page instead.');
+        updateStatus();
+        return;
+      }
+
+      if (input) input.value = '';
+      if (testResult) testResult.textContent = '';
+      updateStatus();
+      alert('Token saved. Click “Test GitHub Connection”, then use Save Now on piler-info.');
+    }
+
+    function clearToken() {
+      if (!confirm('Remove the saved GitHub token from this browser?')) return;
+      try {
+        localStorage.removeItem(TOKEN_KEY);
+      } catch (e) {}
+      const input = document.getElementById('github-token');
+      if (input) input.value = '';
+      const testResult = document.getElementById('test-result');
+      if (testResult) testResult.textContent = '';
+      updateStatus();
+    }
+
+    async function testToken() {
+      const testResult = document.getElementById('test-result');
+      const token = getToken();
+      if (!testResult) return;
+
+      if (!token) {
+        testResult.innerHTML = '<span style="color:#b71c1c;">No token saved — paste one and click Save Token first.</span>';
+        return;
+      }
+
+      testResult.innerHTML = 'Testing connection to GitHub…';
+
+      try {
+        const res = await fetch(
+          'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/data.json',
+          {
+            headers: {
+              'Authorization': 'token ' + token,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          }
+        );
+
+        if (res.ok) {
+          testResult.innerHTML =
+            '<span style="color:#1b5e20;"><strong>✓ Connected.</strong> Token can read the repo. Save Now on piler-info should be able to update data.json.</span>';
+          return;
+        }
+
+        if (res.status === 401) {
+          testResult.innerHTML =
+            '<span style="color:#b71c1c;"><strong>✗ Token rejected (401).</strong> Token is wrong, expired, or revoked. Create a new classic token with <code>public_repo</code>, paste it, Save Token, test again.</span>';
+          return;
+        }
+
+        if (res.status === 403) {
+          testResult.innerHTML =
+            '<span style="color:#b71c1c;"><strong>✗ Permission denied (403).</strong> Token needs <code>public_repo</code> (classic) or Contents: Read and write (fine-grained) on this repo.</span>';
+          return;
+        }
+
+        if (res.status === 404) {
+          // Repo private without access, or path missing — try repo root
+          const repoRes = await fetch(
+            'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO,
+            {
+              headers: {
+                'Authorization': 'token ' + token,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            }
+          );
+          if (repoRes.ok) {
+            testResult.innerHTML =
+              '<span style="color:#e65100;"><strong>~ Token works on the repo</strong>, but data.json was not found (404). Push from piler-info Save Now should create/update it.</span>';
+          } else {
+            testResult.innerHTML =
+              '<span style="color:#b71c1c;"><strong>✗ Cannot access repo (' + res.status + ').</strong> Check token scopes and that the repo is <code>' +
+              GITHUB_OWNER + '/' + GITHUB_REPO + '</code>.</span>';
+          }
+          return;
+        }
+
+        testResult.innerHTML =
+          '<span style="color:#b71c1c;"><strong>✗ Unexpected response:</strong> HTTP ' + res.status + '</span>';
+      } catch (e) {
+        testResult.innerHTML =
+          '<span style="color:#b71c1c;"><strong>✗ Network error:</strong> ' + (e.message || e) +
+          '. If you opened this as a local file, some browsers block API calls — use the live github.io admin page.</span>';
+      }
+    }
+
+    updateStatus();
+  </script>
+</body>
+</html>

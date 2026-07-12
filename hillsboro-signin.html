@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hillsboro North Sign-In Sheet</title>
+  <style>
+    :root {
+      --sugar-red: #c8102e;
+      --sugar-blue: #003366;
+      --line: #222;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8f8f8;
+      color: #111;
+      line-height: 1.4;
+    }
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 24px 32px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--sugar-blue);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .header img {
+      height: 125px;
+      width: auto;
+      flex-shrink: 0;
+    }
+    .header-content h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--sugar-blue);
+    }
+    .header-content .subtitle {
+      font-size: 13px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .header-content {
+      text-align: center;
+      flex: 1;
+    }
+
+    .people-count-circle {
+      width: 80px;
+      height: 80px;
+      border: 6px solid #003366;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+      padding: 2px;
+    }
+    .people-count-circle .label {
+      font-size: 8px;
+      font-weight: 700;
+      color: #003366;
+      letter-spacing: 0.4px;
+      text-align: center;
+      line-height: 1;
+      margin-bottom: 0px;
+    }
+    .people-count-circle .number {
+      font-size: 30px;
+      font-weight: 800;
+      color: #003366;
+      line-height: 0.9;
+      text-align: center;
+    }
+
+    .people-count-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .yard-disclaimer {
+      font-size: 6.5px;
+      color: #555;
+      text-align: center;
+      line-height: 1.1;
+      max-width: 105px;
+      margin-top: 2px;
+      font-weight: 500;
+      white-space: normal;
+    }
+
+    .piler-warnings {
+      margin-bottom: 4px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    .meta-field {
+      flex: 1;
+      min-width: 180px;
+    }
+    .meta-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 4px;
+    }
+    .meta-field input {
+      width: 100%;
+      font-size: 16px;
+      padding: 6px 0;
+      border: none;
+      border-bottom: 2px solid var(--line);
+      outline: none;
+      background: transparent;
+    }
+    .meta-field input:focus {
+      border-bottom-color: var(--sugar-red);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 28px;
+      margin-bottom: 20px;
+    }
+    .piler-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .piler-col h2 {
+      font-size: 13px;
+      margin: 0 0 6px;
+      color: var(--sugar-blue);
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .piler-list .entry {
+      margin-bottom: 4px;
+    }
+    .piler-list .entry input {
+      font-size: 14px;
+    }
+    .piler-list .entry.operator input {
+      background-color: #86efac !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.relief input {
+      background-color: #d9f99d !important;
+    }
+    .piler-list .entry.boom input {
+      background-color: #fde047 !important;
+    }
+
+    /* Unassigned names in red */
+    .piler-list .entry.unassigned input {
+      color: red !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.unassigned.operator input {
+      background-color: #86efac !important;
+      color: red !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.unassigned.relief input {
+      background-color: #d9f99d !important;
+      color: red !important;
+      font-weight: 600;
+    }
+    .piler-list .entry.unassigned.boom input {
+      background-color: #fde047 !important;
+      color: red !important;
+      font-weight: 600;
+    }
+    .color-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin: 2px 0 10px;
+      font-size: 10px;
+      color: #555;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .color-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border: 1px solid #999;
+      vertical-align: middle;
+    }
+    .color-swatch.operator { background-color: #86efac; }
+    .color-swatch.relief { background-color: #d9f99d; }
+    .color-swatch.boom { background-color: #fde047; }
+    .entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .entry .num {
+      width: 26px;
+      font-size: 13px;
+      color: #666;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .entry input {
+      flex: 1;
+      font-size: 15px;
+      padding: 4px 6px;
+      border: none;
+      border-bottom: 1px solid #999;
+      background: transparent;
+      outline: none;
+    }
+    .entry input:focus {
+      border-bottom-color: var(--sugar-red);
+      background: #fffdf5;
+    }
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (min-width: 700px) {
+      .side-panel {
+        flex-direction: row;
+        gap: 16px;
+      }
+      .side-panel .side-box {
+        flex: 1;
+      }
+    }
+    .side-box {
+      border: 2px solid var(--sugar-blue);
+      padding: 12px 14px;
+      border-radius: 4px;
+    }
+    .side-box h3 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sugar-blue);
+    }
+    .side-box .entry {
+      margin-bottom: 5px;
+    }
+    .side-box .entry .num {
+      width: 20px;
+      font-size: 12px;
+    }
+    .side-box .entry input {
+      font-size: 14px;
+    }
+    .notes-section {
+      margin-bottom: 18px;
+    }
+    .notes-section label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 4px;
+    }
+    .notes-section textarea {
+      width: 100%;
+      height: 68px;
+      font-size: 14px;
+      padding: 8px;
+      border: 1px solid #999;
+      border-radius: 3px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+    button {
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid var(--sugar-blue);
+      background: white;
+      color: var(--sugar-blue);
+      border-radius: 4px;
+      transition: all 0.1s ease;
+    }
+    button:hover {
+      background: var(--sugar-blue);
+      color: white;
+    }
+    button.primary {
+      background: var(--sugar-red);
+      border-color: var(--sugar-red);
+      color: white;
+    }
+    button.primary:hover {
+      background: #a00d25;
+      border-color: #a00d25;
+    }
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .row-count {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      html, body, .container, .header, .piler-list, .piler-col, .side-box,
+      .color-legend, .color-swatch, .people-count-circle, .people-count-wrapper, .yard-disclaimer {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .container {
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+        padding: 10px 20px;
+      }
+      .header {
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+      }
+      .header img {
+        height: 105px;
+      }
+      .header-content h1 {
+        font-size: 20px;
+      }
+      .color-legend {
+        font-size: 9px;
+        margin: 4px 0 8px;
+      }
+      .color-swatch {
+        width: 11px;
+        height: 11px;
+      }
+      .people-count-circle {
+        width: 78px;
+        height: 78px;
+        border-width: 5px;
+        box-shadow: none;
+        padding: 1px;
+      }
+      .people-count-circle .label {
+        font-size: 8px;
+        margin-bottom: 0;
+      }
+      .people-count-circle .number {
+        font-size: 26px;
+      }
+      .people-count-wrapper {
+        margin-left: auto;
+      }
+      .yard-disclaimer {
+        font-size: 5.5px;
+        max-width: 100px;
+        margin-top: 1px;
+        color: #333;
+        line-height: 1.05;
+      }
+      .meta-row, .side-box {
+        margin-bottom: 8px;
+      }
+      .actions, .hint, .no-print {
+        display: none !important;
+      }
+      .entry input, .meta-field input {
+        border-bottom: 1px solid #000;
+        padding: 2px 0;
+        font-size: 12px;
+      }
+      .piler-list .entry.operator input { background-color: #86efac !important; }
+      .piler-list .entry.relief input { background-color: #d9f99d !important; }
+      .piler-list .entry.boom input { background-color: #fde047 !important; }
+      .piler-list .entry.unassigned input { color: red !important; font-weight: 600; }
+      .piler-list .entry.unassigned.operator input { background-color: #86efac !important; color: red !important; font-weight: 600; }
+      .piler-list .entry.unassigned.relief input { background-color: #d9f99d !important; color: red !important; font-weight: 600; }
+      .piler-list .entry.unassigned.boom input { background-color: #fde047 !important; color: red !important; font-weight: 600; }
+      .entry input:focus {
+        background: transparent;
+      }
+      .notes-section textarea {
+        border: 1px solid #000;
+        height: 45px;
+      }
+      .form-grid {
+        gap: 14px;
+      }
+    }
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .side-panel {
+        flex-direction: row;
+        gap: 12px;
+      }
+      .side-box {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="no-print" style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
+      <a href="index.html" style="color:#003366; text-decoration:none;">← Home</a>
+    </div>
+    <!-- Header -->
+    <div class="header">
+      <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
+      <div class="header-content">
+        <h1>HILLSBORO NORTH SIGN-IN SHEET</h1>
+        <div class="subtitle">American Crystal Sugar • Hillsboro Yard North</div>
+      </div>
+      <!-- People in Yard count - circled for attention -->
+      <div class="people-count-wrapper">
+        <div class="people-count-circle">
+          <div class="label">PEOPLE IN YARD</div>
+          <div id="people-in-yard" class="number">0</div>
+        </div>
+        <div class="yard-disclaimer">Scalehouse personel not included in yard count</div>
+      </div>
+    </div>
+
+    <!-- Top meta fields -->
+    <div class="meta-row">
+      <div class="meta-field">
+        <label>Day</label>
+        <input type="text" id="day" placeholder="e.g. Monday">
+      </div>
+      <div class="meta-field">
+        <label>Date</label>
+        <input type="date" id="date">
+        <div id="last-updated-display" class="hint" style="margin-top:3px;"></div>
+      </div>
+      <div class="meta-field">
+        <label>Location / Field / Superviser</label>
+        <input type="text" id="location" value="Hillsboro Yard North">
+      </div>
+    </div>
+
+    <!-- Color legend for Piler columns -->
+    <div class="color-legend">
+      <span><strong>Color Legend:</strong></span>
+      <span class="legend-item"><span class="color-swatch operator"></span> Operator</span>
+      <span class="legend-item"><span class="color-swatch relief"></span> Relief</span>
+      <span class="legend-item"><span class="color-swatch boom"></span> Boom</span>
+      <span class="legend-item">Other (A-Z)</span>
+    </div>
+
+    <!-- Piler #7 and #8 Name Columns (auto-filled from piler-info) -->
+    <div class="piler-columns">
+      <div class="piler-col">
+        <h2>Piler #7</h2>
+        <div id="piler7-warnings" class="piler-warnings"></div>
+        <div id="piler7-list" class="piler-list"></div>
+        <div id="unassigned-header" style="color: red; font-weight: bold; font-size: 11px; margin-top: 8px; display: none;">Unassigned</div>
+        <div id="unassigned-list" class="piler-list"></div>
+      </div>
+      <div class="piler-col">
+        <h2>Piler #8</h2>
+        <div id="piler8-warnings" class="piler-warnings"></div>
+        <div id="piler8-list" class="piler-list"></div>
+      </div>
+    </div>
+
+    <!-- Side panels (Skid-Steer/Loader and Foreman) -->
+    <div class="side-panel" style="margin-bottom: 16px;">
+      <!-- Skid-Steer / Loader -->
+      <div class="side-box">
+        <h3>Skid-Steer / Loader</h3>
+        <div id="skid-list"></div>
+      </div>
+
+      <!-- Foreman -->
+      <div class="side-box">
+        <h3>Foreman</h3>
+        <div id="foreman-list"></div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="notes-section">
+      <label>Notes / Issues / Special Instructions</label>
+      <textarea id="notes" placeholder="Equipment issues, weather, incidents, etc."></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions no-print">
+      <button class="primary" onclick="printForm()">🖨️ Print / Save as PDF</button>
+      <button onclick="window.open('piler-info.html', '_blank')">⬅️ Back to Info Page</button>
+      <button onclick="clearForm()">Clear All</button>
+      <button onclick="clearSignInLocalData()" style="background:#f8d7da; border-color:#721c24; color:#721c24;">Wipe local draft (full reset)</button>
+      <button onclick="saveToLocal()">Save Now</button>
+      <button onclick="retryGitHubPush()">🔄 Retry Push to GitHub</button>
+      <button onclick="loadFromLocal()">Load Saved Data</button>
+      <button onclick="loadPilerNames()">Reload from Piler Info</button>
+      <button onclick="window.open('History.html', '_blank')">📜 View Crew History</button>
+      <button onclick="window.open('Crew_Report.html', '_blank')">🖼️ View/Download Crew Report</button>
+    </div>
+    <div class="hint no-print">
+      Piler columns load from data.json. Skid-Steer/Loader and Foreman automatically save to GitHub if a token is configured (via admin.html or console). Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
+    </div>
+    <!-- GitHub sync status (so a failed push is never silent) -->
+    <div id="github-sync-box" class="no-print" style="margin-top:12px;padding:12px 14px;border:2px solid #ccc;border-radius:8px;background:#f7f9fc;">
+      <div style="font-weight:700;color:#003366;margin-bottom:6px;">GitHub Sync (Skid-Steer / Foreman)</div>
+      <div id="github-sync-status" style="font-size:13px;">Checking token…</div>
+    </div>
+
+  </div>
+
+  <script>
+    // Configuration
+    const INITIAL_SKID_ROWS = 3;
+    const INITIAL_FOREMAN_ROWS = 3;
+
+    function updateLastUpdatedDisplay(iso) {
+      const el = document.getElementById('last-updated-display');
+      if (!el) return;
+      if (!iso) { el.innerHTML = ''; return; }
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) { el.innerHTML = ''; return; }
+      const datePart = d.toLocaleDateString(undefined, { dateStyle: 'medium' });
+      const timePart = d.toLocaleTimeString(undefined, { timeStyle: 'short' });
+      el.innerHTML = 'Last push: ' + datePart + ' <span style="color:#c8102e;font-weight:700;">' + timePart + '</span>';
+    }
+
+    function createEntry(num, extraClass = '') {
+      const div = document.createElement('div');
+      div.className = `entry ${extraClass}`;
+      div.innerHTML = `
+        <span class="num">${num}</span>
+        <input type="text" placeholder="">
+      `;
+      return div;
+    }
+
+    function renderSideList(containerId, startNum, count) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        container.appendChild(createEntry(startNum + i));
+      }
+    }
+
+    // === New: Load names from piler-info (data.json on GitHub or localStorage) ===
+    async function loadPilerNames() {
+      const p7Container = document.getElementById('piler7-list');
+      const p8Container = document.getElementById('piler8-list');
+      const unassignedHeader = document.getElementById('unassigned-header');
+      const unassignedContainer = document.getElementById('unassigned-list');
+      if (!p7Container || !p8Container) return;
+
+      p7Container.innerHTML = '';
+      p8Container.innerHTML = '';
+      if (unassignedContainer) unassignedContainer.innerHTML = '';
+      if (unassignedHeader) unassignedHeader.style.display = 'none';
+
+      const w7 = document.getElementById('piler7-warnings');
+      const w8 = document.getElementById('piler8-warnings');
+      if (w7) w7.innerHTML = '';
+      if (w8) w8.innerHTML = '';
+
+      let data = null;
+
+      // First, try to load from data.json (for GitHub Pages shared link)
+      try {
+        const res = await fetch('data.json', { cache: 'no-store' });
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (e) {
+        // ignore, fallback to localStorage
+      }
+
+      // Fallback to localStorage (for local file use or personal saves)
+      if (!data) {
+        const raw = localStorage.getItem('pilerInfoDraft');
+        if (raw) {
+          try { data = JSON.parse(raw); } catch(e) { data = null; }
+        }
+      }
+
+      if (!data || !data.rows || data.rows.length === 0) {
+        // No piler data yet - leave blank lists
+        updateLastUpdatedDisplay(data && data.lastUpdated);
+        updatePeopleCount();
+        return;
+      }
+
+      updateLastUpdatedDisplay(data.lastUpdated);
+
+      // Sync date/day/location from piler info page (override sign-in draft)
+      const dateEl = document.getElementById('date');
+      const dayEl = document.getElementById('day');
+      const locEl = document.getElementById('location');
+      if (dateEl && data.date) dateEl.value = data.date;
+      if (dayEl && data.day) dayEl.value = data.day;
+      if (locEl && data.location) locEl.value = data.location || 'Hillsboro Yard North';
+
+      function normalizePiler(p) {
+        if (!p) return '';
+        return p.toString().trim().replace(/[^0-9]/g, '');
+      }
+
+      const piler7People = [];
+      const piler8People = [];
+      const unassignedPeople = [];
+
+      data.rows.forEach(row => {
+        const num = normalizePiler(row.piler);
+        const name = (row.name || '').trim();
+        if (!name) return;
+        if (num === '7') piler7People.push(row);
+        else if (num === '8') piler8People.push(row);
+        else {
+          unassignedPeople.push(row);
+        }
+      });
+
+      function groupAndSort(people) {
+        const ops = [], rels = [], bms = [], oth = [];
+        people.forEach(p => {
+          const n = (p.name || '').trim();
+          if (!n) return;
+          if (p.operator) ops.push(n);
+          else if (p.relief) rels.push(n);
+          else if (p.boom) bms.push(n);
+          else oth.push(n);
+        });
+        ops.sort((a,b) => a.localeCompare(b));
+        rels.sort((a,b) => a.localeCompare(b));
+        bms.sort((a,b) => a.localeCompare(b));
+        oth.sort((a,b) => a.localeCompare(b));
+
+        const result = [];
+        ops.forEach(n => result.push({name: n, cls: 'operator'}));
+        rels.forEach(n => result.push({name: n, cls: 'relief'}));
+        bms.forEach(n => result.push({name: n, cls: 'boom'}));
+        oth.forEach(n => result.push({name: n, cls: ''}));
+        return result;
+      }
+
+      const list7 = groupAndSort(piler7People);
+      const list8 = groupAndSort(piler8People);
+      const listUnassigned = groupAndSort(unassignedPeople);
+
+      const warningColors = {
+        'Operator': '#166534',
+        'Relief': '#166534',
+        'Boom': '#854d0e'
+      };
+
+      function checkPilerWarnings(list, warningsId) {
+        const warningsDiv = document.getElementById(warningsId);
+        if (!warningsDiv) return;
+        warningsDiv.innerHTML = '';
+
+        if (list.length === 0) return; // no people for this piler, no role warnings needed
+
+        const hasOperator = list.some(item => item.cls === 'operator');
+        const hasRelief = list.some(item => item.cls === 'relief');
+        const hasBoom = list.some(item => item.cls === 'boom');
+
+        const missing = [];
+        if (!hasOperator) missing.push('Operator');
+        if (!hasRelief) missing.push('Relief');
+        if (!hasBoom) missing.push('Boom');
+
+        if (missing.length > 0) {
+          missing.forEach(role => {
+            const div = document.createElement('div');
+            div.style.color = warningColors[role] || 'red';
+            div.style.fontWeight = 'bold';
+            div.textContent = `Warning: ${role} missing`;
+            warningsDiv.appendChild(div);
+          });
+        }
+      }
+
+      checkPilerWarnings(list7, 'piler7-warnings');
+      checkPilerWarnings(list8, 'piler8-warnings');
+
+      function renderPilerList(container, list) {
+        list.forEach((item, i) => {
+          const div = document.createElement('div');
+          div.className = `entry ${item.cls}`;
+          div.innerHTML = `
+            <span class="num">${i + 1}</span>
+            <input type="text" value="${item.name}" class="piler-name-input">
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      function renderUnassignedList(container, list) {
+        list.forEach((item, i) => {
+          const div = document.createElement('div');
+          div.className = `entry ${item.cls} unassigned`;
+          div.innerHTML = `
+            <span class="num">${i + 1}</span>
+            <input type="text" value="${item.name}" class="piler-name-input">
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      renderPilerList(p7Container, list7);
+      renderPilerList(p8Container, list8);
+
+      // Render unassigned names (no piler #) in red under Piler #7 column
+      if (unassignedContainer) unassignedContainer.innerHTML = '';
+      if (unassignedHeader) unassignedHeader.style.display = (listUnassigned.length > 0) ? 'block' : 'none';
+      if (listUnassigned.length > 0 && unassignedContainer) {
+        renderUnassignedList(unassignedContainer, listUnassigned);
+      }
+
+      updatePeopleCount();
+    }
+
+    function setTodayDate() {
+      const dateInput = document.getElementById('date');
+      const today = new Date();
+      const iso = today.toISOString().split('T')[0];
+      dateInput.value = iso;
+
+      // Also prefill Day if empty
+      const dayInput = document.getElementById('day');
+      if (!dayInput.value) {
+        const dayName = today.toLocaleDateString(undefined, { weekday: 'long' });
+        dayInput.value = dayName;
+      }
+    }
+
+    function printForm() {
+      // Set print title with date + location if available
+      const dateVal = document.getElementById('date').value;
+      const locVal = document.getElementById('location').value || '';
+      let title = 'Hillsboro North Sign-In Sheet';
+      if (dateVal) {
+        const d = new Date(dateVal);
+        title += ' - ' + d.toLocaleDateString();
+      }
+      if (locVal) title += ' - ' + locVal;
+      document.title = title;
+
+      window.print();
+
+      // Restore a generic title after print dialog
+      setTimeout(() => {
+        document.title = 'Hillsboro North Sign-In Sheet';
+      }, 1000);
+    }
+
+    function clearForm() {
+      if (!confirm('Clear the entire form?')) return;
+
+      // Clear inputs
+      document.querySelectorAll('input[type="text"], input[type="date"]').forEach(i => i.value = '');
+      document.getElementById('notes').value = '';
+
+      // Reset side lists
+      renderSideList('skid-list', 1, INITIAL_SKID_ROWS);
+      renderSideList('foreman-list', 1, INITIAL_FOREMAN_ROWS);
+
+      // Reload piler names from info sheet (don't clear them)
+      loadPilerNames();
+
+      setTodayDate();
+      document.getElementById('location').value = 'Hillsboro Yard North';
+
+      // Persist the cleared state so sides/foreman remember as empty
+      debouncedSaveSignIn();
+    }
+
+    function clearSignInLocalData() {
+      if (!confirm('This will wipe the local draft for the sign-in page (skid/foreman fields etc.). Continue?')) return;
+      localStorage.removeItem('hillsboroNorthSignInDraft');
+      alert('Local sign-in draft cleared. Reloading...');
+      location.reload();
+    }
+
+    function getAllData() {
+      const data = {
+        day: document.getElementById('day').value,
+        date: document.getElementById('date').value,
+        location: document.getElementById('location').value,
+        notes: document.getElementById('notes').value,
+        skidSteer: [],
+        foreman: [],
+        pilerNames: []
+      };
+
+      // Piler names (from the two columns)
+      document.querySelectorAll('#piler7-list .entry input, #piler8-list .entry input').forEach(inp => {
+        data.pilerNames = data.pilerNames || [];
+        data.pilerNames.push(inp.value.trim());
+      });
+
+      // Skid
+      document.querySelectorAll('#skid-list .entry input').forEach(inp => {
+        data.skidSteer.push(inp.value.trim());
+      });
+
+      // Foreman
+      document.querySelectorAll('#foreman-list .entry input').forEach(inp => {
+        data.foreman.push(inp.value.trim());
+      });
+
+      return data;
+    }
+
+    function saveToLocal() {
+      const data = getAllData();
+      localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+
+      const btns = document.querySelectorAll('button');
+      const origText = [];
+      btns.forEach((b, i) => { origText[i] = b.textContent; b.textContent = 'Saved ✓'; });
+      setTimeout(() => {
+        btns.forEach((b, i) => b.textContent = origText[i] || b.textContent);
+      }, 1400);
+
+      // Push skid/foreman to GitHub — always show the result, never fail silently
+      const hasToken = !!(localStorage.getItem(GITHUB_TOKEN_KEY) || '').trim();
+      if (!hasToken) {
+        setSignInGitHubStatus('✗ Saved locally only — no GitHub token. Set one on admin.html, then Save Now again.', '#b71c1c');
+        return;
+      }
+      setSignInGitHubStatus('Pushing to GitHub…', '#555');
+      pushSignInToGitHub().then(success => {
+        if (success) {
+          console.log('✓ Pushed skid/foreman to GitHub!');
+          setSignInGitHubStatus('✓ Saved locally AND pushed current-signin.json to GitHub.', '#1b5e20');
+        } else {
+          setSignInGitHubStatus('✗ Saved locally — GitHub push failed (see console for details).', '#b71c1c');
+        }
+      });
+    }
+
+    function loadFromLocal(silent = false) {
+      const raw = localStorage.getItem('hillsboroNorthSignInDraft');
+      if (!raw) {
+        if (!silent) alert('No saved draft found.');
+        return false;
+      }
+      const data = JSON.parse(raw);
+
+      // Restore meta
+      document.getElementById('day').value = data.day || '';
+      document.getElementById('date').value = data.date || '';
+      document.getElementById('location').value = data.location || '';
+      document.getElementById('notes').value = data.notes || '';
+
+      // Restore skid
+      const skidContainer = document.getElementById('skid-list');
+      skidContainer.innerHTML = '';
+      (data.skidSteer || []).forEach((val, idx) => {
+        const el = createEntry(idx + 1);
+        el.querySelector('input').value = val;
+        skidContainer.appendChild(el);
+      });
+      // pad if needed
+      while (skidContainer.children.length < INITIAL_SKID_ROWS) {
+        skidContainer.appendChild(createEntry(skidContainer.children.length + 1));
+      }
+
+      // Restore foreman
+      const foremanContainer = document.getElementById('foreman-list');
+      foremanContainer.innerHTML = '';
+      (data.foreman || []).forEach((val, idx) => {
+        const el = createEntry(idx + 1);
+        el.querySelector('input').value = val;
+        foremanContainer.appendChild(el);
+      });
+      while (foremanContainer.children.length < INITIAL_FOREMAN_ROWS) {
+        foremanContainer.appendChild(createEntry(foremanContainer.children.length + 1));
+      }
+
+      updatePeopleCount();
+      return true;
+    }
+
+    // Auto-save for remembering skid/foreman (and other) boxes
+    let signInSaveTimeout = null;
+
+    function debouncedSaveSignIn() {
+      clearTimeout(signInSaveTimeout);
+      signInSaveTimeout = setTimeout(() => {
+        const data = getAllData();
+        localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+      }, 650);
+    }
+
+    function attachSignInAutoListeners() {
+      const containers = [
+        document.getElementById('skid-list'),
+        document.getElementById('foreman-list'),
+        document.getElementById('piler7-list'),
+        document.getElementById('piler8-list')
+      ];
+      containers.forEach(el => {
+        if (el) {
+          el.addEventListener('input', debouncedSaveSignIn);
+          el.addEventListener('change', debouncedSaveSignIn);
+        }
+      });
+
+      // Also watch meta fields and notes for full form memory
+      ['day', 'date', 'location', 'notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', debouncedSaveSignIn);
+          el.addEventListener('change', debouncedSaveSignIn);
+        }
+      });
+    }
+
+    function updatePeopleCount() {
+      let count = 0;
+      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+          container.querySelectorAll('input[type="text"]').forEach(inp => {
+            if (inp.value.trim() !== '') count++;
+          });
+        }
+      });
+
+      const el = document.getElementById('people-in-yard');
+      if (el) el.textContent = count;
+    }
+
+    // === GitHub Auto-Sync for sign-in (skid/foreman) ===
+    const GITHUB_TOKEN_KEY = 'githubPAT';
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+
+    function setSignInGitHubStatus(text, color) {
+      const el = document.getElementById('github-sync-status');
+      if (el) {
+        el.textContent = text;
+        el.style.color = color || '#333';
+      }
+    }
+
+    function updateSignInGitHubStatusUI() {
+      const token = (localStorage.getItem(GITHUB_TOKEN_KEY) || '').trim();
+      if (token) {
+        const mask = token.length >= 8 ? (token.slice(0, 4) + '…' + token.slice(-4)) : '(short)';
+        setSignInGitHubStatus('✓ Token saved (' + mask + '). Save Now will try to update GitHub.', '#1b5e20');
+      } else {
+        setSignInGitHubStatus('✗ No token saved — Save Now will NOT update GitHub. Set one on admin.html.', '#b71c1c');
+      }
+    }
+
+    // Re-push whatever is already on screen (loaded from the local draft), without
+    // touching any fields. For the "filled out in the field with no wifi, push once
+    // back online" workflow.
+    function retryGitHubPush() {
+      const hasToken = !!(localStorage.getItem(GITHUB_TOKEN_KEY) || '').trim();
+      if (!hasToken) {
+        setSignInGitHubStatus('✗ No GitHub token saved — set one on admin.html first.', '#b71c1c');
+        return;
+      }
+      setSignInGitHubStatus('Pushing to GitHub…', '#555');
+      pushSignInToGitHub().then(success => {
+        if (success) {
+          setSignInGitHubStatus('✓ Pushed current-signin.json to GitHub.', '#1b5e20');
+        } else {
+          setSignInGitHubStatus('✗ GitHub push failed — check wifi/connection and token permissions.', '#b71c1c');
+        }
+      });
+    }
+
+    async function pushSignInToGitHub() {
+      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
+      if (!token) return false;
+
+      const skidContainer = document.getElementById('skid-list');
+      const foremanContainer = document.getElementById('foreman-list');
+
+      const skidSteer = [];
+      if (skidContainer) {
+        skidContainer.querySelectorAll('input[type="text"]').forEach(inp => {
+          if (inp.value.trim()) skidSteer.push(inp.value.trim());
+        });
+      }
+
+      const foreman = [];
+      if (foremanContainer) {
+        foremanContainer.querySelectorAll('input[type="text"]').forEach(inp => {
+          if (inp.value.trim()) foreman.push(inp.value.trim());
+        });
+      }
+
+      const signinData = { skidSteer, foreman };
+
+      const path = 'current-signin.json';
+      const message = `Auto-update sign-in ${new Date().toISOString()}`;
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(signinData, null, 2))));
+
+      let sha = null;
+      try {
+        const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        }
+      } catch (e) {}
+
+      const body = { message, content, branch: 'main' };
+      if (sha) body.sha = sha;
+
+      try {
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        return putRes.ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function loadSignInFromGitHub() {
+      try {
+        const res = await fetch('current-signin.json', { cache: 'no-store' });
+        if (!res.ok) return false;
+        const data = await res.json();
+
+        // Populate skid
+        const skidContainer = document.getElementById('skid-list');
+        if (skidContainer && data.skidSteer) {
+          const inputs = skidContainer.querySelectorAll('input[type="text"]');
+          data.skidSteer.forEach((val, i) => {
+            if (inputs[i]) inputs[i].value = val;
+          });
+        }
+
+        // Populate foreman
+        const foremanContainer = document.getElementById('foreman-list');
+        if (foremanContainer && data.foreman) {
+          const inputs = foremanContainer.querySelectorAll('input[type="text"]');
+          data.foreman.forEach((val, i) => {
+            if (inputs[i]) inputs[i].value = val;
+          });
+        }
+
+        updatePeopleCount();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function init() {
+      // Initial count
+      updatePeopleCount();
+
+      // Show GitHub token status immediately (so a missing token is obvious)
+      updateSignInGitHubStatusUI();
+
+      // Render side lists (will be overwritten if draft loads)
+      renderSideList('skid-list', 1, INITIAL_SKID_ROWS);
+      renderSideList('foreman-list', 1, INITIAL_FOREMAN_ROWS);
+
+      // Try to load from GitHub first (for shared link), then local draft
+      loadSignInFromGitHub().then(loadedFromGitHub => {
+        if (!loadedFromGitHub) {
+          loadFromLocal(true);
+        }
+        updatePeopleCount();
+
+        if (!document.getElementById('date').value) {
+          setTodayDate();
+        }
+      });
+
+      // Ensure piler columns are loaded from info (in case no draft or after load)
+      loadPilerNames();
+
+      // Attach auto-save listeners so skid/foreman (and other edits) are remembered automatically
+      attachSignInAutoListeners();
+
+      // Update people count live when editing piler/skid/foreman names
+      ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updatePeopleCount);
+        }
+      });
+
+      // Make sure count is up to date after everything
+      updatePeopleCount();
+
+      // Keyboard support: Ctrl/Cmd + P also triggers our print (optional enhancement)
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+          // Let the browser handle it, but we can also prepare title
+          const dateVal = document.getElementById('date').value;
+          if (dateVal) {
+            document.title = 'Hillsboro North Sign-In Sheet - ' + new Date(dateVal).toLocaleDateString();
+          }
+        }
+      });
+
+      // Accessibility / enter key behavior is default fine
+      console.log('%c[Hillsboro North Sign-In] Ready. Skid/foreman remember via auto-save. Piler colors have legend.', 'color:#666');
+    }
+
+    // Boot
+    init();
+  </script>
+</body>
+</html>
