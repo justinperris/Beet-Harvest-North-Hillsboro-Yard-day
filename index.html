@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Beet Harvest - North Hillsboro Yard</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="ACS_Logo.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="American-Crystal-Sugar-Company-logo-nb-500x500.png">
+  <meta name="theme-color" content="#003366">
   <style>
     :root {
       --blue: #003366;
@@ -173,6 +177,12 @@
       if (!confirm('This will permanently clear the locally stored crew history (used by View History). Continue?')) return;
       localStorage.removeItem('pilerInfoHistory');
       alert('Stored history cleared.');
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
     }
   </script>
 </body>
