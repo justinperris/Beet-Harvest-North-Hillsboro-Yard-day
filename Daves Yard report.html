@@ -17,6 +17,10 @@
         h1 { text-align: center; }
         label { font-weight: bold; display: block; margin-top: 15px; }
         input, textarea { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; font-size: 16px; }
+        input[readonly] { background: #eee; color: #555; cursor: not-allowed; }
+        .quick-notes { display: flex; flex-wrap: wrap; gap: 15px; margin: 8px 0 0; }
+        .quick-notes label { font-weight: normal; display: inline-flex; align-items: center; gap: 6px; margin-top: 0; }
+        .quick-notes input[type="checkbox"] { width: auto; margin: 0; }
         #drop-zone {
             border: 3px dashed #ccc; padding: 40px; text-align: center; margin: 15px 0; border-radius: 8px; cursor: pointer; background: #fafafa;
         }
@@ -66,12 +70,18 @@
         <h1>Dave's Field Report</h1>
         
         <label>Report Title (auto-dated):</label>
-        <input type="text" id="title" placeholder="Field Report - Date">
-        <div class="note">Auto-fills with today's date + day of the week.</div>
-        
+        <input type="text" id="title" placeholder="Field Report - Date" readonly>
+        <div class="note">Auto-filled with today's date, day of the week, and time — cannot be edited.</div>
+
         <label>Your Report Text:</label>
         <textarea id="report-text" rows="10" placeholder="Type your detailed report here..."></textarea>
-        
+
+        <div class="quick-notes">
+            <label><input type="checkbox" class="quick-note" data-text="Truck rerouted due to to much green in load."> Green</label>
+            <label><input type="checkbox" class="quick-note" data-text="Observed problem with Piler #"> Problem</label>
+            <label><input type="checkbox" class="quick-note" data-text="Personnel problem"> Personnel</label>
+        </div>
+
         <label>Drag &amp; Drop Photos Here (or click to select):</label>
         <div id="drop-zone">Drop images here<br><small>(JPG, PNG, etc. — multiple OK)</small></div>
         <input type="file" id="file-input" multiple accept="image/*" style="display:none;">
@@ -773,8 +783,13 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 month: 'long',
                 day: 'numeric'
             }).format(date);
+            const formattedTime = new Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }).format(date);
 
-            document.getElementById('title').value = `Field Report - ${formattedDate}`;
+            document.getElementById('title').value = `Field Report - ${formattedDate} ${formattedTime}`;
             document.getElementById('report-text').value = ""; // Empty as requested
             document.title = getFileNameStamp();
             renderImages();
@@ -783,6 +798,22 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
         window.addEventListener('beforeprint', () => {
             document.title = getFileNameStamp();
+        });
+
+        document.querySelectorAll('.quick-note').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const textarea = document.getElementById('report-text');
+                const snippet = checkbox.dataset.text;
+                const lines = textarea.value.length ? textarea.value.split('\n') : [];
+                if (checkbox.checked) {
+                    if (!lines.includes(snippet)) lines.push(snippet);
+                } else {
+                    const idx = lines.indexOf(snippet);
+                    if (idx !== -1) lines.splice(idx, 1);
+                }
+                textarea.value = lines.join('\n');
+                generatePreview();
+            });
         });
     </script>
 </body>
