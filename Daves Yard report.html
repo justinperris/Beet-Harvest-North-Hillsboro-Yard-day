@@ -69,15 +69,13 @@
     <div class="container">
         <h1>Dave's Field Report</h1>
         
-        <label>Report Title (auto-dated):</label>
-        <input type="text" id="title" placeholder="Field Report - Date" readonly>
-        <div class="note">Auto-filled with today's date, day of the week, and time — cannot be edited.</div>
+        <input type="text" id="title" readonly style="display:none;">
 
         <label>Your Report Text:</label>
         <textarea id="report-text" rows="10" placeholder="Type your detailed report here..."></textarea>
 
         <div class="quick-notes">
-            <label><input type="checkbox" class="quick-note" data-text="Truck rerouted due to to much green in load."> Green</label>
+            <label><input type="checkbox" class="quick-note" data-text="Truck rerouted due to too much green in load."> Green</label>
             <label><input type="checkbox" class="quick-note" data-text="Observed problem with Piler #"> Problem</label>
             <label><input type="checkbox" class="quick-note" data-text="Personnel problem"> Personnel</label>
         </div>
