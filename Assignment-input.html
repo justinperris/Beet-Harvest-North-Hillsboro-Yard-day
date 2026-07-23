@@ -254,6 +254,34 @@
       <div class="error-msg" id="errorMsg"></div>
       <div class="success-msg" id="successMsg"></div>
 
+      <p class="instructions" style="margin-top:24px;">
+        Add Foreman, Skid-steer, or Loader personnel &mdash; no Piler # needed.
+      </p>
+
+      <form class="entry-row" id="supportForm" autocomplete="off" novalidate>
+        <div class="field field-name">
+          <label for="supportName">Full Name</label>
+          <input type="text" id="supportName" name="support-full-name" placeholder="Full name" autocomplete="off" spellcheck="false" required>
+        </div>
+
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleForeman" name="roleForeman"> Foreman</label>
+        </div>
+
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleSkidsteer" name="roleSkidsteer"> Skid-steer</label>
+        </div>
+
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleLoader" name="roleLoader"> Loader</label>
+        </div>
+
+        <button type="submit" id="supportEnterBtn">Enter</button>
+      </form>
+
+      <div class="error-msg" id="supportErrorMsg"></div>
+      <div class="success-msg" id="supportSuccessMsg"></div>
+
       <div class="footer-links">
         <a href="south-yard-master-list-form.html">View South Yard Master List &rarr;</a>
       </div>
@@ -379,6 +407,55 @@
       successTimer = setTimeout(() => successMsg.classList.remove('show'), 4000);
 
       fullNameInput.focus();
+    });
+
+    const supportNameInput = document.getElementById('supportName');
+    const supportSuccessMsg = document.getElementById('supportSuccessMsg');
+    let supportSuccessTimer = null;
+
+    document.getElementById('supportForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const supportErrorMsg = document.getElementById('supportErrorMsg');
+      supportErrorMsg.textContent = '';
+      supportSuccessMsg.classList.remove('show');
+
+      const name = supportNameInput.value.trim();
+      const foreman = document.getElementById('roleForeman').checked;
+      const skidsteer = document.getElementById('roleSkidsteer').checked;
+      const loader = document.getElementById('roleLoader').checked;
+
+      if (!name) {
+        supportErrorMsg.textContent = 'Please enter a full name.';
+        return;
+      }
+      if (!foreman && !skidsteer && !loader) {
+        supportErrorMsg.textContent = 'Please check Foreman, Skid-steer, or Loader.';
+        return;
+      }
+
+      const entry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+        name: name,
+        foreman: foreman,
+        skidsteer: skidsteer,
+        loader: loader,
+        piler: null
+      };
+
+      const list = loadAssignments();
+      list.push(entry);
+      saveAssignments(list);
+      renderLastUpdated();
+
+      document.getElementById('supportForm').reset();
+
+      const roles = [foreman && 'Foreman', skidsteer && 'Skid-steer', loader && 'Loader'].filter(Boolean).join(' / ');
+      clearTimeout(supportSuccessTimer);
+      supportSuccessMsg.textContent = `Added "${entry.name}" — ${roles}.`;
+      supportSuccessMsg.classList.add('show');
+      supportSuccessTimer = setTimeout(() => supportSuccessMsg.classList.remove('show'), 4000);
+
+      supportNameInput.focus();
     });
   </script>
 </body>

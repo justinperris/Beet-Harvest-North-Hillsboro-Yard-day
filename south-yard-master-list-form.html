@@ -16,6 +16,8 @@
     --piler-5: #b3e5fc; --piler-5-accent: #0288d1;
     --piler-6: #e1bee7; --piler-6-accent: #8e24aa;
     --piler-unknown: #f5f5f5; --piler-unknown-accent: #9e9e9e;
+    --role-foreman: #fff3cd; --role-foreman-accent: #ffc107;
+    --role-support: #e0e0e0; --role-support-accent: #607d8b;
   }
   * { box-sizing: border-box; }
   body {
@@ -200,6 +202,16 @@
     background: #c8102e;
     color: white;
   }
+  .group-header td {
+    background: #eef2f6;
+    font-weight: 800;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--sugar-blue);
+    padding: 6px 10px;
+    border-bottom: 2px solid #ccc;
+  }
   .empty-msg {
     padding: 30px;
     text-align: center;
@@ -318,16 +330,21 @@
       <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-5-accent)"></span>Piler #5</div>
       <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-6-accent)"></span>Piler #6</div>
       <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-unknown-accent)"></span>Unknown (?)</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--role-foreman-accent)"></span>Foreman</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--role-support-accent)"></span>Skid-steer / Loader</div>
     </div>
 
     <div class="content">
       <table id="assignmentTable">
         <thead>
           <tr>
-            <th style="width:28%;">Full Name</th>
+            <th style="width:22%;">Full Name</th>
             <th class="role-cell">Operator</th>
             <th class="role-cell">Relief Operator</th>
             <th class="role-cell">Boom Operator</th>
+            <th class="role-cell">Foreman</th>
+            <th class="role-cell">Skid-steer</th>
+            <th class="role-cell">Loader</th>
             <th>Piler #</th>
             <th class="no-print"></th>
           </tr>
@@ -408,15 +425,37 @@
       return false;
     }
 
-    const PILER_VAR = {
-      1: { bg: 'var(--piler-1)', accent: 'var(--piler-1-accent)' },
-      2: { bg: 'var(--piler-2)', accent: 'var(--piler-2-accent)' },
-      3: { bg: 'var(--piler-3)', accent: 'var(--piler-3-accent)' },
-      4: { bg: 'var(--piler-4)', accent: 'var(--piler-4-accent)' },
-      5: { bg: 'var(--piler-5)', accent: 'var(--piler-5-accent)' },
-      6: { bg: 'var(--piler-6)', accent: 'var(--piler-6-accent)' },
-      '?': { bg: 'var(--piler-unknown)', accent: 'var(--piler-unknown-accent)' }
+    const CATEGORY_COLORS = {
+      foreman: { bg: 'var(--role-foreman)', accent: 'var(--role-foreman-accent)' },
+      'piler-1': { bg: 'var(--piler-1)', accent: 'var(--piler-1-accent)' },
+      'piler-2': { bg: 'var(--piler-2)', accent: 'var(--piler-2-accent)' },
+      'piler-3': { bg: 'var(--piler-3)', accent: 'var(--piler-3-accent)' },
+      'piler-4': { bg: 'var(--piler-4)', accent: 'var(--piler-4-accent)' },
+      'piler-5': { bg: 'var(--piler-5)', accent: 'var(--piler-5-accent)' },
+      'piler-6': { bg: 'var(--piler-6)', accent: 'var(--piler-6-accent)' },
+      unknown: { bg: 'var(--piler-unknown)', accent: 'var(--piler-unknown-accent)' },
+      support: { bg: 'var(--role-support)', accent: 'var(--role-support-accent)' }
     };
+
+    const GROUP_ORDER = ['foreman', 'piler-1', 'piler-2', 'piler-3', 'piler-4', 'piler-5', 'piler-6', 'unknown', 'support'];
+    const GROUP_LABELS = {
+      foreman: 'Foreman',
+      'piler-1': 'Piler #1',
+      'piler-2': 'Piler #2',
+      'piler-3': 'Piler #3',
+      'piler-4': 'Piler #4',
+      'piler-5': 'Piler #5',
+      'piler-6': 'Piler #6',
+      unknown: 'Unknown (?)',
+      support: 'Skid-steer / Loader'
+    };
+
+    function categoryOf(entry) {
+      if (entry.foreman) return 'foreman';
+      if (entry.skidsteer || entry.loader) return 'support';
+      if ([1, 2, 3, 4, 5, 6].includes(entry.piler)) return 'piler-' + entry.piler;
+      return 'unknown';
+    }
 
     function loadAssignments() {
       try {
@@ -460,33 +499,59 @@
       }
       emptyMsg.style.display = 'none';
 
-      assignments.forEach((entry) => {
-        const tr = document.createElement('tr');
-        tr.dataset.id = entry.id;
-        applyRowColor(tr, entry.piler);
+      const groups = {};
+      GROUP_ORDER.forEach((key) => { groups[key] = []; });
+      assignments.forEach((entry) => { groups[categoryOf(entry)].push(entry); });
 
-        tr.innerHTML = `
-          <td><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"></td>
-          <td class="role-cell"><input type="checkbox" data-field="operator" ${entry.operator ? 'checked' : ''}></td>
-          <td class="role-cell"><input type="checkbox" data-field="relief" ${entry.relief ? 'checked' : ''}></td>
-          <td class="role-cell"><input type="checkbox" data-field="boom" ${entry.boom ? 'checked' : ''}></td>
-          <td>
-            <select class="piler-select" data-field="piler">
-              ${[1,2,3,4,5,6,'?'].map(n => `<option value="${n}" ${entry.piler === n ? 'selected' : ''}>${n}</option>`).join('')}
-            </select>
-          </td>
-          <td class="no-print"><button class="delete-btn" data-action="delete">Remove</button></td>
-        `;
-        tbody.appendChild(tr);
+      const pilerOptions = ['', 1, 2, 3, 4, 5, 6, '?'];
+
+      GROUP_ORDER.forEach((groupKey) => {
+        const people = groups[groupKey];
+        if (people.length === 0) return;
+
+        const headerTr = document.createElement('tr');
+        headerTr.className = 'group-header';
+        headerTr.innerHTML = `<td colspan="9">${GROUP_LABELS[groupKey]}</td>`;
+        tbody.appendChild(headerTr);
+
+        people.forEach((entry) => {
+          const tr = document.createElement('tr');
+          tr.dataset.id = entry.id;
+          applyRowColor(tr, groupKey);
+
+          tr.innerHTML = `
+            <td><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"></td>
+            <td class="role-cell"><input type="checkbox" data-field="operator" ${entry.operator ? 'checked' : ''}></td>
+            <td class="role-cell"><input type="checkbox" data-field="relief" ${entry.relief ? 'checked' : ''}></td>
+            <td class="role-cell"><input type="checkbox" data-field="boom" ${entry.boom ? 'checked' : ''}></td>
+            <td class="role-cell"><input type="checkbox" data-field="foreman" ${entry.foreman ? 'checked' : ''}></td>
+            <td class="role-cell"><input type="checkbox" data-field="skidsteer" ${entry.skidsteer ? 'checked' : ''}></td>
+            <td class="role-cell"><input type="checkbox" data-field="loader" ${entry.loader ? 'checked' : ''}></td>
+            <td>
+              <select class="piler-select" data-field="piler">
+                ${pilerOptions.map((n) => `<option value="${n}" ${isPilerSelected(entry.piler, n) ? 'selected' : ''}>${n === '' ? '—' : n}</option>`).join('')}
+              </select>
+            </td>
+            <td class="no-print"><button class="delete-btn" data-action="delete">Remove</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
       });
     }
 
-    function normalizePiler(value) {
-      return value === '?' ? '?' : parseInt(value, 10);
+    function isPilerSelected(entryPiler, optionValue) {
+      if (optionValue === '') return entryPiler === null || entryPiler === undefined;
+      return entryPiler === optionValue;
     }
 
-    function applyRowColor(tr, piler) {
-      const colors = PILER_VAR[piler] || PILER_VAR['?'];
+    function normalizePiler(value) {
+      if (value === '') return null;
+      if (value === '?') return '?';
+      return parseInt(value, 10);
+    }
+
+    function applyRowColor(tr, groupKey) {
+      const colors = CATEGORY_COLORS[groupKey] || CATEGORY_COLORS.unknown;
       tr.style.backgroundColor = colors.bg;
       tr.style.borderLeftWidth = '6px';
       tr.style.borderLeftStyle = 'solid';
@@ -503,6 +568,8 @@
       return assignments.find(a => a.id === id);
     }
 
+    const RECOLOR_FIELDS = ['piler', 'foreman', 'skidsteer', 'loader'];
+
     document.getElementById('tableBody').addEventListener('input', (e) => {
       const tr = e.target.closest('tr');
       if (!tr) return;
@@ -513,13 +580,11 @@
 
       if (field === 'name') {
         entry.name = e.target.value;
-      } else if (field === 'piler') {
-        entry.piler = normalizePiler(e.target.value);
-        applyRowColor(tr, entry.piler);
+        persist(assignments);
       } else if (['operator', 'relief', 'boom'].includes(field)) {
         entry[field] = e.target.checked;
+        persist(assignments);
       }
-      persist(assignments);
     });
 
     document.getElementById('tableBody').addEventListener('change', (e) => {
@@ -528,11 +593,15 @@
       const entry = findEntry(tr.dataset.id);
       if (!entry) return;
       const field = e.target.dataset.field;
+      if (!field || !RECOLOR_FIELDS.includes(field)) return;
+
       if (field === 'piler') {
         entry.piler = normalizePiler(e.target.value);
-        applyRowColor(tr, entry.piler);
-        persist(assignments);
+      } else {
+        entry[field] = e.target.checked;
       }
+      persist(assignments);
+      renderTable();
     });
 
     document.getElementById('tableBody').addEventListener('click', (e) => {
@@ -553,14 +622,16 @@
         operator: false,
         relief: false,
         boom: false,
+        foreman: false,
+        skidsteer: false,
+        loader: false,
         piler: 1
       };
       assignments.push(entry);
       persist(assignments);
       renderTable();
-      const rows = document.querySelectorAll('#tableBody tr');
-      const lastRow = rows[rows.length - 1];
-      if (lastRow) lastRow.querySelector('.name-input').focus();
+      const newRow = document.querySelector(`#tableBody tr[data-id="${entry.id}"]`);
+      if (newRow) newRow.querySelector('.name-input').focus();
     });
 
     document.getElementById('pdfBtn').addEventListener('click', () => {
