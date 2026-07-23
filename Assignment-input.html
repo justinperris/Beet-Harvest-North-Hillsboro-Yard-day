@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>South Yard - Assignment Input</title>
+<link rel="icon" href="ACS_Logo.ico">
+<style>
+  :root {
+    --sugar-blue: #003366;
+    --sugar-red: #c8102e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f4f4;
+    color: #111;
+    line-height: 1.4;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .header {
+    background: var(--sugar-blue);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header img {
+    height: 44px;
+    width: 44px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: white;
+    padding: 3px;
+    flex-shrink: 0;
+  }
+  .header-text h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .header-text p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+  .content {
+    padding: 24px;
+  }
+  .instructions {
+    color: #444;
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+  }
+  form.entry-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .field label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .field-name {
+    flex: 1 1 220px;
+    min-width: 180px;
+  }
+  #fullName {
+    width: 100%;
+    height: 42px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  .checkbox-field {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .checkbox-field label {
+    text-transform: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #222;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .checkbox-field input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  #pilerNum {
+    width: 60px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    text-align: center;
+    border: 2px solid #bbb;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  #pilerNum.invalid {
+    border-color: var(--sugar-red);
+  }
+  .piler-note {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  button#enterBtn {
+    padding: 11px 26px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: var(--sugar-red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  button#enterBtn:hover {
+    background: #a50d24;
+  }
+  .error-msg {
+    color: var(--sugar-red);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 10px;
+    min-height: 1.2em;
+  }
+  .success-msg {
+    color: #2e7d32;
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 10px;
+    padding: 10px 14px;
+    display: none;
+  }
+  .success-msg.show {
+    display: block;
+  }
+  .footer-links {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .footer-links a {
+    display: inline-block;
+    color: white;
+    background: var(--sugar-blue);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+  }
+  .footer-links a:hover {
+    background: #002347;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar logo">
+      <div class="header-text">
+        <h1>South Yard Assignment Input</h1>
+        <p>American Crystal Sugar &bull; Piler Crew Assignment Entry</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <p class="instructions">
+        Enter the crew member's full name, check the role(s) that apply, and enter their assigned Piler number (1&ndash;6, or ? if unknown).
+        Press <strong>Enter</strong> to add them to the South Yard Master List.
+      </p>
+
+      <form class="entry-row" id="assignmentForm" autocomplete="off" novalidate>
+        <div class="field field-name">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" name="crew-member-full-name" placeholder="Full name" autocomplete="off" spellcheck="false" required>
+        </div>
+
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleOperator" name="roleOperator"> Operator</label>
+        </div>
+
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleRelief" name="roleRelief"> Relief Operator</label>
+        </div>
+
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleBoom" name="roleBoom"> Boom Operator</label>
+        </div>
+
+        <div class="field">
+          <label for="pilerNum">Piler #</label>
+          <input type="text" id="pilerNum" name="pilerNum" inputmode="text" pattern="[1-6?]" maxlength="1" required>
+          <div class="piler-note">Use ? if unknown</div>
+        </div>
+
+        <button type="submit" id="enterBtn">Enter</button>
+      </form>
+
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+
+      <div class="footer-links">
+        <a href="south-yard-master-list-form.html">View South Yard Master List &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'southYardAssignments';
+    const LAST_UPDATED_KEY = 'southYardLastUpdated';
+
+    // Public repo the list is shared through — reading needs no token, only pushing does.
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+    const GITHUB_BRANCH = 'main';
+    const GITHUB_DATA_PATH = 'south-yard-assignments.json';
+
+    async function syncFromGitHub() {
+      try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_DATA_PATH}?_=${Date.now()}`;
+        const resp = await fetch(url, { cache: 'no-store' });
+        if (!resp.ok) return;
+        const remote = await resp.json();
+        if (!remote || !Array.isArray(remote.assignments)) return;
+
+        const localUpdated = localStorage.getItem(LAST_UPDATED_KEY);
+        const remoteUpdated = remote.lastUpdated;
+        if (!localUpdated || (remoteUpdated && new Date(remoteUpdated) > new Date(localUpdated))) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.assignments));
+          localStorage.setItem(LAST_UPDATED_KEY, remoteUpdated || new Date().toISOString());
+        }
+      } catch (e) {
+        // Offline or GitHub unreachable — fall back to whatever is stored locally.
+      }
+    }
+    syncFromGitHub();
+
+    const pilerInput = document.getElementById('pilerNum');
+    pilerInput.addEventListener('input', function () {
+      this.value = this.value.replace(/[^1-6?]/g, '').slice(0, 1);
+      if (this.value !== '') {
+        this.classList.remove('invalid');
+      }
+    });
+
+    function loadAssignments() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveAssignments(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      localStorage.setItem(LAST_UPDATED_KEY, new Date().toISOString());
+    }
+
+    const fullNameInput = document.getElementById('fullName');
+    const successMsg = document.getElementById('successMsg');
+    let successTimer = null;
+
+    document.getElementById('assignmentForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.textContent = '';
+      successMsg.classList.remove('show');
+
+      const name = fullNameInput.value.trim();
+      const piler = pilerInput.value.trim();
+
+      if (!name) {
+        errorMsg.textContent = 'Please enter a full name.';
+        return;
+      }
+      if (piler === '') {
+        pilerInput.classList.add('invalid');
+        errorMsg.textContent = 'Piler # is required. Use ? if unknown.';
+        return;
+      }
+      if (!/^[1-6?]$/.test(piler)) {
+        pilerInput.classList.add('invalid');
+        errorMsg.textContent = 'Piler # must be 1-6, or ? if unknown.';
+        return;
+      }
+      pilerInput.classList.remove('invalid');
+
+      const entry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+        name: name,
+        operator: document.getElementById('roleOperator').checked,
+        relief: document.getElementById('roleRelief').checked,
+        boom: document.getElementById('roleBoom').checked,
+        piler: piler === '?' ? '?' : parseInt(piler, 10)
+      };
+
+      const list = loadAssignments();
+      list.push(entry);
+      saveAssignments(list);
+
+      // Reset the form so the next name can be entered right away.
+      document.getElementById('assignmentForm').reset();
+      pilerInput.classList.remove('invalid');
+
+      clearTimeout(successTimer);
+      successMsg.textContent = `Added "${entry.name}" — Piler #${entry.piler}.`;
+      successMsg.classList.add('show');
+      successTimer = setTimeout(() => successMsg.classList.remove('show'), 4000);
+
+      fullNameInput.focus();
+    });
+  </script>
+</body>
+</html>

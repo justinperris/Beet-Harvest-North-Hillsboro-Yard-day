@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>South Yard Master List</title>
+<link rel="icon" href="ACS_Logo.ico">
+<style>
+  :root {
+    --sugar-blue: #003366;
+    --sugar-red: #c8102e;
+    --piler-1: #ffcdd2; --piler-1-accent: #e53935;
+    --piler-2: #ffe0b2; --piler-2-accent: #fb8c00;
+    --piler-3: #fff9c4; --piler-3-accent: #f9a825;
+    --piler-4: #c8e6c9; --piler-4-accent: #43a047;
+    --piler-5: #b3e5fc; --piler-5-accent: #0288d1;
+    --piler-6: #e1bee7; --piler-6-accent: #8e24aa;
+    --piler-unknown: #f5f5f5; --piler-unknown-accent: #9e9e9e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f4f4;
+    color: #111;
+    line-height: 1.4;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .header {
+    background: var(--sugar-blue);
+    color: white;
+    padding: 26px 28px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .header img {
+    height: 90px;
+    width: 90px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: white;
+    padding: 6px;
+    flex-shrink: 0;
+  }
+  .header-text {
+    flex: 1;
+    min-width: 220px;
+  }
+  .header-text h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 700;
+  }
+  .header-text p {
+    margin: 4px 0 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+  .last-updated-bar {
+    background: #fff3f3;
+    border-bottom: 1px solid #f1c1c1;
+    padding: 10px 28px;
+    font-size: 0.95rem;
+  }
+  .last-updated-bar .label {
+    color: #333;
+    font-weight: 500;
+  }
+  .last-updated-bar .value {
+    color: var(--sugar-red);
+    font-weight: 800;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 14px 28px;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+  }
+  .toolbar button, .toolbar a.btn {
+    padding: 9px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-add { background: var(--sugar-blue); color: white; }
+  .btn-add:hover { background: #002347; }
+  .btn-github { background: #24292e; color: white; }
+  .btn-github:hover { background: #000; }
+  .btn-pdf { background: var(--sugar-red); color: white; }
+  .btn-pdf:hover { background: #a50d24; }
+  .btn-settings { background: #eee; color: #333; border: 1px solid #ccc; }
+  .btn-settings:hover { background: #ddd; }
+  #githubStatus {
+    font-size: 0.85rem;
+    color: #444;
+    margin-left: 4px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 28px;
+    font-size: 0.82rem;
+    color: #444;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .content {
+    padding: 10px 28px 28px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+  }
+  thead th {
+    text-align: left;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #555;
+    padding: 8px 10px;
+    border-bottom: 2px solid #ccc;
+  }
+  tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    vertical-align: middle;
+  }
+  tbody tr {
+    transition: background-color 0.15s ease;
+  }
+  .name-input {
+    width: 100%;
+    min-width: 160px;
+    padding: 7px 9px;
+    font-size: 0.95rem;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.7);
+  }
+  .role-cell {
+    text-align: center;
+  }
+  .role-cell input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .piler-select {
+    width: 60px;
+    padding: 7px 6px;
+    font-size: 0.95rem;
+    text-align: center;
+    border: 2px solid rgba(0,0,0,0.25);
+    border-radius: 5px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.75);
+  }
+  .delete-btn {
+    background: none;
+    border: 1px solid #c8102e;
+    color: #c8102e;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .delete-btn:hover {
+    background: #c8102e;
+    color: white;
+  }
+  .empty-msg {
+    padding: 30px;
+    text-align: center;
+    color: #777;
+    font-size: 0.95rem;
+  }
+  .footer-note {
+    text-align: center;
+    padding: 14px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  .footer-note a { color: var(--sugar-blue); text-decoration: none; font-weight: 600; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .modal h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: var(--sugar-blue);
+  }
+  .modal .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .modal label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #555;
+  }
+  .modal input {
+    padding: 8px 10px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+  .modal .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .modal .modal-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .modal-save { background: var(--sugar-blue); color: white; }
+  .modal-cancel { background: #eee; color: #333; }
+  .modal small { color: #777; display: block; margin-top: -6px; margin-bottom: 10px; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; border-radius: 0; }
+    .no-print { display: none !important; }
+    .header { padding: 14px 16px; }
+    .header img { height: 60px; width: 60px; }
+    .last-updated-bar { padding: 8px 16px; }
+    .content { padding: 10px 16px; overflow-x: visible; }
+    .name-input, .piler-select { border: none; background: transparent; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar logo">
+      <div class="header-text">
+        <h1>South Yard Master Assignment List</h1>
+        <p>American Crystal Sugar &bull; Piler Crew Roster &amp; Role Assignments</p>
+      </div>
+    </div>
+
+    <div class="last-updated-bar">
+      <span class="label">Last updated:</span>
+      <span class="value" id="lastUpdated">No entries yet</span>
+    </div>
+
+    <div class="toolbar no-print">
+      <a class="btn btn-add" href="Assignment-input.html">+ Add via Input Page</a>
+      <button class="btn-add" id="addRowBtn">+ Add Row Here</button>
+      <button class="btn-github" id="githubSaveBtn">Save to GitHub</button>
+      <button class="btn-settings" id="refreshBtn" title="Check GitHub for updates">&#8635; Refresh</button>
+      <button class="btn-settings" id="githubSettingsBtn" title="GitHub settings">&#9881;</button>
+      <button class="btn-pdf" id="pdfBtn">Save PDF</button>
+      <span id="githubStatus"></span>
+    </div>
+
+    <div class="legend no-print">
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-1-accent)"></span>Piler #1</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-2-accent)"></span>Piler #2</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-3-accent)"></span>Piler #3</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-4-accent)"></span>Piler #4</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-5-accent)"></span>Piler #5</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-6-accent)"></span>Piler #6</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-unknown-accent)"></span>Unknown (?)</div>
+    </div>
+
+    <div class="content">
+      <table id="assignmentTable">
+        <thead>
+          <tr>
+            <th style="width:28%;">Full Name</th>
+            <th class="role-cell">Operator</th>
+            <th class="role-cell">Relief Operator</th>
+            <th class="role-cell">Boom Operator</th>
+            <th>Piler #</th>
+            <th class="no-print"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty-msg" id="emptyMsg" style="display:none;">
+        No crew members yet. Use "+ Add via Input Page" or "+ Add Row Here" to get started.
+      </div>
+    </div>
+
+    <div class="footer-note no-print">
+      Edits save automatically to this browser. Use <strong>Save to GitHub</strong> to back up the list, or <strong>Save PDF</strong> to print/export.
+    </div>
+  </div>
+
+  <!-- GitHub Settings Modal -->
+  <div class="modal-overlay no-print" id="githubModal">
+    <div class="modal">
+      <h2>GitHub Save Settings</h2>
+      <small>Stored only in this browser. Requires a Personal Access Token with write access to the repo.</small>
+      <div class="field">
+        <label for="ghOwner">Repo Owner / Org</label>
+        <input type="text" id="ghOwner" placeholder="e.g. calcd">
+      </div>
+      <div class="field">
+        <label for="ghRepo">Repository Name</label>
+        <input type="text" id="ghRepo" placeholder="e.g. new-game-folder">
+      </div>
+      <div class="field">
+        <label for="ghBranch">Branch</label>
+        <input type="text" id="ghBranch" placeholder="main" value="main">
+      </div>
+      <div class="field">
+        <label for="ghPath">File Path</label>
+        <input type="text" id="ghPath" placeholder="south-yard-assignments.json" value="south-yard-assignments.json">
+      </div>
+      <div class="field">
+        <label for="ghToken">Personal Access Token</label>
+        <input type="password" id="ghToken" placeholder="ghp_...">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="ghCancelBtn">Cancel</button>
+        <button class="modal-save" id="ghSaveConfigBtn">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'southYardAssignments';
+    const LAST_UPDATED_KEY = 'southYardLastUpdated';
+    const GH_CONFIG_KEY = 'southYardGitHubConfig';
+
+    // Public repo the list is shared through — reading needs no token, only pushing does.
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+    const GITHUB_BRANCH = 'main';
+    const GITHUB_DATA_PATH = 'south-yard-assignments.json';
+
+    async function syncFromGitHub() {
+      try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_DATA_PATH}?_=${Date.now()}`;
+        const resp = await fetch(url, { cache: 'no-store' });
+        if (!resp.ok) return false;
+        const remote = await resp.json();
+        if (!remote || !Array.isArray(remote.assignments)) return false;
+
+        const localUpdated = localStorage.getItem(LAST_UPDATED_KEY);
+        const remoteUpdated = remote.lastUpdated;
+        if (!localUpdated || (remoteUpdated && new Date(remoteUpdated) > new Date(localUpdated))) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.assignments));
+          localStorage.setItem(LAST_UPDATED_KEY, remoteUpdated || new Date().toISOString());
+          return true;
+        }
+      } catch (e) {
+        // Offline or GitHub unreachable — fall back to whatever is stored locally.
+      }
+      return false;
+    }
+
+    const PILER_VAR = {
+      1: { bg: 'var(--piler-1)', accent: 'var(--piler-1-accent)' },
+      2: { bg: 'var(--piler-2)', accent: 'var(--piler-2-accent)' },
+      3: { bg: 'var(--piler-3)', accent: 'var(--piler-3-accent)' },
+      4: { bg: 'var(--piler-4)', accent: 'var(--piler-4-accent)' },
+      5: { bg: 'var(--piler-5)', accent: 'var(--piler-5-accent)' },
+      6: { bg: 'var(--piler-6)', accent: 'var(--piler-6-accent)' },
+      '?': { bg: 'var(--piler-unknown)', accent: 'var(--piler-unknown-accent)' }
+    };
+
+    function loadAssignments() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function persist(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      localStorage.setItem(LAST_UPDATED_KEY, new Date().toISOString());
+      renderLastUpdated();
+    }
+
+    function formatLastUpdated(iso) {
+      const d = new Date(iso);
+      const dayName = d.toLocaleDateString(undefined, { weekday: 'long' });
+      const dateStr = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      return `${dayName}, ${dateStr} — ${timeStr}`;
+    }
+
+    function renderLastUpdated() {
+      const iso = localStorage.getItem(LAST_UPDATED_KEY);
+      const el = document.getElementById('lastUpdated');
+      el.textContent = iso ? formatLastUpdated(iso) : 'No entries yet';
+    }
+
+    let assignments = loadAssignments();
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const emptyMsg = document.getElementById('emptyMsg');
+      tbody.innerHTML = '';
+
+      if (assignments.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      assignments.forEach((entry) => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = entry.id;
+        applyRowColor(tr, entry.piler);
+
+        tr.innerHTML = `
+          <td><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"></td>
+          <td class="role-cell"><input type="checkbox" data-field="operator" ${entry.operator ? 'checked' : ''}></td>
+          <td class="role-cell"><input type="checkbox" data-field="relief" ${entry.relief ? 'checked' : ''}></td>
+          <td class="role-cell"><input type="checkbox" data-field="boom" ${entry.boom ? 'checked' : ''}></td>
+          <td>
+            <select class="piler-select" data-field="piler">
+              ${[1,2,3,4,5,6,'?'].map(n => `<option value="${n}" ${entry.piler === n ? 'selected' : ''}>${n}</option>`).join('')}
+            </select>
+          </td>
+          <td class="no-print"><button class="delete-btn" data-action="delete">Remove</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function normalizePiler(value) {
+      return value === '?' ? '?' : parseInt(value, 10);
+    }
+
+    function applyRowColor(tr, piler) {
+      const colors = PILER_VAR[piler] || PILER_VAR['?'];
+      tr.style.backgroundColor = colors.bg;
+      tr.style.borderLeftWidth = '6px';
+      tr.style.borderLeftStyle = 'solid';
+      tr.style.borderLeftColor = colors.accent;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function findEntry(id) {
+      return assignments.find(a => a.id === id);
+    }
+
+    document.getElementById('tableBody').addEventListener('input', (e) => {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      const entry = findEntry(tr.dataset.id);
+      if (!entry) return;
+      const field = e.target.dataset.field;
+      if (!field) return;
+
+      if (field === 'name') {
+        entry.name = e.target.value;
+      } else if (field === 'piler') {
+        entry.piler = normalizePiler(e.target.value);
+        applyRowColor(tr, entry.piler);
+      } else if (['operator', 'relief', 'boom'].includes(field)) {
+        entry[field] = e.target.checked;
+      }
+      persist(assignments);
+    });
+
+    document.getElementById('tableBody').addEventListener('change', (e) => {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      const entry = findEntry(tr.dataset.id);
+      if (!entry) return;
+      const field = e.target.dataset.field;
+      if (field === 'piler') {
+        entry.piler = normalizePiler(e.target.value);
+        applyRowColor(tr, entry.piler);
+        persist(assignments);
+      }
+    });
+
+    document.getElementById('tableBody').addEventListener('click', (e) => {
+      if (e.target.dataset.action === 'delete') {
+        const tr = e.target.closest('tr');
+        const id = tr.dataset.id;
+        if (!confirm('Remove this crew member from the list?')) return;
+        assignments = assignments.filter(a => a.id !== id);
+        persist(assignments);
+        renderTable();
+      }
+    });
+
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+      const entry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+        name: '',
+        operator: false,
+        relief: false,
+        boom: false,
+        piler: 1
+      };
+      assignments.push(entry);
+      persist(assignments);
+      renderTable();
+      const rows = document.querySelectorAll('#tableBody tr');
+      const lastRow = rows[rows.length - 1];
+      if (lastRow) lastRow.querySelector('.name-input').focus();
+    });
+
+    document.getElementById('pdfBtn').addEventListener('click', () => {
+      window.print();
+    });
+
+    // ---- GitHub Save ----
+    function getGitHubConfig() {
+      try {
+        const raw = localStorage.getItem(GH_CONFIG_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function openGitHubModal() {
+      const cfg = getGitHubConfig() || {};
+      document.getElementById('ghOwner').value = cfg.owner || GITHUB_OWNER;
+      document.getElementById('ghRepo').value = cfg.repo || GITHUB_REPO;
+      document.getElementById('ghBranch').value = cfg.branch || GITHUB_BRANCH;
+      document.getElementById('ghPath').value = cfg.path || GITHUB_DATA_PATH;
+      document.getElementById('ghToken').value = cfg.token || '';
+      document.getElementById('githubModal').classList.add('open');
+    }
+
+    function closeGitHubModal() {
+      document.getElementById('githubModal').classList.remove('open');
+    }
+
+    document.getElementById('githubSettingsBtn').addEventListener('click', openGitHubModal);
+    document.getElementById('ghCancelBtn').addEventListener('click', closeGitHubModal);
+
+    document.getElementById('ghSaveConfigBtn').addEventListener('click', () => {
+      const cfg = {
+        owner: document.getElementById('ghOwner').value.trim(),
+        repo: document.getElementById('ghRepo').value.trim(),
+        branch: document.getElementById('ghBranch').value.trim() || 'main',
+        path: document.getElementById('ghPath').value.trim() || 'south-yard-assignments.json',
+        token: document.getElementById('ghToken').value.trim()
+      };
+      localStorage.setItem(GH_CONFIG_KEY, JSON.stringify(cfg));
+      closeGitHubModal();
+      document.getElementById('githubStatus').textContent = 'Settings saved.';
+    });
+
+    async function saveToGitHub() {
+      const statusEl = document.getElementById('githubStatus');
+      const cfg = getGitHubConfig();
+      if (!cfg || !cfg.owner || !cfg.repo || !cfg.token) {
+        statusEl.textContent = 'Please configure GitHub settings first.';
+        openGitHubModal();
+        return;
+      }
+
+      statusEl.textContent = 'Saving to GitHub...';
+      try {
+        const payload = {
+          lastUpdated: localStorage.getItem(LAST_UPDATED_KEY),
+          assignments: assignments
+        };
+        const content = JSON.stringify(payload, null, 2);
+        const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path)}`;
+
+        let sha;
+        const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(cfg.branch)}`, {
+          headers: {
+            Authorization: `token ${cfg.token}`,
+            Accept: 'application/vnd.github+json'
+          }
+        });
+        if (getResp.ok) {
+          const data = await getResp.json();
+          sha = data.sha;
+        }
+
+        const putResp = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${cfg.token}`,
+            Accept: 'application/vnd.github+json'
+          },
+          body: JSON.stringify({
+            message: `Update South Yard assignments - ${new Date().toISOString()}`,
+            content: btoa(unescape(encodeURIComponent(content))),
+            branch: cfg.branch,
+            ...(sha ? { sha } : {})
+          })
+        });
+
+        if (!putResp.ok) {
+          const errData = await putResp.json().catch(() => ({}));
+          throw new Error(errData.message || putResp.statusText);
+        }
+
+        statusEl.textContent = 'Saved to GitHub ✓';
+      } catch (err) {
+        statusEl.textContent = 'GitHub save failed: ' + err.message;
+      }
+    }
+
+    document.getElementById('githubSaveBtn').addEventListener('click', saveToGitHub);
+
+    document.getElementById('refreshBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('githubStatus');
+      statusEl.textContent = 'Checking GitHub for updates...';
+      const updated = await syncFromGitHub();
+      assignments = loadAssignments();
+      renderTable();
+      renderLastUpdated();
+      statusEl.textContent = updated ? 'Loaded latest list from GitHub ✓' : 'Already up to date.';
+    });
+
+    // Init — pull the latest shared list from GitHub (if newer) before rendering.
+    (async () => {
+      await syncFromGitHub();
+      assignments = loadAssignments();
+      renderTable();
+      renderLastUpdated();
+    })();
+  </script>
+</body>
+</html>

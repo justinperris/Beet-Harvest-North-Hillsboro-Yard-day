@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>South Yard Assignment Sheet</title>
+  <style>
+    :root {
+      --sugar-red: #c8102e;
+      --sugar-blue: #003366;
+      --line: #222;
+      --piler-1: #ffcdd2;
+      --piler-2: #ffe0b2;
+      --piler-3: #fff9c4;
+      --piler-4: #c8e6c9;
+      --piler-5: #b3e5fc;
+      --piler-6: #e1bee7;
+      --piler-unknown: #eeeeee;
+      --role-operator: #66bb6a;
+      --role-relief: #dcedc8;
+      --role-boom: #ffb74d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 8px 12px 8px 24px;
+      background: #f8f8f8;
+      color: #111;
+      line-height: 1.25;
+    }
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 10px 0 10px 50px;  /* left margin for spiral binding, 0 right hand margin */
+      position: relative;
+    }
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 6px;
+      margin-bottom: 2px;
+    }
+    .header img {
+      height: 140px;
+      width: auto;
+      flex-shrink: 0;
+    }
+    .header-content {
+      flex: 1;
+      text-align: center;
+    }
+    .header-content h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--sugar-blue);
+    }
+    .header-content .subtitle {
+      font-size: 11px;
+      color: #555;
+      margin-top: 1px;
+    }
+    .header-right {
+      text-align: right;
+      min-width: 130px;
+      font-size: 9px;
+    }
+    .header-date {
+      font-size: 10px;
+      white-space: nowrap;
+      margin-bottom: 4px;
+    }
+    .right-margin-top {
+      position: absolute;
+      right: 5px;
+      top: 145px;
+      width: 190px;
+      border: 2px solid var(--sugar-blue);
+      padding: 4px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      line-height: 1.15;
+      text-align: left;
+      margin: 0;
+      z-index: 2;
+    }
+    .right-margin-top h3 {
+      font-size: 10px;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sugar-blue);
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 2px;
+    }
+    .right-margin-top .entry {
+      margin-bottom: 1px;
+    }
+    .right-margin-top .entry .hand-line {
+      height: 24px;
+    }
+
+    .piler-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+      max-width: none;
+      margin-right: 200px;  /* space for extra people column on right */
+    }
+    .piler-group {
+      border: 2px solid var(--sugar-blue);
+      padding: 4px 6px;
+      border-radius: 3px;
+      position: relative;
+    }
+    .piler-group h3 {
+      font-size: 10px;
+      margin: 0 0 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sugar-blue);
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 2px;
+      position: relative;
+      z-index: 1;
+    }
+    .piler-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-6deg);
+      font-size: 192px;
+      font-weight: 800;
+      color: rgba(0, 51, 102, 0.14);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+      line-height: 1;
+      user-select: none;
+    }
+    .entry {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 1px;
+      position: relative;
+      z-index: 1;
+    }
+    .entry .num {
+      width: 16px;
+      font-size: 9px;
+      color: #555;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .entry .hand-line {
+      flex: 1;
+      height: 24px;
+      border-bottom: 1px solid #000;
+      background: transparent;
+    }
+    .entry.filled .hand-line {
+      display: flex;
+      align-items: center;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 2px;
+      background: var(--piler-unknown);
+    }
+    .entry .role-tag {
+      font-size: 7px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+    .entry.role-operator .hand-line { background: var(--role-operator); }
+    .entry.role-relief .hand-line { background: var(--role-relief); }
+    .entry.role-boom .hand-line { background: var(--role-boom); }
+    .piler-group[data-piler="1"] .entry.role-general .hand-line { background: var(--piler-1); }
+    .piler-group[data-piler="2"] .entry.role-general .hand-line { background: var(--piler-2); }
+    .piler-group[data-piler="3"] .entry.role-general .hand-line { background: var(--piler-3); }
+    .piler-group[data-piler="4"] .entry.role-general .hand-line { background: var(--piler-4); }
+    .piler-group[data-piler="5"] .entry.role-general .hand-line { background: var(--piler-5); }
+    .piler-group[data-piler="6"] .entry.role-general .hand-line { background: var(--piler-6); }
+
+    .footer-note {
+      font-size: 9px;
+      color: #666;
+      text-align: center;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    @media print {
+      @page {
+        size: letter;
+        margin: 0.25in 0.3in 0.25in 0.6in; /* extra left margin for spiral-bound book */
+      }
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .container {
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+        padding: 4px 0 4px 45px;  /* left margin for spiral binding, 0 right hand margin */
+        margin: 0;
+      }
+      .header {
+        padding-bottom: 2px;
+        margin-bottom: 0;
+      }
+      .header img {
+        height: 110px;
+      }
+      .header-content h1 {
+        font-size: 16px;
+      }
+      .header-right {
+        min-width: 100px;
+        font-size: 8px;
+      }
+      .header-date {
+        font-size: 9px;
+        margin-bottom: 2px;
+      }
+      .right-margin-top {
+        right: 5px;
+        top: 115px;
+        width: 160px;
+        border: 2px solid var(--sugar-blue);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 8px;
+        line-height: 1.1;
+        margin: 0;
+        z-index: 2;
+      }
+      .right-margin-top h3 {
+        font-size: 8px;
+        margin: 0 0 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--sugar-blue);
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 1px;
+      }
+      .right-margin-top .entry {
+        margin-bottom: 1px;
+      }
+      .right-margin-top .entry .hand-line {
+        height: 28px;
+      }
+
+      .piler-grid {
+        gap: 5px;
+        margin-bottom: 3px;
+        max-width: none;
+        margin-right: 170px;  /* space for extra people column on right */
+      }
+      .piler-group {
+        padding: 2px 4px 6px 4px;
+        position: relative;
+      }
+      .piler-group h3 {
+        font-size: 8px;
+        margin-bottom: 1px;
+        position: relative;
+        z-index: 1;
+      }
+      .piler-watermark {
+        font-size: 168px;
+        color: rgba(0, 51, 102, 0.20);
+      }
+      .entry {
+        margin-bottom: 1px;
+        position: relative;
+        z-index: 1;
+      }
+      .entry .num {
+        font-size: 7px;
+      }
+      .entry .hand-line {
+        height: 28px;
+      }
+      .entry.filled .hand-line {
+        font-size: 9px;
+      }
+      .entry .role-tag {
+        font-size: 6px;
+      }
+
+      .footer-note {
+        font-size: 8px;
+        margin-top: 2px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
+      <div class="header-content">
+        <h1>SOUTH YARD ASSIGNMENT SHEET</h1>
+        <div class="subtitle">American Crystal Sugar • South Yard • Piler Crew Assignments</div>
+      </div>
+      <div class="header-right">
+        <div class="header-date">
+          Date: ____________________
+        </div>
+      </div>
+    </div>
+
+    <div class="right-margin-top">
+      <h3>Extra people</h3>
+      <div class="entries" id="extraPeopleEntries"></div>
+    </div>
+
+    <!-- 6 Piler Crew Groups: 2 columns x 3 rows -->
+    <div class="piler-grid">
+      <!-- Piler #1 -->
+      <div class="piler-group" data-piler="1">
+        <h3>Piler #1</h3>
+        <div class="piler-watermark">1</div>
+        <div class="entries"></div>
+      </div>
+
+      <!-- Piler #2 -->
+      <div class="piler-group" data-piler="2">
+        <h3>Piler #2</h3>
+        <div class="piler-watermark">2</div>
+        <div class="entries"></div>
+      </div>
+
+      <!-- Piler #3 -->
+      <div class="piler-group" data-piler="3">
+        <h3>Piler #3</h3>
+        <div class="piler-watermark">3</div>
+        <div class="entries"></div>
+      </div>
+
+      <!-- Piler #4 -->
+      <div class="piler-group" data-piler="4">
+        <h3>Piler #4</h3>
+        <div class="piler-watermark">4</div>
+        <div class="entries"></div>
+      </div>
+
+      <!-- Piler #5 -->
+      <div class="piler-group" data-piler="5">
+        <h3>Piler #5</h3>
+        <div class="piler-watermark">5</div>
+        <div class="entries"></div>
+      </div>
+
+      <!-- Piler #6 -->
+      <div class="piler-group" data-piler="6">
+        <h3>Piler #6</h3>
+        <div class="piler-watermark">6</div>
+        <div class="entries"></div>
+      </div>
+    </div>
+
+    <div class="footer-note no-print">
+      South Yard Assignment Sheet — Auto-filled from the South Yard Master List. Blank lines are left for adding walk-ons by hand.
+    </div>
+
+    <!-- Screen-only print button -->
+    <div style="text-align:center; margin-top:8px;" class="no-print">
+      <button onclick="window.print()" style="padding:8px 18px; font-size:13px; font-weight:600; background:#003366; color:white; border:none; border-radius:4px; cursor:pointer;">🖨️ Print / Save as PDF</button>
+      <div style="font-size:9px; color:#666; margin-top:3px;">Recommended filename: South Yard Assignment Sheet.pdf</div>
+    </div>
+  </div>
+
+  <script>
+    function preparePrintTitle() {
+      document.title = 'South Yard Assignment Sheet';
+    }
+    window.addEventListener('beforeprint', preparePrintTitle);
+
+    const STORAGE_KEY = 'southYardAssignments';
+    const LAST_UPDATED_KEY = 'southYardLastUpdated';
+    const MIN_PILER_LINES = 8;
+    const MIN_EXTRA_LINES = 10;
+    const ROLE_ORDER = { operator: 0, relief: 1, boom: 2, general: 3 };
+    const ROLE_LABEL = { operator: 'Operator', relief: 'Relief', boom: 'Boom' };
+
+    // Public repo the list is shared through — reading needs no token, only pushing does.
+    const GITHUB_OWNER = 'justinperris';
+    const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
+    const GITHUB_BRANCH = 'main';
+    const GITHUB_DATA_PATH = 'south-yard-assignments.json';
+
+    async function syncFromGitHub() {
+      try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_DATA_PATH}?_=${Date.now()}`;
+        const resp = await fetch(url, { cache: 'no-store' });
+        if (!resp.ok) return;
+        const remote = await resp.json();
+        if (!remote || !Array.isArray(remote.assignments)) return;
+
+        const localUpdated = localStorage.getItem(LAST_UPDATED_KEY);
+        const remoteUpdated = remote.lastUpdated;
+        if (!localUpdated || (remoteUpdated && new Date(remoteUpdated) > new Date(localUpdated))) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.assignments));
+          localStorage.setItem(LAST_UPDATED_KEY, remoteUpdated || new Date().toISOString());
+        }
+      } catch (e) {
+        // Offline or GitHub unreachable — fall back to whatever is stored locally.
+      }
+    }
+
+    function loadAssignments() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function roleOf(entry) {
+      if (entry.operator) return 'operator';
+      if (entry.relief) return 'relief';
+      if (entry.boom) return 'boom';
+      return 'general';
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function entryHtml(num, person) {
+      if (!person) {
+        return `<div class="entry"><span class="num">${num}</span><div class="hand-line"></div></div>`;
+      }
+      const role = roleOf(person);
+      const roleClass = ` role-${role}`;
+      const label = ROLE_LABEL[role];
+      const labelHtml = label ? `<span class="role-tag">${label}</span>` : '';
+      return `<div class="entry filled${roleClass}"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${labelHtml}</div></div>`;
+    }
+
+    function renderList(container, people, minLines) {
+      const totalLines = Math.max(minLines, people.length + 2);
+      let html = '';
+      for (let i = 0; i < totalLines; i++) {
+        html += entryHtml(i + 1, people[i] || null);
+      }
+      container.innerHTML = html;
+    }
+
+    function renderAssignmentSheet() {
+      const assignments = loadAssignments();
+
+      for (let p = 1; p <= 6; p++) {
+        const group = document.querySelector(`.piler-group[data-piler="${p}"] .entries`);
+        if (!group) continue;
+        const people = assignments
+          .filter((a) => a.piler === p)
+          .sort((a, b) => ROLE_ORDER[roleOf(a)] - ROLE_ORDER[roleOf(b)]);
+        renderList(group, people, MIN_PILER_LINES);
+      }
+
+      const extraPeople = assignments.filter((a) => a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler));
+      renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES);
+    }
+
+    (async () => {
+      await syncFromGitHub();
+      renderAssignmentSheet();
+    })();
+  </script>
+</body>
+</html>
