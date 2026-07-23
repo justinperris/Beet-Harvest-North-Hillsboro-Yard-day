@@ -150,6 +150,20 @@
   button#enterBtn:hover {
     background: #a50d24;
   }
+  .last-updated-bar {
+    background: #fff3f3;
+    border-bottom: 1px solid #f1c1c1;
+    padding: 8px 24px;
+    font-size: 0.85rem;
+  }
+  .last-updated-bar .label {
+    color: #333;
+    font-weight: 500;
+  }
+  .last-updated-bar .value {
+    color: var(--sugar-red);
+    font-weight: 800;
+  }
   .error-msg {
     color: var(--sugar-red);
     font-size: 0.85rem;
@@ -176,15 +190,13 @@
     text-align: center;
   }
   .footer-links a {
-    display: inline-block;
-    color: white;
-    background: var(--sugar-blue);
+    color: var(--sugar-blue);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
-    padding: 10px 20px;
-    border-radius: 6px;
-    transition: background 0.15s ease;
+    font-size: 0.85rem;
+  }
+  .footer-links a:hover {
+    text-decoration: underline;
   }
   .footer-links a:hover {
     background: #002347;
@@ -199,6 +211,11 @@
         <h1>South Yard Assignment Input</h1>
         <p>American Crystal Sugar &bull; Piler Crew Assignment Entry</p>
       </div>
+    </div>
+
+    <div class="last-updated-bar">
+      <span class="label">Last updated:</span>
+      <span class="value" id="lastUpdated">No entries yet</span>
     </div>
 
     <div class="content">
@@ -271,7 +288,7 @@
         // Offline or GitHub unreachable — fall back to whatever is stored locally.
       }
     }
-    syncFromGitHub();
+    syncFromGitHub().then(() => renderLastUpdated());
 
     const pilerInput = document.getElementById('pilerNum');
     pilerInput.addEventListener('input', function () {
@@ -294,6 +311,20 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
       localStorage.setItem(LAST_UPDATED_KEY, new Date().toISOString());
     }
+
+    function formatLastUpdated(iso) {
+      const d = new Date(iso);
+      const dayName = d.toLocaleDateString(undefined, { weekday: 'long' });
+      const dateStr = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      return `${dayName}, ${dateStr} — ${timeStr}`;
+    }
+
+    function renderLastUpdated() {
+      const iso = localStorage.getItem(LAST_UPDATED_KEY);
+      document.getElementById('lastUpdated').textContent = iso ? formatLastUpdated(iso) : 'No entries yet';
+    }
+    renderLastUpdated();
 
     const fullNameInput = document.getElementById('fullName');
     const successMsg = document.getElementById('successMsg');
@@ -336,6 +367,7 @@
       const list = loadAssignments();
       list.push(entry);
       saveAssignments(list);
+      renderLastUpdated();
 
       // Reset the form so the next name can be entered right away.
       document.getElementById('assignmentForm').reset();

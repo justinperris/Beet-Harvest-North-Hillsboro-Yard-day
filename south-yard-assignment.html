@@ -67,15 +67,48 @@
       color: #555;
       margin-top: 1px;
     }
-    .header-right {
-      text-align: right;
-      min-width: 130px;
-      font-size: 9px;
-    }
-    .header-date {
+    .header-last-updated {
       font-size: 10px;
-      white-space: nowrap;
-      margin-bottom: 4px;
+      margin-top: 3px;
+      color: #333;
+    }
+    .header-last-updated .value {
+      color: var(--sugar-red);
+      font-weight: 800;
+    }
+    .people-count {
+      flex-shrink: 0;
+      width: 110px;
+      text-align: center;
+    }
+    .people-count-circle {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto;
+      border: 3px solid var(--sugar-blue);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+    }
+    .people-count-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--sugar-blue);
+      letter-spacing: 0.3px;
+    }
+    .people-count-number {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--sugar-blue);
+    }
+    .people-count-note {
+      font-size: 8px;
+      color: #555;
+      margin-top: 4px;
+      line-height: 1.2;
     }
     .right-margin-top {
       position: absolute;
@@ -231,13 +264,27 @@
       .header-content h1 {
         font-size: 16px;
       }
-      .header-right {
-        min-width: 100px;
+      .header-last-updated {
         font-size: 8px;
+        margin-top: 2px;
       }
-      .header-date {
-        font-size: 9px;
-        margin-bottom: 2px;
+      .people-count {
+        width: 85px;
+      }
+      .people-count-circle {
+        width: 70px;
+        height: 70px;
+        border-width: 2px;
+      }
+      .people-count-label {
+        font-size: 7px;
+      }
+      .people-count-number {
+        font-size: 20px;
+      }
+      .people-count-note {
+        font-size: 6px;
+        margin-top: 2px;
       }
       .right-margin-top {
         right: 5px;
@@ -323,11 +370,16 @@
       <div class="header-content">
         <h1>SOUTH YARD ASSIGNMENT SHEET</h1>
         <div class="subtitle">American Crystal Sugar • South Yard • Piler Crew Assignments</div>
-      </div>
-      <div class="header-right">
-        <div class="header-date">
-          Date: ____________________
+        <div class="header-last-updated">
+          Last updated: <span class="value" id="lastUpdated">No entries yet</span>
         </div>
+      </div>
+      <div class="people-count">
+        <div class="people-count-circle">
+          <div class="people-count-label">PEOPLE<br>IN YARD</div>
+          <div class="people-count-number" id="peopleCount">0</div>
+        </div>
+        <div class="people-count-note">Scalehouse personel not included in yard count</div>
       </div>
     </div>
 
@@ -486,11 +538,26 @@
 
       const extraPeople = assignments.filter((a) => a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler));
       renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES);
+
+      document.getElementById('peopleCount').textContent = assignments.length;
+    }
+
+    function formatLastUpdated(iso) {
+      const d = new Date(iso);
+      const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      return `${dateStr} ${timeStr}`;
+    }
+
+    function renderLastUpdated() {
+      const iso = localStorage.getItem(LAST_UPDATED_KEY);
+      document.getElementById('lastUpdated').textContent = iso ? formatLastUpdated(iso) : 'No entries yet';
     }
 
     (async () => {
       await syncFromGitHub();
       renderAssignmentSheet();
+      renderLastUpdated();
     })();
   </script>
 </body>
