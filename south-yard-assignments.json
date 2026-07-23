@@ -1,0 +1,69 @@
+{
+  "lastUpdated": "2026-07-23T20:37:54.078Z",
+  "assignments": [
+    {
+      "id": "mrxvatrvctkvrl",
+      "name": "dave",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "piler": 1
+    },
+    {
+      "id": "mrxvbvklr6o1s4",
+      "name": "Bob",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mrxvrh0p36b008",
+      "name": "Bob Carter",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "piler": "?"
+    },
+    {
+      "id": "mrxvt1tpr9e8v3",
+      "name": "Terry Stevens",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "piler": 2
+    },
+    {
+      "id": "mrxvtiiq2g0lxf",
+      "name": "Jack Ass",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mrxvu1mxjvzbu7",
+      "name": "Trouble Guy",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mrxz2z13ir3x2d",
+      "name": "January Feb",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "piler": 5
+    },
+    {
+      "id": "mrxz3nkuzuobbf",
+      "name": "May  First",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 4
+    }
+  ]
+}
