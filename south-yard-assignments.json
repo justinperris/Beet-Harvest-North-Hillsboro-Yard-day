@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-23T20:37:54.078Z",
+  "lastUpdated": "2026-07-24T00:07:27.937Z",
   "assignments": [
     {
       "id": "mrxvatrvctkvrl",
@@ -64,6 +64,17 @@
       "relief": false,
       "boom": false,
       "piler": 4
+    },
+    {
+      "id": "mry6kq9lzk7iux",
+      "name": "Justi perris",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "piler": 5
     }
   ]
 }
