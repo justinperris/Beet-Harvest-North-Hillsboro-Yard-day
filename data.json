@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-23",
+  "date": "2026-07-24",
   "location": "Hillsboro / North / Kody",
   "day": "Thursday",
   "notes": "",
@@ -103,7 +103,7 @@
       "relief": false
     },
     {
-      "name": "Larry",
+      "name": "Larry been",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -152,7 +152,7 @@
     "Dave stewart",
     "Elsa",
     "Josie",
-    "Larry",
+    "Larry been",
     "Linda",
     "Robert",
     "Scott",
@@ -160,5 +160,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-23T23:59:58.050Z"
+  "lastUpdated": "2026-07-24T00:00:49.479Z"
 }
