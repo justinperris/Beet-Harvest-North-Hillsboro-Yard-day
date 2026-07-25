@@ -1,7 +1,7 @@
 {
-  "date": "2026-07-24",
+  "date": "2026-07-25",
   "location": "Hillsboro / North / Kody",
-  "day": "Thursday",
+  "day": "Saturday",
   "notes": "",
   "rows": [
     {
@@ -103,14 +103,14 @@
       "relief": false
     },
     {
-      "name": "Larry been",
-      "piler": "",
+      "name": "Dave stewart",
+      "piler": "8",
       "operator": false,
       "boom": false,
       "relief": false
     },
     {
-      "name": "Joe Been",
+      "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -151,9 +151,8 @@
     "Cassie",
     "Dave stewart",
     "Elsa",
-    "Joe Been",
     "Josie",
-    "Larry been",
+    "Larry",
     "Linda",
     "Robert",
     "Scott",
@@ -161,5 +160,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-24T00:04:12.343Z"
+  "lastUpdated": "2026-07-25T16:48:07.449Z"
 }
