@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T12:24:23.630Z",
+  "lastUpdated": "2026-07-25T13:03:40.373Z",
   "assignments": [
     {
       "id": "mrxvatrvctkvrl",
@@ -13,8 +13,8 @@
       "id": "mrxvbvklr6o1s4",
       "name": "Bob",
       "operator": false,
-      "relief": true,
-      "boom": false,
+      "relief": false,
+      "boom": true,
       "piler": 2
     },
     {
@@ -28,9 +28,9 @@
     {
       "id": "mrxvt1tpr9e8v3",
       "name": "Terry Stevens",
-      "operator": false,
+      "operator": true,
       "relief": false,
-      "boom": true,
+      "boom": false,
       "piler": 2
     },
     {
@@ -44,7 +44,7 @@
     {
       "id": "mrxvu1mxjvzbu7",
       "name": "Trouble Guy",
-      "operator": false,
+      "operator": true,
       "relief": false,
       "boom": false,
       "piler": 2
@@ -68,7 +68,7 @@
     {
       "id": "mry6kq9lzk7iux",
       "name": "Justi perris",
-      "operator": false,
+      "operator": true,
       "relief": false,
       "boom": false,
       "foreman": false,
