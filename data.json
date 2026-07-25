@@ -7,7 +7,7 @@
     {
       "name": "Dave stewart",
       "piler": "7",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false
     },
@@ -15,7 +15,7 @@
       "name": "Bob",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false
     },
     {
@@ -63,7 +63,7 @@
     {
       "name": "Dave",
       "piler": "8",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false
     },
@@ -146,6 +146,7 @@
     }
   ],
   "savedNames": [
+    "Abcd",
     "Bob",
     "Carrie",
     "Cassie",
@@ -160,5 +161,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-25T17:06:37.358Z"
+  "lastUpdated": "2026-07-25T17:30:17.594Z"
 }
