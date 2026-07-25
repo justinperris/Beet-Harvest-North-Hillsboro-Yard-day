@@ -233,6 +233,49 @@
       padding: 4px 6px;
       border-bottom: 1px solid #999;
       min-height: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .entry .value .role-tag {
+      font-size: 9px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #333;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .update-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 6px;
+      color: #7a5c00;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 16px;
+      margin: 0 0 12px;
+    }
+    .update-banner.show {
+      display: flex;
+    }
+    .update-banner button {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--sugar-blue);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .update-banner button:hover {
+      background: #002347;
     }
     .side-panel {
       display: flex;
@@ -355,6 +398,11 @@
 </head>
 <body>
   <div class="container" id="report-container">
+    <div class="update-banner no-capture no-print" id="updateBanner">
+      <span>New data has been saved since this report loaded.</span>
+      <button id="refreshNowBtn">Refresh Now</button>
+    </div>
+
     <div class="no-capture" style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
       <a href="hillsboro-signin.html" style="color:#003366; text-decoration:none;">← Back to Sign-In Sheet</a>
     </div>
@@ -452,10 +500,55 @@
     const GITHUB_OWNER = 'justinperris';
     const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
 
+    // What's currently shown in this report — used to detect newer data arriving
+    // on GitHub (data.json / current-signin.json) while this page stays open.
+    let knownDataLastUpdated = null;
+    let knownSigninLastUpdated = null;
+
+    async function checkForNewerData() {
+      try {
+        const [dataRes, signinRes] = await Promise.all([
+          fetch('data.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null),
+          fetch('current-signin.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+        ]);
+
+        let newer = false;
+
+        if (dataRes && dataRes.ok) {
+          const data = await dataRes.json();
+          if (data && data.lastUpdated && (!knownDataLastUpdated || new Date(data.lastUpdated) > new Date(knownDataLastUpdated))) {
+            newer = true;
+          }
+        }
+
+        if (signinRes && signinRes.ok) {
+          const signin = await signinRes.json();
+          if (signin && signin.lastUpdated && (!knownSigninLastUpdated || new Date(signin.lastUpdated) > new Date(knownSigninLastUpdated))) {
+            newer = true;
+          }
+        }
+
+        if (newer) {
+          document.getElementById('updateBanner').classList.add('show');
+        }
+      } catch (e) {
+        // Offline or GitHub unreachable — stay quiet, don't nag with a false warning.
+      }
+    }
+
+    document.getElementById('refreshNowBtn').addEventListener('click', async () => {
+      await loadReport();
+      document.getElementById('updateBanner').classList.remove('show');
+    });
+
+    setInterval(checkForNewerData, 30000);
+
     function makeEntry(num, name, cls) {
       const div = document.createElement('div');
       div.className = `entry ${cls || ''}`;
-      div.innerHTML = `<span class="num">${num}</span><div class="value">${name}</div>`;
+      const role = (cls || '').split(' ')[0];
+      const tagHtml = ['operator', 'relief', 'boom'].includes(role) ? `<span class="role-tag">${role.toUpperCase()}</span>` : '';
+      div.innerHTML = `<span class="num">${num}</span><div class="value"><span class="name-text">${name}</span>${tagHtml}</div>`;
       return div;
     }
 
@@ -507,7 +600,6 @@
       const hasOperator = list.some(item => item.cls === 'operator');
       const hasRelief = list.some(item => item.cls === 'relief');
       const hasBoom = list.some(item => item.cls === 'boom');
-      const warningColors = { 'Operator': '#166534', 'Relief': '#166534', 'Boom': '#854d0e' };
 
       const missing = [];
       if (!hasOperator) missing.push('Operator');
@@ -516,7 +608,7 @@
 
       missing.forEach(role => {
         const div = document.createElement('div');
-        div.style.color = warningColors[role] || 'red';
+        div.style.color = 'red';
         div.style.fontWeight = 'bold';
         div.textContent = `Warning: ${role} missing`;
         warningsDiv.appendChild(div);
@@ -524,17 +616,18 @@
     }
 
     function updatePeopleCount() {
-      let count = 0;
+      const names = new Set();
       ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
         const container = document.getElementById(id);
         if (container) {
-          container.querySelectorAll('.value').forEach(v => {
-            if (v.textContent.trim() !== '') count++;
+          container.querySelectorAll('.value .name-text').forEach(nameEl => {
+            const val = nameEl.textContent.trim();
+            if (val !== '') names.add(val.toLowerCase());
           });
         }
       });
       const el = document.getElementById('people-in-yard');
-      if (el) el.textContent = count;
+      if (el) el.textContent = names.size;
     }
 
     async function fetchJson(path) {
@@ -581,9 +674,11 @@
         document.getElementById('date').textContent = pilerData.date || '';
         document.getElementById('location').textContent = pilerData.location || 'Hillsboro Yard North';
         updateLastUpdatedDisplay(pilerData.lastUpdated);
+        knownDataLastUpdated = pilerData.lastUpdated || null;
       } else {
         document.getElementById('location').textContent = 'Hillsboro Yard North';
         updateLastUpdatedDisplay(null);
+        knownDataLastUpdated = null;
       }
 
       if (pilerData && pilerData.rows && pilerData.rows.length) {
@@ -622,6 +717,9 @@
           if (val) foremanContainer.appendChild(makeEntry(i + 1, val));
         });
         notesText = signinData.notes || '';
+        knownSigninLastUpdated = signinData.lastUpdated || null;
+      } else {
+        knownSigninLastUpdated = null;
       }
       document.getElementById('notes').textContent = notesText;
 
