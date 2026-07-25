@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T14:48:14.543Z",
+  "lastUpdated": "2026-07-25T14:53:17.539Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -48,7 +48,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 3
+      "piler": 2
     },
     {
       "id": "mry6qforhz98aj",
@@ -65,7 +65,7 @@
       "operator": false,
       "relief": true,
       "boom": false,
-      "piler": 3
+      "piler": 2
     },
     {
       "id": "mry6r5fh5iiuim",
@@ -73,7 +73,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 3
+      "piler": 2
     },
     {
       "id": "mry6rlnphz2k38",
@@ -97,7 +97,7 @@
       "foreman": false,
       "skidsteer": true,
       "loader": false,
-      "piler": null
+      "piler": 3
     },
     {
       "id": "mry6slm9d0k5ko",
