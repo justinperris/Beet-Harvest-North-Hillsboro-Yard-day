@@ -50,20 +50,20 @@
       "name": "Linda",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false
     },
     {
       "name": "Tonya",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
     {
       "name": "Dave",
       "piler": "8",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false
     },
@@ -160,5 +160,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-25T16:48:07.449Z"
+  "lastUpdated": "2026-07-25T16:53:31.301Z"
 }
