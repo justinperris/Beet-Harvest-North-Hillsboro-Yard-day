@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T14:30:54.521Z",
+  "lastUpdated": "2026-07-25T14:34:31.608Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -20,10 +20,11 @@
     {
       "id": "mry6ouj5npfu12",
       "name": "Tonya M",
-      "operator": true,
+      "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 2
+      "piler": 2,
+      "foreman": true
     },
     {
       "id": "mry6p8e52zxmv8",
@@ -55,7 +56,8 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 2
+      "piler": 2,
+      "foreman": true
     },
     {
       "id": "mry6qticbi3vhq",
