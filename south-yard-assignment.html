@@ -237,6 +237,37 @@
       font-style: italic;
     }
 
+    .update-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 6px;
+      color: #7a5c00;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 16px;
+      margin: 0 0 8px;
+    }
+    .update-banner.show {
+      display: flex;
+    }
+    .update-banner button {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--sugar-blue);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .update-banner button:hover {
+      background: #002347;
+    }
+
     @media print {
       @page {
         size: letter;
@@ -364,6 +395,11 @@
 </head>
 <body>
   <div class="container">
+    <div class="update-banner no-print" id="updateBanner">
+      <span>New data has been saved to the Master List since this page loaded.</span>
+      <button id="refreshNowBtn">Refresh Now</button>
+    </div>
+
     <!-- Header -->
     <div class="header">
       <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
@@ -482,6 +518,35 @@
       }
     }
 
+    // What was actually on screen the last time we rendered — used to detect
+    // newer data arriving on GitHub while this page stays open.
+    let renderedLastUpdated = null;
+
+    async function checkForNewerData() {
+      try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_DATA_PATH}?_=${Date.now()}`;
+        const resp = await fetch(url, { cache: 'no-store' });
+        if (!resp.ok) return;
+        const remote = await resp.json();
+        if (!remote || !remote.lastUpdated) return;
+
+        if (!renderedLastUpdated || new Date(remote.lastUpdated) > new Date(renderedLastUpdated)) {
+          document.getElementById('updateBanner').classList.add('show');
+        }
+      } catch (e) {
+        // Offline or GitHub unreachable — stay quiet, don't nag with a false warning.
+      }
+    }
+
+    document.getElementById('refreshNowBtn').addEventListener('click', async () => {
+      await syncFromGitHub();
+      renderAssignmentSheet();
+      renderLastUpdated();
+      document.getElementById('updateBanner').classList.remove('show');
+    });
+
+    setInterval(checkForNewerData, 60000);
+
     function loadAssignments() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -552,6 +617,7 @@
     function renderLastUpdated() {
       const iso = localStorage.getItem(LAST_UPDATED_KEY);
       document.getElementById('lastUpdated').textContent = iso ? formatLastUpdated(iso) : 'No entries yet';
+      renderedLastUpdated = iso;
     }
 
     (async () => {
