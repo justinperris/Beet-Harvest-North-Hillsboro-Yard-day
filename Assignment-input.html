@@ -87,8 +87,9 @@
   .field-name {
     flex: 1 1 220px;
     min-width: 180px;
+    position: relative;
   }
-  #fullName {
+  #fullName, #supportName {
     width: 100%;
     height: 42px;
     padding: 10px 12px;
@@ -96,6 +97,36 @@
     border: 1px solid #bbb;
     border-radius: 6px;
     box-sizing: border-box;
+  }
+  .name-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 2px;
+    background: white;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  .name-suggestions.show {
+    display: block;
+  }
+  .name-suggestions .suggestion {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .name-suggestions .suggestion:hover,
+  .name-suggestions .suggestion.active {
+    background: #f0f4f8;
+  }
+  .name-suggestions .suggestion:not(:last-child) {
+    border-bottom: 1px solid #eee;
   }
   .checkbox-field {
     flex-direction: row;
@@ -228,6 +259,7 @@
         <div class="field field-name">
           <label for="fullName">Full Name</label>
           <input type="text" id="fullName" name="crew-member-full-name" placeholder="Full name" autocomplete="off" spellcheck="false" required>
+          <div class="name-suggestions" id="fullNameSuggestions"></div>
         </div>
 
         <div class="field checkbox-field">
@@ -262,6 +294,7 @@
         <div class="field field-name">
           <label for="supportName">Full Name</label>
           <input type="text" id="supportName" name="support-full-name" placeholder="Full name" autocomplete="off" spellcheck="false" required>
+          <div class="name-suggestions" id="supportNameSuggestions"></div>
         </div>
 
         <div class="field checkbox-field">
@@ -318,6 +351,103 @@
     }
     syncFromGitHub().then(() => renderLastUpdated());
 
+    const NAME_HISTORY_KEY = 'southYardNameHistory';
+
+    function loadNameHistory() {
+      try {
+        const raw = localStorage.getItem(NAME_HISTORY_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function rememberName(name) {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const history = loadNameHistory();
+      const exists = history.some((n) => n.toLowerCase() === trimmed.toLowerCase());
+      if (!exists) {
+        history.push(trimmed);
+        localStorage.setItem(NAME_HISTORY_KEY, JSON.stringify(history));
+      }
+    }
+
+    function setupNameAutocomplete(inputEl, dropdownEl) {
+      let activeIndex = -1;
+
+      function hide() {
+        dropdownEl.classList.remove('show');
+        dropdownEl.innerHTML = '';
+        activeIndex = -1;
+      }
+
+      function renderMatches(matches) {
+        dropdownEl.innerHTML = matches
+          .map((name) => `<div class="suggestion">${escapeHtmlLocal(name)}</div>`)
+          .join('');
+        dropdownEl.classList.add('show');
+        activeIndex = -1;
+      }
+
+      function escapeHtmlLocal(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      inputEl.addEventListener('input', () => {
+        const value = inputEl.value.trim();
+        if (value.length < 2) {
+          hide();
+          return;
+        }
+        const lower = value.toLowerCase();
+        const matches = loadNameHistory().filter((n) => n.toLowerCase().includes(lower)).slice(0, 8);
+        if (matches.length === 0) {
+          hide();
+          return;
+        }
+        renderMatches(matches);
+      });
+
+      dropdownEl.addEventListener('mousedown', (e) => {
+        const item = e.target.closest('.suggestion');
+        if (!item) return;
+        e.preventDefault();
+        inputEl.value = item.textContent;
+        hide();
+        inputEl.focus();
+      });
+
+      inputEl.addEventListener('keydown', (e) => {
+        const items = [...dropdownEl.querySelectorAll('.suggestion')];
+        if (!items.length || !dropdownEl.classList.contains('show')) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          activeIndex = Math.min(activeIndex + 1, items.length - 1);
+          items.forEach((it, i) => it.classList.toggle('active', i === activeIndex));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          activeIndex = Math.max(activeIndex - 1, 0);
+          items.forEach((it, i) => it.classList.toggle('active', i === activeIndex));
+        } else if (e.key === 'Enter') {
+          if (activeIndex >= 0 && items[activeIndex]) {
+            e.preventDefault();
+            inputEl.value = items[activeIndex].textContent;
+            hide();
+          }
+        } else if (e.key === 'Escape') {
+          hide();
+        }
+      });
+
+      inputEl.addEventListener('blur', () => {
+        setTimeout(hide, 150);
+      });
+    }
+
     const pilerInput = document.getElementById('pilerNum');
     pilerInput.addEventListener('input', function () {
       this.value = this.value.replace(/[^1-6?]/g, '').slice(0, 1);
@@ -357,6 +487,7 @@
     const fullNameInput = document.getElementById('fullName');
     const successMsg = document.getElementById('successMsg');
     let successTimer = null;
+    setupNameAutocomplete(fullNameInput, document.getElementById('fullNameSuggestions'));
 
     document.getElementById('assignmentForm').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -395,6 +526,7 @@
       const list = loadAssignments();
       list.push(entry);
       saveAssignments(list);
+      rememberName(entry.name);
       renderLastUpdated();
 
       // Reset the form so the next name can be entered right away.
@@ -412,6 +544,7 @@
     const supportNameInput = document.getElementById('supportName');
     const supportSuccessMsg = document.getElementById('supportSuccessMsg');
     let supportSuccessTimer = null;
+    setupNameAutocomplete(supportNameInput, document.getElementById('supportNameSuggestions'));
 
     document.getElementById('supportForm').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -445,6 +578,7 @@
       const list = loadAssignments();
       list.push(entry);
       saveAssignments(list);
+      rememberName(entry.name);
       renderLastUpdated();
 
       document.getElementById('supportForm').reset();

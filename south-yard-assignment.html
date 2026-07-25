@@ -690,7 +690,12 @@
       );
       renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES);
 
-      document.getElementById('peopleCount').textContent = assignments.length;
+      const uniqueNames = new Set(
+        assignments
+          .map((a) => a.name.trim().toLowerCase())
+          .filter((n) => n)
+      );
+      document.getElementById('peopleCount').textContent = uniqueNames.size;
     }
 
     function formatLastUpdated(iso) {
