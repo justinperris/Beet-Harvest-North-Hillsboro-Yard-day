@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T14:34:31.608Z",
+  "lastUpdated": "2026-07-25T14:48:14.543Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -23,7 +23,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 2,
+      "piler": null,
       "foreman": true
     },
     {
@@ -48,7 +48,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 2
+      "piler": 3
     },
     {
       "id": "mry6qforhz98aj",
@@ -56,7 +56,7 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 2,
+      "piler": null,
       "foreman": true
     },
     {
@@ -65,7 +65,7 @@
       "operator": false,
       "relief": true,
       "boom": false,
-      "piler": 2
+      "piler": 3
     },
     {
       "id": "mry6r5fh5iiuim",
@@ -73,7 +73,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 2
+      "piler": 3
     },
     {
       "id": "mry6rlnphz2k38",
