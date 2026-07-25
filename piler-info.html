@@ -194,6 +194,16 @@
     .piler-table tbody tr.row-hidden .name-input {
       text-decoration: line-through;
     }
+    .piler-table tbody tr.group-header td {
+      background: #eef2f6;
+      font-weight: 800;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sugar-blue);
+      padding: 6px;
+      border: 1px solid #999;
+    }
     .row-count {
       font-size: 12px;
       color: #666;
@@ -310,6 +320,11 @@
       }
       .piler-table tbody tr.piler-row-8 {
         background: #cfe8ff !important;
+      }
+      .piler-table tbody tr.group-header td {
+        background: #eef2f6 !important;
+        font-size: 9px;
+        padding: 3px 4px;
       }
       .piler-table input[type="text"] {
         border-bottom: 1px solid #000;
@@ -517,6 +532,7 @@
 
     function createPilerRow(num) {
       const tr = document.createElement('tr');
+      tr.className = 'piler-row';
       tr.innerHTML = `
         <td class="num">${num}</td>
         <td class="name-col">
@@ -535,6 +551,12 @@
         hiddenCb.addEventListener('change', () => {
           tr.classList.toggle('row-hidden', hiddenCb.checked);
           updateHiddenWarningBanner();
+        });
+      }
+      const pilerInput = tr.querySelector('.piler-input');
+      if (pilerInput) {
+        pilerInput.addEventListener('change', () => {
+          regroupPilerRows();
         });
       }
       return tr;
@@ -628,7 +650,54 @@
     }
 
     function updateAllRowHighlights() {
-      document.querySelectorAll('#piler-tbody tr').forEach(updateRowHighlight);
+      document.querySelectorAll('#piler-tbody tr.piler-row').forEach(updateRowHighlight);
+    }
+
+    // Reorders the existing row elements (without recreating them, so values,
+    // focus, and listeners survive) into groups by Piler #, ascending, with
+    // rows that have no Piler # entered yet grouped as "Unassigned" at the end.
+    function regroupPilerRows() {
+      const tbody = document.getElementById('piler-tbody');
+      if (!tbody) return;
+      const rows = [...tbody.querySelectorAll('tr.piler-row')];
+
+      const groups = new Map();
+      rows.forEach((tr) => {
+        const key = (tr.querySelector('.piler-input')?.value || '').trim();
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(tr);
+      });
+
+      const keys = [...groups.keys()].sort((a, b) => {
+        if (a === '' && b === '') return 0;
+        if (a === '') return 1;
+        if (b === '') return -1;
+        const na = parseFloat(a);
+        const nb = parseFloat(b);
+        if (isNaN(na) && isNaN(nb)) return a.localeCompare(b, undefined, { numeric: true });
+        if (isNaN(na)) return 1;
+        if (isNaN(nb)) return -1;
+        return na - nb;
+      });
+
+      const fragment = document.createDocumentFragment();
+      const totalCols = 7;
+      keys.forEach((key) => {
+        const headerTr = document.createElement('tr');
+        headerTr.className = 'group-header';
+        const label = key === '' ? 'Unassigned' : `Piler #${key}`;
+        headerTr.innerHTML = `<td colspan="${totalCols}">${label}</td>`;
+        fragment.appendChild(headerTr);
+
+        groups.get(key).forEach((tr, idx) => {
+          const numCell = tr.querySelector('.num');
+          if (numCell) numCell.textContent = idx + 1;
+          fragment.appendChild(tr);
+        });
+      });
+
+      tbody.innerHTML = '';
+      tbody.appendChild(fragment);
     }
 
     function renderPilerRows(count) {
@@ -639,6 +708,7 @@
       }
       currentRowCount = count;
       updateRowCount();
+      regroupPilerRows();
     }
 
     function addPilerRows(extra) {
@@ -648,6 +718,7 @@
         tbody.appendChild(createPilerRow(currentRowCount));
       }
       updateRowCount();
+      regroupPilerRows();
       debouncedAutoSave(); // remember the new rows immediately
     }
 
@@ -735,7 +806,7 @@
       };
 
       const tbody = document.getElementById('piler-tbody');
-      tbody.querySelectorAll('tr').forEach(tr => {
+      tbody.querySelectorAll('tr.piler-row').forEach(tr => {
         const name = tr.querySelector('.name-input')?.value.trim() || '';
         const piler = tr.querySelector('.piler-input')?.value.trim() || '';
         const operator = tr.querySelector('input[data-role="operator"]')?.checked || false;
@@ -1079,6 +1150,7 @@
         }
         updateRowCount();
         updateAllRowHighlights();
+        regroupPilerRows();
 
         // Also save to localStorage so sign-in can use it
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -1152,6 +1224,7 @@
       }
       updateRowCount();
       updateAllRowHighlights();
+      regroupPilerRows();
 
       if (data.lastUpdated) {
         localStorage.setItem(LAST_UPDATED_KEY, data.lastUpdated);
@@ -1317,7 +1390,7 @@
       const banner = document.getElementById('hiddenWarningBanner');
       if (!banner) return;
       const hiddenNames = [];
-      document.querySelectorAll('#piler-tbody tr').forEach(tr => {
+      document.querySelectorAll('#piler-tbody tr.piler-row').forEach(tr => {
         const hiddenCb = tr.querySelector('input[data-role="hidden"]');
         const nameInput = tr.querySelector('.name-input');
         if (hiddenCb && hiddenCb.checked && nameInput && nameInput.value.trim()) {
