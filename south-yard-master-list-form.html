@@ -449,6 +449,7 @@
       unknown: 'Unknown (?)',
       support: 'Skid-steer / Loader'
     };
+    const SUPPORT_GROUPS = ['foreman', 'support'];
 
     function categoryOf(entry) {
       if (entry.foreman) return 'foreman';
@@ -514,6 +515,8 @@
         headerTr.innerHTML = `<td colspan="9">${GROUP_LABELS[groupKey]}</td>`;
         tbody.appendChild(headerTr);
 
+        const isSupportRow = SUPPORT_GROUPS.includes(groupKey);
+
         people.forEach((entry) => {
           const tr = document.createElement('tr');
           tr.dataset.id = entry.id;
@@ -521,12 +524,12 @@
 
           tr.innerHTML = `
             <td><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"></td>
-            <td class="role-cell"><input type="checkbox" data-field="operator" ${entry.operator ? 'checked' : ''}></td>
-            <td class="role-cell"><input type="checkbox" data-field="relief" ${entry.relief ? 'checked' : ''}></td>
-            <td class="role-cell"><input type="checkbox" data-field="boom" ${entry.boom ? 'checked' : ''}></td>
-            <td class="role-cell"><input type="checkbox" data-field="foreman" ${entry.foreman ? 'checked' : ''}></td>
-            <td class="role-cell"><input type="checkbox" data-field="skidsteer" ${entry.skidsteer ? 'checked' : ''}></td>
-            <td class="role-cell"><input type="checkbox" data-field="loader" ${entry.loader ? 'checked' : ''}></td>
+            <td class="role-cell">${isSupportRow ? '' : `<input type="checkbox" data-field="operator" ${entry.operator ? 'checked' : ''}>`}</td>
+            <td class="role-cell">${isSupportRow ? '' : `<input type="checkbox" data-field="relief" ${entry.relief ? 'checked' : ''}>`}</td>
+            <td class="role-cell">${isSupportRow ? '' : `<input type="checkbox" data-field="boom" ${entry.boom ? 'checked' : ''}>`}</td>
+            <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="foreman" ${entry.foreman ? 'checked' : ''}>` : ''}</td>
+            <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="skidsteer" ${entry.skidsteer ? 'checked' : ''}>` : ''}</td>
+            <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="loader" ${entry.loader ? 'checked' : ''}>` : ''}</td>
             <td>
               <select class="piler-select" data-field="piler">
                 ${pilerOptions.map((n) => `<option value="${n}" ${isPilerSelected(entry.piler, n) ? 'selected' : ''}>${n === '' ? '—' : n}</option>`).join('')}
