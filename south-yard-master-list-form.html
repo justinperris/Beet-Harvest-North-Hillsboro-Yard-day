@@ -161,6 +161,12 @@
   tbody tr {
     transition: background-color 0.15s ease;
   }
+  tbody tr.row-hidden {
+    opacity: 0.4;
+  }
+  tbody tr.row-hidden .name-input {
+    text-decoration: line-through;
+  }
   .name-input {
     width: 100%;
     min-width: 160px;
@@ -346,6 +352,7 @@
             <th class="role-cell">Skid-steer</th>
             <th class="role-cell">Loader</th>
             <th>Piler #</th>
+            <th class="role-cell">Out Today</th>
             <th class="no-print"></th>
           </tr>
         </thead>
@@ -512,7 +519,7 @@
 
         const headerTr = document.createElement('tr');
         headerTr.className = 'group-header';
-        headerTr.innerHTML = `<td colspan="9">${GROUP_LABELS[groupKey]}</td>`;
+        headerTr.innerHTML = `<td colspan="10">${GROUP_LABELS[groupKey]}</td>`;
         tbody.appendChild(headerTr);
 
         const isSupportRow = SUPPORT_GROUPS.includes(groupKey);
@@ -521,6 +528,7 @@
           const tr = document.createElement('tr');
           tr.dataset.id = entry.id;
           applyRowColor(tr, groupKey);
+          tr.classList.toggle('row-hidden', !!entry.hidden);
 
           tr.innerHTML = `
             <td><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"></td>
@@ -535,6 +543,7 @@
                 ${pilerOptions.map((n) => `<option value="${n}" ${isPilerSelected(entry.piler, n) ? 'selected' : ''}>${n === '' ? '—' : n}</option>`).join('')}
               </select>
             </td>
+            <td class="role-cell"><input type="checkbox" data-field="hidden" ${entry.hidden ? 'checked' : ''}></td>
             <td class="no-print"><button class="delete-btn" data-action="delete">Remove</button></td>
           `;
           tbody.appendChild(tr);
@@ -587,6 +596,10 @@
       } else if (['operator', 'relief', 'boom'].includes(field)) {
         entry[field] = e.target.checked;
         persist(assignments);
+      } else if (field === 'hidden') {
+        entry.hidden = e.target.checked;
+        tr.classList.toggle('row-hidden', entry.hidden);
+        persist(assignments);
       }
     });
 
@@ -628,7 +641,8 @@
         foreman: false,
         skidsteer: false,
         loader: false,
-        piler: 1
+        piler: 1,
+        hidden: false
       };
       assignments.push(entry);
       persist(assignments);
@@ -748,12 +762,23 @@
       statusEl.textContent = updated ? 'Loaded latest list from GitHub ✓' : 'Already up to date.';
     });
 
+    function warnAboutHiddenPeople() {
+      const hiddenNames = assignments.filter((a) => a.hidden).map((a) => a.name || '(no name)');
+      if (hiddenNames.length > 0) {
+        alert(
+          `Reminder: ${hiddenNames.length} ${hiddenNames.length === 1 ? 'person is' : 'people are'} marked "Out Today" and will be left off the printed sheet:\n\n` +
+          hiddenNames.join('\n')
+        );
+      }
+    }
+
     // Init — pull the latest shared list from GitHub (if newer) before rendering.
     (async () => {
       await syncFromGitHub();
       assignments = loadAssignments();
       renderTable();
       renderLastUpdated();
+      warnAboutHiddenPeople();
     })();
   </script>
 </body>

@@ -541,7 +541,7 @@
       document.getElementById('updateBanner').classList.remove('show');
     });
 
-    setInterval(checkForNewerData, 30000);
+    setInterval(checkForNewerData, 15000);
 
     function makeEntry(num, name, cls) {
       const div = document.createElement('div');
@@ -684,6 +684,7 @@
       if (pilerData && pilerData.rows && pilerData.rows.length) {
         const piler7People = [], piler8People = [], unassignedPeople = [];
         pilerData.rows.forEach(row => {
+          if (row.hidden) return;
           const num = normalizePiler(row.piler);
           const name = (row.name || '').trim();
           if (!name) return;

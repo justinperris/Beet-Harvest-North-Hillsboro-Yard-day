@@ -660,7 +660,7 @@
       }
     }
 
-    setInterval(checkForNewerData, 30000);
+    setInterval(checkForNewerData, 15000);
 
     function updateLastUpdatedDisplay(iso) {
       const el = document.getElementById('last-updated-display');
@@ -758,6 +758,7 @@
       const unassignedPeople = [];
 
       data.rows.forEach(row => {
+        if (row.hidden) return;
         const num = normalizePiler(row.piler);
         const name = (row.name || '').trim();
         if (!name) return;

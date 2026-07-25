@@ -611,7 +611,7 @@
       document.getElementById('updateBanner').classList.remove('show');
     });
 
-    setInterval(checkForNewerData, 60000);
+    setInterval(checkForNewerData, 15000);
 
     function loadAssignments() {
       try {
@@ -667,7 +667,7 @@
     }
 
     function renderAssignmentSheet() {
-      const assignments = loadAssignments();
+      const assignments = loadAssignments().filter((a) => !a.hidden);
 
       for (let p = 1; p <= 6; p++) {
         const group = document.querySelector(`.piler-group[data-piler="${p}"] .entries`);
