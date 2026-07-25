@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-07-24T00:07:27.937Z",
+  "lastUpdated": "2026-07-25T12:24:23.630Z",
   "assignments": [
     {
       "id": "mrxvatrvctkvrl",
       "name": "dave",
-      "operator": true,
+      "operator": false,
       "relief": false,
-      "boom": false,
+      "boom": true,
       "piler": 1
     },
     {
