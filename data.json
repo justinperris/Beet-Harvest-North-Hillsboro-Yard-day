@@ -2,7 +2,7 @@
   "date": "2026-07-25",
   "location": "Hillsboro / North / Kody",
   "day": "Saturday",
-  "notes": "",
+  "notes": "bob came in at 10am",
   "rows": [
     {
       "name": "Dave stewart",
@@ -182,5 +182,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-25T19:05:23.761Z"
+  "lastUpdated": "2026-07-25T19:08:02.745Z"
 }
