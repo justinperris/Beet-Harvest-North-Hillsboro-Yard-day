@@ -13,14 +13,6 @@
       "hidden": false
     },
     {
-      "name": "Bob",
-      "piler": "7",
-      "operator": false,
-      "boom": true,
-      "relief": false,
-      "hidden": true
-    },
-    {
       "name": "Tim B",
       "piler": "7",
       "operator": false,
@@ -126,8 +118,16 @@
     },
     {
       "name": "Bronco Nunigerski",
-      "piler": "8",
+      "piler": "",
       "operator": true,
+      "boom": false,
+      "relief": false,
+      "hidden": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -182,5 +182,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-25T18:58:32.545Z"
+  "lastUpdated": "2026-07-25T19:05:23.761Z"
 }
