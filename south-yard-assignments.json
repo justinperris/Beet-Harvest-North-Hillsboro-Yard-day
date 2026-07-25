@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T14:54:29.744Z",
+  "lastUpdated": "2026-07-25T15:45:09.122Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -100,15 +100,6 @@
       "piler": 3
     },
     {
-      "id": "mry6slm9d0k5ko",
-      "name": "Dave stewart",
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "piler": null,
-      "operator": true
-    },
-    {
       "id": "mry6svp8naa8z1",
       "name": "Pat d",
       "foreman": false,
@@ -131,6 +122,30 @@
       "foreman": true,
       "skidsteer": false,
       "loader": false,
+      "piler": null
+    },
+    {
+      "id": "ms0jh1silu6wpj",
+      "name": "Dave Stewart",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "piler": 1
+    },
+    {
+      "id": "ms0jhinqcw03ix",
+      "name": "Dave Stewart",
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "piler": null
+    },
+    {
+      "id": "ms0jhql6743saz",
+      "name": "Dave Stewart",
+      "foreman": false,
+      "skidsteer": false,
+      "loader": true,
       "piler": null
     }
   ]
