@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T14:53:17.539Z",
+  "lastUpdated": "2026-07-25T14:54:29.744Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -124,6 +124,14 @@
       "loader": false,
       "piler": null,
       "operator": true
+    },
+    {
+      "id": "ms0hpqi7e60tet",
+      "name": "Dave Loyd",
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "piler": null
     }
   ]
 }
