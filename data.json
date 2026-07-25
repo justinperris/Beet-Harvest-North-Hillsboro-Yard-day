@@ -9,140 +9,160 @@
       "piler": "7",
       "operator": true,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Bob",
       "piler": "7",
       "operator": false,
       "boom": true,
-      "relief": false
+      "relief": false,
+      "hidden": true
     },
     {
       "name": "Suzie",
       "piler": "8",
       "operator": false,
       "boom": true,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Larry",
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": true
+      "relief": true,
+      "hidden": false
     },
     {
       "name": "Tim B",
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": true
+      "relief": true,
+      "hidden": false
     },
     {
       "name": "Josie",
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Linda",
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Tonya",
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Dave",
       "piler": "8",
       "operator": true,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": true
     },
     {
       "name": "Carrie",
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Scott",
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Robert",
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Elsa",
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Cassie",
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "Dave stewart",
       "piler": "8",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     },
     {
       "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
-      "relief": false
+      "relief": false,
+      "hidden": false
     }
   ],
   "savedNames": [
@@ -161,5 +181,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-25T17:30:17.594Z"
+  "lastUpdated": "2026-07-25T17:59:24.672Z"
 }
