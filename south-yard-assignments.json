@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T15:31:31.538Z",
+  "lastUpdated": "2026-07-25T18:31:20.597Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -40,7 +40,8 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 5
+      "piler": 5,
+      "hidden": true
     },
     {
       "id": "mry6q2nsiqntax",
@@ -100,15 +101,6 @@
       "piler": 3
     },
     {
-      "id": "mry6slm9d0k5ko",
-      "name": "Dave stewart",
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "piler": null,
-      "operator": true
-    },
-    {
       "id": "mry6svp8naa8z1",
       "name": "Pat d",
       "foreman": false,
@@ -117,43 +109,45 @@
       "piler": null
     },
     {
+      "id": "mry6t3ysoihg07",
+      "name": "Jessica",
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "piler": null,
+      "operator": true
+    },
+    {
       "id": "ms0hpqi7e60tet",
       "name": "Dave Loyd",
       "foreman": true,
       "skidsteer": false,
       "loader": false,
-      "piler": null
+      "piler": null,
+      "hidden": true
     },
     {
-      "id": "ms0iyhca2uih7f",
+      "id": "ms0jh1silu6wpj",
       "name": "Dave Stewart",
-      "operator": false,
-      "relief": true,
-      "boom": false,
-      "piler": 1
-    },
-    {
-      "id": "ms0iz6l10z7z89",
-      "name": "David Star",
-      "operator": false,
+      "operator": true,
       "relief": false,
       "boom": false,
       "piler": 1
     },
     {
-      "id": "ms0izmz2ytur66",
-      "name": "Jessica",
+      "id": "ms0jhinqcw03ix",
+      "name": "Dave Stewart",
       "foreman": true,
       "skidsteer": false,
       "loader": false,
       "piler": null
     },
     {
-      "id": "ms0j1cuqm0b4e3",
+      "id": "ms0jhql6743saz",
       "name": "Dave Stewart",
-      "foreman": true,
+      "foreman": false,
       "skidsteer": false,
-      "loader": false,
+      "loader": true,
       "piler": null
     }
   ]
