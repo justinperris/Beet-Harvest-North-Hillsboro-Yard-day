@@ -238,8 +238,12 @@
       text-align: right;
       flex-shrink: 0;
     }
-    .entry input {
+    .name-wrap {
+      position: relative;
       flex: 1;
+    }
+    .entry input {
+      width: 100%;
       font-size: 15px;
       padding: 4px 6px;
       border: none;
@@ -247,9 +251,25 @@
       background: transparent;
       outline: none;
     }
+    .name-wrap input {
+      padding-right: 52px;
+    }
     .entry input:focus {
       border-bottom-color: var(--sugar-red);
       background: #fffdf5;
+    }
+    .name-wrap .role-tag {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #333;
+      white-space: nowrap;
+      pointer-events: none;
     }
     .side-panel {
       display: flex;
@@ -343,6 +363,36 @@
       color: #666;
       margin-top: 4px;
     }
+    .update-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 6px;
+      color: #7a5c00;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 16px;
+      margin: 0 0 12px;
+    }
+    .update-banner.show {
+      display: flex;
+    }
+    .update-banner button {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--sugar-blue);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .update-banner button:hover {
+      background: #002347;
+    }
     .row-count {
       font-size: 12px;
       color: #666;
@@ -417,6 +467,12 @@
         padding: 2px 0;
         font-size: 12px;
       }
+      .name-wrap input {
+        padding-right: 38px;
+      }
+      .name-wrap .role-tag {
+        font-size: 7px;
+      }
       .piler-list .entry.operator input { background-color: #86efac !important; }
       .piler-list .entry.relief input { background-color: #d9f99d !important; }
       .piler-list .entry.boom input { background-color: #fde047 !important; }
@@ -451,6 +507,11 @@
 </head>
 <body>
   <div class="container">
+    <div class="update-banner no-print" id="updateBanner">
+      <span>New data has been saved since this page loaded.</span>
+      <button id="refreshNowBtn">Refresh Now</button>
+    </div>
+
     <div class="no-print" style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
       <a href="index.html" style="color:#003366; text-decoration:none;">← Home</a>
     </div>
@@ -563,6 +624,44 @@
     const INITIAL_SKID_ROWS = 3;
     const INITIAL_FOREMAN_ROWS = 3;
 
+    // What's currently loaded on screen — used to detect newer data arriving
+    // on GitHub (data.json / current-signin.json) while this page stays open.
+    let knownDataLastUpdated = null;
+    let knownSigninLastUpdated = null;
+
+    async function checkForNewerData() {
+      try {
+        const [dataRes, signinRes] = await Promise.all([
+          fetch('data.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null),
+          fetch('current-signin.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+        ]);
+
+        let newer = false;
+
+        if (dataRes && dataRes.ok) {
+          const data = await dataRes.json();
+          if (data && data.lastUpdated && (!knownDataLastUpdated || new Date(data.lastUpdated) > new Date(knownDataLastUpdated))) {
+            newer = true;
+          }
+        }
+
+        if (signinRes && signinRes.ok) {
+          const signin = await signinRes.json();
+          if (signin && signin.lastUpdated && (!knownSigninLastUpdated || new Date(signin.lastUpdated) > new Date(knownSigninLastUpdated))) {
+            newer = true;
+          }
+        }
+
+        if (newer) {
+          document.getElementById('updateBanner').classList.add('show');
+        }
+      } catch (e) {
+        // Offline or GitHub unreachable — stay quiet, don't nag with a false warning.
+      }
+    }
+
+    setInterval(checkForNewerData, 30000);
+
     function updateLastUpdatedDisplay(iso) {
       const el = document.getElementById('last-updated-display');
       if (!el) return;
@@ -633,11 +732,13 @@
       if (!data || !data.rows || data.rows.length === 0) {
         // No piler data yet - leave blank lists
         updateLastUpdatedDisplay(data && data.lastUpdated);
+        knownDataLastUpdated = (data && data.lastUpdated) || null;
         updatePeopleCount();
         return;
       }
 
       updateLastUpdatedDisplay(data.lastUpdated);
+      knownDataLastUpdated = data.lastUpdated || null;
 
       // Sync date/day/location from piler info page (override sign-in draft)
       const dateEl = document.getElementById('date');
@@ -694,12 +795,6 @@
       const list8 = groupAndSort(piler8People);
       const listUnassigned = groupAndSort(unassignedPeople);
 
-      const warningColors = {
-        'Operator': '#166534',
-        'Relief': '#166534',
-        'Boom': '#854d0e'
-      };
-
       function checkPilerWarnings(list, warningsId) {
         const warningsDiv = document.getElementById(warningsId);
         if (!warningsDiv) return;
@@ -719,7 +814,7 @@
         if (missing.length > 0) {
           missing.forEach(role => {
             const div = document.createElement('div');
-            div.style.color = warningColors[role] || 'red';
+            div.style.color = 'red';
             div.style.fontWeight = 'bold';
             div.textContent = `Warning: ${role} missing`;
             warningsDiv.appendChild(div);
@@ -730,13 +825,20 @@
       checkPilerWarnings(list7, 'piler7-warnings');
       checkPilerWarnings(list8, 'piler8-warnings');
 
+      function roleTagHtml(cls) {
+        return cls ? `<span class="role-tag">${cls.toUpperCase()}</span>` : '';
+      }
+
       function renderPilerList(container, list) {
         list.forEach((item, i) => {
           const div = document.createElement('div');
           div.className = `entry ${item.cls}`;
           div.innerHTML = `
             <span class="num">${i + 1}</span>
-            <input type="text" value="${item.name}" class="piler-name-input">
+            <div class="name-wrap">
+              <input type="text" value="${item.name}" class="piler-name-input">
+              ${roleTagHtml(item.cls)}
+            </div>
           `;
           container.appendChild(div);
         });
@@ -748,7 +850,10 @@
           div.className = `entry ${item.cls} unassigned`;
           div.innerHTML = `
             <span class="num">${i + 1}</span>
-            <input type="text" value="${item.name}" class="piler-name-input">
+            <div class="name-wrap">
+              <input type="text" value="${item.name}" class="piler-name-input">
+              ${roleTagHtml(item.cls)}
+            </div>
           `;
           container.appendChild(div);
         });
@@ -966,18 +1071,19 @@
     }
 
     function updatePeopleCount() {
-      let count = 0;
+      const names = new Set();
       ['piler7-list', 'piler8-list', 'skid-list', 'foreman-list', 'unassigned-list'].forEach(id => {
         const container = document.getElementById(id);
         if (container) {
           container.querySelectorAll('input[type="text"]').forEach(inp => {
-            if (inp.value.trim() !== '') count++;
+            const val = inp.value.trim();
+            if (val !== '') names.add(val.toLowerCase());
           });
         }
       });
 
       const el = document.getElementById('people-in-yard');
-      if (el) el.textContent = count;
+      if (el) el.textContent = names.size;
     }
 
     // === GitHub Auto-Sync for sign-in (skid/foreman) ===
@@ -1043,7 +1149,7 @@
         });
       }
 
-      const signinData = { skidSteer, foreman };
+      const signinData = { skidSteer, foreman, lastUpdated: new Date().toISOString() };
 
       const path = 'current-signin.json';
       const message = `Auto-update sign-in ${new Date().toISOString()}`;
@@ -1084,6 +1190,7 @@
         const res = await fetch('current-signin.json', { cache: 'no-store' });
         if (!res.ok) return false;
         const data = await res.json();
+        knownSigninLastUpdated = data.lastUpdated || null;
 
         // Populate skid
         const skidContainer = document.getElementById('skid-list');
@@ -1109,6 +1216,11 @@
         return false;
       }
     }
+
+    document.getElementById('refreshNowBtn').addEventListener('click', async () => {
+      await Promise.all([loadPilerNames(), loadSignInFromGitHub()]);
+      document.getElementById('updateBanner').classList.remove('show');
+    });
 
     function init() {
       // Initial count

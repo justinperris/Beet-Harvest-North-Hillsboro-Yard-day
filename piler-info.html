@@ -124,6 +124,38 @@
     .piler-table td.name-col {
       text-align: left;
       width: 38%;
+      position: relative;
+    }
+    .name-suggestions {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 4px;
+      right: 4px;
+      margin-top: 2px;
+      background: white;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 20;
+      text-align: left;
+    }
+    .name-suggestions.show {
+      display: block;
+    }
+    .name-suggestions .suggestion {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .name-suggestions .suggestion:hover,
+    .name-suggestions .suggestion.active {
+      background: #f0f4f8;
+    }
+    .name-suggestions .suggestion:not(:last-child) {
+      border-bottom: 1px solid #eee;
     }
     .piler-table td.piler-col {
       width: 90px;
@@ -464,13 +496,94 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="num">${num}</td>
-        <td class="name-col"><input type="text" class="name-input" placeholder="" list="piler-name-list"></td>
+        <td class="name-col">
+          <input type="text" class="name-input" placeholder="" autocomplete="off">
+          <div class="name-suggestions"></div>
+        </td>
         <td class="piler-col"><input type="text" class="piler-input" placeholder=""></td>
         <td class="cb-col"><input type="checkbox" class="role-cb" data-role="operator"></td>
         <td class="cb-col"><input type="checkbox" class="role-cb" data-role="boom"></td>
         <td class="cb-col"><input type="checkbox" class="role-cb" data-role="relief"></td>
       `;
+      setupNameAutocomplete(tr.querySelector('.name-input'), tr.querySelector('.name-suggestions'));
       return tr;
+    }
+
+    function setupNameAutocomplete(inputEl, dropdownEl) {
+      let activeIndex = -1;
+
+      function hide() {
+        dropdownEl.classList.remove('show');
+        dropdownEl.innerHTML = '';
+        activeIndex = -1;
+      }
+
+      function escapeHtmlLocal(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function renderMatches(matches) {
+        dropdownEl.innerHTML = matches
+          .map((name) => `<div class="suggestion">${escapeHtmlLocal(name)}</div>`)
+          .join('');
+        dropdownEl.classList.add('show');
+        activeIndex = -1;
+      }
+
+      inputEl.addEventListener('input', () => {
+        const value = inputEl.value.trim();
+        if (value.length < 2) {
+          hide();
+          return;
+        }
+        const lower = value.toLowerCase();
+        const matches = getSavedNames().filter((n) => n.toLowerCase().includes(lower)).slice(0, 8);
+        if (matches.length === 0) {
+          hide();
+          return;
+        }
+        renderMatches(matches);
+      });
+
+      dropdownEl.addEventListener('mousedown', (e) => {
+        const item = e.target.closest('.suggestion');
+        if (!item) return;
+        e.preventDefault();
+        inputEl.value = item.textContent;
+        hide();
+        saveNameToList(inputEl.value.trim());
+        debouncedAutoSave();
+        inputEl.focus();
+      });
+
+      inputEl.addEventListener('keydown', (e) => {
+        const items = [...dropdownEl.querySelectorAll('.suggestion')];
+        if (!items.length || !dropdownEl.classList.contains('show')) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          activeIndex = Math.min(activeIndex + 1, items.length - 1);
+          items.forEach((it, i) => it.classList.toggle('active', i === activeIndex));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          activeIndex = Math.max(activeIndex - 1, 0);
+          items.forEach((it, i) => it.classList.toggle('active', i === activeIndex));
+        } else if (e.key === 'Enter') {
+          if (activeIndex >= 0 && items[activeIndex]) {
+            e.preventDefault();
+            inputEl.value = items[activeIndex].textContent;
+            hide();
+          }
+        } else if (e.key === 'Escape') {
+          hide();
+        }
+      });
+
+      inputEl.addEventListener('blur', () => {
+        setTimeout(hide, 150);
+      });
     }
 
     function updateRowHighlight(tr) {
