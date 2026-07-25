@@ -199,6 +199,20 @@
       color: #666;
       margin-top: 2px;
     }
+    .hidden-warning-banner {
+      display: none;
+      background: #fdecea;
+      border: 2px solid var(--sugar-red);
+      border-radius: 4px;
+      color: var(--sugar-red);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 14px;
+      margin: 10px 0;
+    }
+    .hidden-warning-banner.show {
+      display: block;
+    }
 
     .notes-section {
       margin-top: 8px;
@@ -332,6 +346,8 @@
         <div class="subtitle">American Crystal Sugar • Harvest Crew</div>
       </div>
     </div>
+
+    <div class="hidden-warning-banner no-print" id="hiddenWarningBanner"></div>
 
     <!-- Top meta fields -->
     <div class="meta-row">
@@ -518,6 +534,7 @@
       if (hiddenCb) {
         hiddenCb.addEventListener('change', () => {
           tr.classList.toggle('row-hidden', hiddenCb.checked);
+          updateHiddenWarningBanner();
         });
       }
       return tr;
@@ -1087,6 +1104,8 @@
         if (data.lastUpdated) updatedData.lastUpdated = data.lastUpdated;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
 
+        updateHiddenWarningBanner();
+
         return true;
       } catch (e) {
         return false;
@@ -1155,6 +1174,8 @@
       if (data.lastUpdated) updatedData.lastUpdated = data.lastUpdated;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
 
+      updateHiddenWarningBanner();
+
       return true;
     }
 
@@ -1168,6 +1189,7 @@
         // "Last updated" stamp. It only advances on an actual Save+push.
         data.lastUpdated = getStoredLastUpdated();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        updateHiddenWarningBanner();
         return true;
       } catch (e) {
         return false;
@@ -1286,12 +1308,14 @@
         }
       });
 
-      warnAboutHiddenPeople();
+      updateHiddenWarningBanner();
 
       console.log('%c[Piler Information Input] Ready. Auto-load + auto-save enabled for easy updates.', 'color:#666');
     }
 
-    function warnAboutHiddenPeople() {
+    function updateHiddenWarningBanner() {
+      const banner = document.getElementById('hiddenWarningBanner');
+      if (!banner) return;
       const hiddenNames = [];
       document.querySelectorAll('#piler-tbody tr').forEach(tr => {
         const hiddenCb = tr.querySelector('input[data-role="hidden"]');
@@ -1301,10 +1325,12 @@
         }
       });
       if (hiddenNames.length > 0) {
-        alert(
-          `Reminder: ${hiddenNames.length} ${hiddenNames.length === 1 ? 'person is' : 'people are'} marked "Out Today":\n\n` +
-          hiddenNames.join('\n')
-        );
+        const label = hiddenNames.length === 1 ? 'person is' : 'people are';
+        banner.textContent = `${hiddenNames.length} ${label} marked "Out Today": ${hiddenNames.join(', ')}`;
+        banner.classList.add('show');
+      } else {
+        banner.textContent = '';
+        banner.classList.remove('show');
       }
     }
 

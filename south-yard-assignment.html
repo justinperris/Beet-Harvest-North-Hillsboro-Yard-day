@@ -259,6 +259,43 @@
     .piler-group[data-piler="5"] .entry.role-general .hand-line { background: var(--piler-5); }
     .piler-group[data-piler="6"] .entry.role-general .hand-line { background: var(--piler-6); }
 
+    .notes-section {
+      margin-top: 8px;
+    }
+    .notes-section .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--sugar-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .notes-section textarea {
+      width: 100%;
+      height: 46px;
+      font-size: 11px;
+      padding: 5px 7px;
+      border: 1px solid #999;
+      border-radius: 3px;
+      resize: vertical;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .hidden-warning-banner {
+      display: none;
+      background: #fdecea;
+      border: 2px solid var(--sugar-red);
+      border-radius: 4px;
+      color: var(--sugar-red);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 8px;
+      margin-top: 6px;
+    }
+    .hidden-warning-banner.show {
+      display: block;
+    }
+
     .footer-note {
       font-size: 9px;
       color: #666;
@@ -435,6 +472,19 @@
       .entry .role-tag {
         font-size: 6px;
       }
+      .notes-section {
+        margin-top: 4px;
+      }
+      .notes-section textarea {
+        border: 1px solid #000;
+        height: 32px;
+        font-size: 9px;
+      }
+      .hidden-warning-banner {
+        font-size: 8px;
+        padding: 3px 6px;
+        margin-top: 3px;
+      }
 
       .footer-note {
         font-size: 8px;
@@ -532,6 +582,12 @@
         <div class="piler-watermark">6</div>
         <div class="entries"></div>
       </div>
+    </div>
+
+    <div class="notes-section">
+      <div class="section-label">Notes / Issues / Special Instructions</div>
+      <textarea id="notes" placeholder="Equipment issues, weather, incidents, etc."></textarea>
+      <div class="hidden-warning-banner" id="hiddenWarningBanner"></div>
     </div>
 
     <div class="footer-note no-print">
@@ -667,7 +723,11 @@
     }
 
     function renderAssignmentSheet() {
-      const assignments = loadAssignments().filter((a) => !a.hidden);
+      const allAssignments = loadAssignments();
+      const assignments = allAssignments.filter((a) => !a.hidden);
+
+      const hiddenNames = allAssignments.filter((a) => a.hidden).map((a) => a.name).filter((n) => n);
+      updateHiddenWarningBanner(hiddenNames);
 
       for (let p = 1; p <= 6; p++) {
         const group = document.querySelector(`.piler-group[data-piler="${p}"] .entries`);
@@ -698,6 +758,19 @@
       document.getElementById('peopleCount').textContent = uniqueNames.size;
     }
 
+    function updateHiddenWarningBanner(hiddenNames) {
+      const banner = document.getElementById('hiddenWarningBanner');
+      if (!banner) return;
+      if (hiddenNames && hiddenNames.length > 0) {
+        const label = hiddenNames.length === 1 ? 'person is' : 'people are';
+        banner.textContent = `${hiddenNames.length} ${label} marked "Out Today": ${hiddenNames.join(', ')}`;
+        banner.classList.add('show');
+      } else {
+        banner.textContent = '';
+        banner.classList.remove('show');
+      }
+    }
+
     function formatLastUpdated(iso) {
       const d = new Date(iso);
       const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -709,6 +782,15 @@
       const iso = localStorage.getItem(LAST_UPDATED_KEY);
       document.getElementById('lastUpdated').textContent = iso ? formatLastUpdated(iso) : 'No entries yet';
       renderedLastUpdated = iso;
+    }
+
+    const NOTES_KEY = 'southYardSheetNotes';
+    const notesEl = document.getElementById('notes');
+    if (notesEl) {
+      notesEl.value = localStorage.getItem(NOTES_KEY) || '';
+      notesEl.addEventListener('input', () => {
+        localStorage.setItem(NOTES_KEY, notesEl.value);
+      });
     }
 
     (async () => {

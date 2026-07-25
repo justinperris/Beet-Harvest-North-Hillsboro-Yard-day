@@ -82,6 +82,18 @@
     color: var(--sugar-red);
     font-weight: 800;
   }
+  .hidden-warning-banner {
+    display: none;
+    background: #fdecea;
+    border-bottom: 2px solid var(--sugar-red);
+    color: var(--sugar-red);
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 10px 28px;
+  }
+  .hidden-warning-banner.show {
+    display: block;
+  }
   .toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -317,6 +329,8 @@
       <span class="value" id="lastUpdated">No entries yet</span>
     </div>
 
+    <div class="hidden-warning-banner no-print" id="hiddenWarningBanner"></div>
+
     <div class="toolbar no-print">
       <a class="btn btn-add" href="Assignment-input.html">+ Add via Input Page</a>
       <button class="btn-add" id="addRowBtn">+ Add Row Here</button>
@@ -478,6 +492,21 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
       localStorage.setItem(LAST_UPDATED_KEY, new Date().toISOString());
       renderLastUpdated();
+      updateHiddenWarningBanner();
+    }
+
+    function updateHiddenWarningBanner() {
+      const banner = document.getElementById('hiddenWarningBanner');
+      if (!banner) return;
+      const hiddenNames = assignments.filter((a) => a.hidden).map((a) => a.name || '(no name)');
+      if (hiddenNames.length > 0) {
+        const label = hiddenNames.length === 1 ? 'person is' : 'people are';
+        banner.textContent = `${hiddenNames.length} ${label} marked "Out Today" (left off the printed sheet): ${hiddenNames.join(', ')}`;
+        banner.classList.add('show');
+      } else {
+        banner.textContent = '';
+        banner.classList.remove('show');
+      }
     }
 
     function formatLastUpdated(iso) {
@@ -759,18 +788,9 @@
       assignments = loadAssignments();
       renderTable();
       renderLastUpdated();
+      updateHiddenWarningBanner();
       statusEl.textContent = updated ? 'Loaded latest list from GitHub ✓' : 'Already up to date.';
     });
-
-    function warnAboutHiddenPeople() {
-      const hiddenNames = assignments.filter((a) => a.hidden).map((a) => a.name || '(no name)');
-      if (hiddenNames.length > 0) {
-        alert(
-          `Reminder: ${hiddenNames.length} ${hiddenNames.length === 1 ? 'person is' : 'people are'} marked "Out Today" and will be left off the printed sheet:\n\n` +
-          hiddenNames.join('\n')
-        );
-      }
-    }
 
     // Init — pull the latest shared list from GitHub (if newer) before rendering.
     (async () => {
@@ -778,7 +798,7 @@
       assignments = loadAssignments();
       renderTable();
       renderLastUpdated();
-      warnAboutHiddenPeople();
+      updateHiddenWarningBanner();
     })();
   </script>
 </body>

@@ -327,6 +327,20 @@
       resize: vertical;
       font-family: inherit;
     }
+    .hidden-warning-banner {
+      display: none;
+      background: #fdecea;
+      border: 2px solid var(--sugar-red);
+      border-radius: 4px;
+      color: var(--sugar-red);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 14px;
+      margin-top: 10px;
+    }
+    .hidden-warning-banner.show {
+      display: block;
+    }
     .actions {
       display: flex;
       gap: 12px;
@@ -487,6 +501,11 @@
         border: 1px solid #000;
         height: 45px;
       }
+      .hidden-warning-banner {
+        font-size: 11px;
+        padding: 6px 10px;
+        margin-top: 6px;
+      }
       .form-grid {
         gap: 14px;
       }
@@ -593,6 +612,7 @@
     <div class="notes-section">
       <label>Notes / Issues / Special Instructions</label>
       <textarea id="notes" placeholder="Equipment issues, weather, incidents, etc."></textarea>
+      <div class="hidden-warning-banner" id="hiddenWarningBanner"></div>
     </div>
 
     <!-- Actions -->
@@ -733,6 +753,7 @@
         // No piler data yet - leave blank lists
         updateLastUpdatedDisplay(data && data.lastUpdated);
         knownDataLastUpdated = (data && data.lastUpdated) || null;
+        updateHiddenWarningBanner([]);
         updatePeopleCount();
         return;
       }
@@ -756,11 +777,15 @@
       const piler7People = [];
       const piler8People = [];
       const unassignedPeople = [];
+      const hiddenPeopleNames = [];
 
       data.rows.forEach(row => {
-        if (row.hidden) return;
-        const num = normalizePiler(row.piler);
         const name = (row.name || '').trim();
+        if (row.hidden) {
+          if (name) hiddenPeopleNames.push(name);
+          return;
+        }
+        const num = normalizePiler(row.piler);
         if (!name) return;
         if (num === '7') piler7People.push(row);
         else if (num === '8') piler8People.push(row);
@@ -768,6 +793,8 @@
           unassignedPeople.push(row);
         }
       });
+
+      updateHiddenWarningBanner(hiddenPeopleNames);
 
       function groupAndSort(people) {
         const ops = [], rels = [], bms = [], oth = [];
@@ -1085,6 +1112,19 @@
 
       const el = document.getElementById('people-in-yard');
       if (el) el.textContent = names.size;
+    }
+
+    function updateHiddenWarningBanner(hiddenNames) {
+      const banner = document.getElementById('hiddenWarningBanner');
+      if (!banner) return;
+      if (hiddenNames && hiddenNames.length > 0) {
+        const label = hiddenNames.length === 1 ? 'person is' : 'people are';
+        banner.textContent = `${hiddenNames.length} ${label} marked "Out Today": ${hiddenNames.join(', ')}`;
+        banner.classList.add('show');
+      } else {
+        banner.textContent = '';
+        banner.classList.remove('show');
+      }
     }
 
     // === GitHub Auto-Sync for sign-in (skid/foreman) ===
