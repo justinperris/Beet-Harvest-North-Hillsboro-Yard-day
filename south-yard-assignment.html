@@ -110,11 +110,17 @@
       margin-top: 4px;
       line-height: 1.2;
     }
-    .right-margin-top {
+    .right-column {
       position: absolute;
       right: 5px;
       top: 185px;
-      width: 190px;
+      width: 230px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 2;
+    }
+    .right-margin-top, .skid-loader-box {
       border: 2px solid var(--sugar-blue);
       padding: 4px 6px;
       border-radius: 3px;
@@ -122,9 +128,11 @@
       line-height: 1.15;
       text-align: left;
       margin: 0;
-      z-index: 2;
     }
-    .right-margin-top h3 {
+    .skid-loader-box {
+      border-color: var(--line);
+    }
+    .right-margin-top h3, .skid-loader-box h3 {
       font-size: 10px;
       margin: 0 0 4px;
       text-transform: uppercase;
@@ -133,11 +141,34 @@
       border-bottom: 1px solid #ddd;
       padding-bottom: 2px;
     }
-    .right-margin-top .entry {
+    .skid-loader-box h3 {
+      color: var(--line);
+    }
+    .right-margin-top .entry, .skid-loader-box .entry {
       margin-bottom: 1px;
     }
-    .right-margin-top .entry .hand-line {
+    .right-margin-top .entry .hand-line, .skid-loader-box .entry .hand-line {
       height: 24px;
+    }
+    .foreman-section {
+      margin: 0 0 8px;
+      max-width: 585px;
+    }
+    .foreman-section h3 {
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: #111;
+    }
+    .foreman-box {
+      border: 2px solid var(--line);
+      border-radius: 3px;
+      min-height: 26px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
     }
 
     .piler-grid {
@@ -146,7 +177,7 @@
       gap: 8px;
       margin-bottom: 8px;
       max-width: none;
-      margin-right: 200px;  /* space for extra people column on right */
+      margin-right: 240px;  /* space for extra people column on right */
     }
     .piler-group {
       border: 2px solid var(--sugar-blue);
@@ -317,19 +348,25 @@
         font-size: 6px;
         margin-top: 2px;
       }
-      .right-margin-top {
+      .right-column {
         right: 5px;
         top: 145px;
-        width: 160px;
+        width: 190px;
+        gap: 4px;
+        z-index: 2;
+      }
+      .right-margin-top, .skid-loader-box {
         border: 2px solid var(--sugar-blue);
         padding: 2px 4px;
         border-radius: 3px;
         font-size: 8px;
         line-height: 1.1;
         margin: 0;
-        z-index: 2;
       }
-      .right-margin-top h3 {
+      .skid-loader-box {
+        border-color: var(--line);
+      }
+      .right-margin-top h3, .skid-loader-box h3 {
         font-size: 8px;
         margin: 0 0 2px;
         text-transform: uppercase;
@@ -338,18 +375,35 @@
         border-bottom: 1px solid #ddd;
         padding-bottom: 1px;
       }
-      .right-margin-top .entry {
+      .skid-loader-box h3 {
+        color: var(--line);
+      }
+      .right-margin-top .entry, .skid-loader-box .entry {
         margin-bottom: 1px;
       }
-      .right-margin-top .entry .hand-line {
+      .right-margin-top .entry .hand-line, .skid-loader-box .entry .hand-line {
         height: 28px;
+      }
+      .foreman-section {
+        margin: 0 0 4px;
+      }
+      .foreman-section h3 {
+        font-size: 11px;
+        margin: 0 0 2px;
+      }
+      .foreman-box {
+        border: 2px solid var(--line);
+        border-radius: 3px;
+        min-height: 24px;
+        padding: 3px 8px;
+        font-size: 9px;
       }
 
       .piler-grid {
         gap: 5px;
         margin-bottom: 3px;
         max-width: none;
-        margin-right: 170px;  /* space for extra people column on right */
+        margin-right: 200px;  /* space for extra people column on right */
       }
       .piler-group {
         padding: 2px 4px 6px 4px;
@@ -419,9 +473,21 @@
       </div>
     </div>
 
-    <div class="right-margin-top">
-      <h3>Extra people</h3>
-      <div class="entries" id="extraPeopleEntries"></div>
+    <div class="right-column">
+      <div class="right-margin-top">
+        <h3>Extra people</h3>
+        <div class="entries" id="extraPeopleEntries"></div>
+      </div>
+
+      <div class="skid-loader-box">
+        <h3>Skid Steer / Loader</h3>
+        <div class="entries" id="skidLoaderEntries"></div>
+      </div>
+    </div>
+
+    <div class="foreman-section">
+      <h3>Yard Foreman</h3>
+      <div class="foreman-box" id="foremanLine"></div>
     </div>
 
     <!-- 6 Piler Crew Groups: 2 columns x 3 rows -->
@@ -490,6 +556,7 @@
     const LAST_UPDATED_KEY = 'southYardLastUpdated';
     const MIN_PILER_LINES = 8;
     const MIN_EXTRA_LINES = 10;
+    const MIN_SKID_LOADER_LINES = 6;
     const ROLE_ORDER = { operator: 0, relief: 1, boom: 2, general: 3 };
     const ROLE_LABEL = { operator: 'Operator', relief: 'Relief', boom: 'Boom' };
 
@@ -580,11 +647,22 @@
       return `<div class="entry filled${roleClass}"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${labelHtml}</div></div>`;
     }
 
-    function renderList(container, people, minLines) {
+    function skidLoaderEntryHtml(num, person) {
+      if (!person) {
+        return `<div class="entry"><span class="num">${num}</span><div class="hand-line"></div></div>`;
+      }
+      const tags = [];
+      if (person.skidsteer) tags.push('SKID');
+      if (person.loader) tags.push('LOADER');
+      const labelHtml = tags.length ? `<span class="role-tag">${tags.join(' / ')}</span>` : '';
+      return `<div class="entry filled"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${labelHtml}</div></div>`;
+    }
+
+    function renderList(container, people, minLines, entryFn = entryHtml) {
       const totalLines = Math.max(minLines, people.length + 2);
       let html = '';
       for (let i = 0; i < totalLines; i++) {
-        html += entryHtml(i + 1, people[i] || null);
+        html += entryFn(i + 1, people[i] || null);
       }
       container.innerHTML = html;
     }
@@ -601,7 +679,16 @@
         renderList(group, people, MIN_PILER_LINES);
       }
 
-      const extraPeople = assignments.filter((a) => a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler));
+      const foremen = assignments.filter((a) => a.foreman);
+      document.getElementById('foremanLine').textContent = foremen.map((f) => f.name).join(',  ');
+
+      const skidLoader = assignments.filter((a) => a.skidsteer || a.loader);
+      renderList(document.getElementById('skidLoaderEntries'), skidLoader, MIN_SKID_LOADER_LINES, skidLoaderEntryHtml);
+
+      const extraPeople = assignments.filter((a) =>
+        !a.foreman && !a.skidsteer && !a.loader &&
+        (a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler))
+      );
       renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES);
 
       document.getElementById('peopleCount').textContent = assignments.length;
