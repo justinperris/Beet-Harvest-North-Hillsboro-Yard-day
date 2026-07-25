@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T14:20:52.620Z",
+  "lastUpdated": "2026-07-25T14:24:22.549Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -23,7 +23,7 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 3
+      "piler": 6
     },
     {
       "id": "mry6p8e52zxmv8",
