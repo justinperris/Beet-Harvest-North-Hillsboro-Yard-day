@@ -1,13 +1,13 @@
 {
-  "date": "2026-07-25",
+  "date": "2026-07-28",
   "location": "Hillsboro / North / Kody",
-  "day": "Saturday",
+  "day": "Tuesday",
   "notes": "bob came in at 10am",
   "rows": [
     {
       "name": "Dave stewart",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -17,7 +17,7 @@
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": true,
+      "relief": false,
       "hidden": false
     },
     {
@@ -41,21 +41,21 @@
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": false,
+      "relief": true,
       "hidden": false
     },
     {
       "name": "Robert",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false,
       "hidden": false
     },
     {
       "name": "Elsa",
       "piler": "7",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -111,7 +111,7 @@
     {
       "name": "Dave stewart",
       "piler": "8",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -119,7 +119,7 @@
     {
       "name": "Bronco Nunigerski",
       "piler": "",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -182,5 +182,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-25T19:08:02.745Z"
+  "lastUpdated": "2026-07-28T20:02:38.496Z"
 }
