@@ -1,7 +1,7 @@
 {
-  "date": "2026-07-28",
+  "date": "2026-07-30",
   "location": "Hillsboro / North / Kody",
-  "day": "Tuesday",
+  "day": "Thursday",
   "notes": "bob came in at 10am",
   "rows": [
     {
@@ -55,7 +55,7 @@
     {
       "name": "Elsa",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -125,7 +125,7 @@
       "hidden": false
     },
     {
-      "name": "",
+      "name": "da",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -171,6 +171,7 @@
     "Bronco Nunigerski",
     "Carrie",
     "Cassie",
+    "da",
     "Dave stewart",
     "Elsa",
     "Josie",
@@ -182,5 +183,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-28T21:52:08.328Z"
+  "lastUpdated": "2026-07-30T18:26:33.306Z"
 }
