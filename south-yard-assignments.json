@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-25T18:31:20.597Z",
+  "lastUpdated": "2026-07-30T18:45:36.141Z",
   "assignments": [
     {
       "id": "mry6nx8do7q0q2",
@@ -7,7 +7,7 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 5
+      "piler": 4
     },
     {
       "id": "mry6oe1gs9xksq",
@@ -15,7 +15,8 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 5
+      "piler": 5,
+      "hidden": false
     },
     {
       "id": "mry6ouj5npfu12",
@@ -32,7 +33,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 5
+      "piler": 1
     },
     {
       "id": "mry6pqgi36a27k",
@@ -41,7 +42,7 @@
       "relief": false,
       "boom": false,
       "piler": 5,
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "mry6q2nsiqntax",
@@ -50,15 +51,6 @@
       "relief": false,
       "boom": false,
       "piler": 2
-    },
-    {
-      "id": "mry6qforhz98aj",
-      "name": "susan C",
-      "operator": true,
-      "relief": false,
-      "boom": false,
-      "piler": null,
-      "foreman": true
     },
     {
       "id": "mry6qticbi3vhq",
@@ -120,7 +112,7 @@
     {
       "id": "ms0hpqi7e60tet",
       "name": "Dave Loyd",
-      "foreman": true,
+      "foreman": false,
       "skidsteer": false,
       "loader": false,
       "piler": null,
@@ -132,7 +124,7 @@
       "operator": true,
       "relief": false,
       "boom": false,
-      "piler": 1
+      "piler": 2
     },
     {
       "id": "ms0jhinqcw03ix",
@@ -149,6 +141,50 @@
       "skidsteer": false,
       "loader": true,
       "piler": null
+    },
+    {
+      "id": "ms7uvckdbbywui",
+      "name": "susan C",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "piler": 1,
+      "hidden": false
+    },
+    {
+      "id": "ms7uym3hfhwvfs",
+      "name": "Susan C",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "piler": 2
+    },
+    {
+      "id": "ms7uzivl7siefw",
+      "name": "Susan B",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "ms7v02h6djilm9",
+      "name": "Susan D",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 1
+    },
+    {
+      "id": "ms7v4w70crtizp",
+      "name": "Susan D",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
     }
   ]
 }
