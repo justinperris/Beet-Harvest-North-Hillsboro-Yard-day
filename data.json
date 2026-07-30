@@ -41,14 +41,14 @@
       "piler": "7",
       "operator": false,
       "boom": false,
-      "relief": true,
+      "relief": false,
       "hidden": false
     },
     {
       "name": "Robert",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false,
       "hidden": false
     },
@@ -183,5 +183,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-30T18:26:33.306Z"
+  "lastUpdated": "2026-07-30T18:29:08.602Z"
 }
