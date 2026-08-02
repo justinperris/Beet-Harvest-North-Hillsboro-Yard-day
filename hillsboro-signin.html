@@ -271,6 +271,12 @@
       white-space: nowrap;
       pointer-events: none;
     }
+    .entry .dup-mark {
+      color: var(--sugar-red);
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
     .side-panel {
       display: flex;
       flex-direction: column;
@@ -486,6 +492,9 @@
       }
       .name-wrap .role-tag {
         font-size: 7px;
+      }
+      .entry .dup-mark {
+        font-size: 10px;
       }
       .piler-list .entry.operator input { background-color: #86efac !important; }
       .piler-list .entry.relief input { background-color: #d9f99d !important; }
@@ -1113,6 +1122,45 @@
 
       const el = document.getElementById('people-in-yard');
       if (el) el.textContent = names.size;
+
+      updateDuplicateMarks();
+    }
+
+    // Flags exact-spelled duplicate names across all crew lists with a red asterisk.
+    function updateDuplicateMarks() {
+      const containerIds = ['piler7-list', 'piler8-list', 'unassigned-list', 'skid-list', 'foreman-list'];
+      const counts = {};
+      containerIds.forEach(id => {
+        const container = document.getElementById(id);
+        if (!container) return;
+        container.querySelectorAll('.entry input[type="text"]').forEach(inp => {
+          const val = inp.value.trim();
+          if (!val) return;
+          counts[val] = (counts[val] || 0) + 1;
+        });
+      });
+
+      containerIds.forEach(id => {
+        const container = document.getElementById(id);
+        if (!container) return;
+        container.querySelectorAll('.entry').forEach(entryEl => {
+          const inp = entryEl.querySelector('input[type="text"]');
+          if (!inp) return;
+          const val = inp.value.trim();
+          const isDup = val && counts[val] > 1;
+          let mark = entryEl.querySelector('.dup-mark');
+          if (isDup) {
+            if (!mark) {
+              mark = document.createElement('span');
+              mark.className = 'dup-mark';
+              mark.textContent = '*';
+              entryEl.insertBefore(mark, inp.closest('.name-wrap') || inp);
+            }
+          } else if (mark) {
+            mark.remove();
+          }
+        });
+      });
     }
 
     function updateHiddenWarningBanner(hiddenNames) {

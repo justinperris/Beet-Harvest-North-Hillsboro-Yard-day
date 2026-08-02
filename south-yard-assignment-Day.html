@@ -263,6 +263,11 @@
       opacity: 0.7;
       margin-left: 4px;
     }
+    .entry .dup-mark {
+      color: var(--sugar-red);
+      font-weight: 800;
+      margin-left: 2px;
+    }
     .entry.role-operator .hand-line { background: var(--role-operator); }
     .entry.role-relief .hand-line { background: var(--role-relief); }
     .entry.role-boom .hand-line { background: var(--role-boom); }
@@ -490,6 +495,9 @@
       .entry .role-tag {
         font-size: 6px;
       }
+      .entry .dup-mark {
+        font-size: 9px;
+      }
       .notes-section {
         margin-top: 4px;
       }
@@ -716,7 +724,17 @@
       return div.innerHTML;
     }
 
-    function entryHtml(num, person) {
+    function getDuplicateNames(assignments) {
+      const counts = {};
+      assignments.forEach((a) => {
+        const n = (a.name || '').trim();
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+      return new Set(Object.keys(counts).filter((n) => counts[n] > 1));
+    }
+
+    function entryHtml(num, person, duplicateNames = new Set()) {
       if (!person) {
         return `<div class="entry"><span class="num">${num}</span><div class="hand-line"></div></div>`;
       }
@@ -724,10 +742,11 @@
       const roleClass = ` role-${role}`;
       const label = ROLE_LABEL[role];
       const labelHtml = label ? `<span class="role-tag">${label}</span>` : '';
-      return `<div class="entry filled${roleClass}"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${labelHtml}</div></div>`;
+      const dupHtml = duplicateNames.has(person.name.trim()) ? '<span class="dup-mark">*</span>' : '';
+      return `<div class="entry filled${roleClass}"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${dupHtml}${labelHtml}</div></div>`;
     }
 
-    function skidLoaderEntryHtml(num, person) {
+    function skidLoaderEntryHtml(num, person, duplicateNames = new Set()) {
       if (!person) {
         return `<div class="entry"><span class="num">${num}</span><div class="hand-line"></div></div>`;
       }
@@ -735,14 +754,15 @@
       if (person.skidsteer) tags.push('SKID');
       if (person.loader) tags.push('LOADER');
       const labelHtml = tags.length ? `<span class="role-tag">${tags.join(' / ')}</span>` : '';
-      return `<div class="entry filled"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${labelHtml}</div></div>`;
+      const dupHtml = duplicateNames.has(person.name.trim()) ? '<span class="dup-mark">*</span>' : '';
+      return `<div class="entry filled"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${dupHtml}${labelHtml}</div></div>`;
     }
 
-    function renderList(container, people, minLines, entryFn = entryHtml) {
+    function renderList(container, people, minLines, entryFn = entryHtml, duplicateNames = new Set()) {
       const totalLines = Math.max(minLines, people.length + 2);
       let html = '';
       for (let i = 0; i < totalLines; i++) {
-        html += entryFn(i + 1, people[i] || null);
+        html += entryFn(i + 1, people[i] || null, duplicateNames);
       }
       container.innerHTML = html;
     }
@@ -750,6 +770,7 @@
     function renderAssignmentSheet() {
       const allAssignments = loadAssignments();
       const assignments = allAssignments.filter((a) => !a.hidden);
+      const duplicateNames = getDuplicateNames(assignments);
 
       const hiddenNames = allAssignments.filter((a) => a.hidden).map((a) => a.name).filter((n) => n);
       updateHiddenWarningBanner(hiddenNames);
@@ -760,21 +781,23 @@
         const people = assignments
           .filter((a) => a.piler === p)
           .sort((a, b) => ROLE_ORDER[roleOf(a)] - ROLE_ORDER[roleOf(b)]);
-        renderList(group, people, MIN_PILER_LINES);
+        renderList(group, people, MIN_PILER_LINES, entryHtml, duplicateNames);
         updatePilerWarning(p, people);
       }
 
       const foremen = assignments.filter((a) => a.foreman);
-      document.getElementById('foremanLine').textContent = foremen.map((f) => f.name).join(',  ');
+      document.getElementById('foremanLine').textContent = foremen
+        .map((f) => f.name + (duplicateNames.has(f.name.trim()) ? ' *' : ''))
+        .join(',  ');
 
       const skidLoader = assignments.filter((a) => a.skidsteer || a.loader);
-      renderList(document.getElementById('skidLoaderEntries'), skidLoader, MIN_SKID_LOADER_LINES, skidLoaderEntryHtml);
+      renderList(document.getElementById('skidLoaderEntries'), skidLoader, MIN_SKID_LOADER_LINES, skidLoaderEntryHtml, duplicateNames);
 
       const extraPeople = assignments.filter((a) =>
         !a.foreman && !a.skidsteer && !a.loader &&
         (a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler))
       );
-      renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES);
+      renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES, entryHtml, duplicateNames);
 
       const uniqueNames = new Set(
         assignments
