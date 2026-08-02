@@ -204,8 +204,8 @@
 
       <div class="section-label">South Yard Input</div>
       <div class="day-night-row">
-        <a href="Assignment-input-Day.html" class="button day-btn">Day</a>
-        <a href="Assignment-input.html" class="button night-btn">NIGHT</a>
+        <a href="javascript:void(0)" class="button day-btn" onclick="goToProtectedSouth('Assignment-input-Day.html')">Day</a>
+        <a href="javascript:void(0)" class="button night-btn" onclick="goToProtectedSouth('Assignment-input.html')">NIGHT</a>
       </div>
 
       <a href="Daves Yard report.html" class="button">
@@ -241,11 +241,22 @@
   <script>
     const HISTORY_CLEAR_PIN = '001100';
     const PAGE_ACCESS_PIN = '001100';
+    const SOUTH_YARD_PIN = '002200';
 
     function goToProtected(url) {
       const pin = prompt('Enter PIN to continue:');
       if (pin === null) return;
       if (pin !== PAGE_ACCESS_PIN) {
+        alert('Incorrect PIN.');
+        return;
+      }
+      window.location.href = url;
+    }
+
+    function goToProtectedSouth(url) {
+      const pin = prompt('Enter PIN to continue:');
+      if (pin === null) return;
+      if (pin !== SOUTH_YARD_PIN) {
         alert('Incorrect PIN.');
         return;
       }
