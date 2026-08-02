@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Piler Crew History - Day</title>
+  <title>Piler Crew History - Night</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -78,8 +78,8 @@
     <div style="margin-bottom:10px; font-size:0.9rem;">
       <a href="index.html" style="color:#003366; text-decoration:none;">← Home</a>
     </div>
-    <a href="piler-info.html" class="back-btn">← Back to Piler Info</a>
-    <h1>📜 Piler Crew History - Day</h1>
+    <a href="piler-info-Night.html" class="back-btn">← Back to Piler Info</a>
+    <h1>📜 Piler Crew History - Night</h1>
     <p>Daily snapshots of the crew roster (saved locally on this device, this browser only).</p>
 
     <div id="history-list"></div>
@@ -89,7 +89,7 @@
     <div id="github-history-list"></div>
 
     <script>
-      const HISTORY_KEY = 'pilerInfoHistory';
+      const HISTORY_KEY = 'pilerInfoHistoryNight';
 
       function formatDate(iso) {
         const d = new Date(iso);
@@ -152,10 +152,10 @@
         if (!entry) return;
 
         // Set as current
-        localStorage.setItem('pilerInfoDraft', JSON.stringify(entry.data));
+        localStorage.setItem('pilerInfoDraftNight', JSON.stringify(entry.data));
 
         // Open the info page
-        window.location.href = 'piler-info.html';
+        window.location.href = 'piler-info-Night.html';
       }
 
       function exportVersion(index) {
@@ -192,7 +192,7 @@
       }
 
       // GitHub shared history — every "Save Now" push is a commit, so the commit
-      // log of data.json IS the permanent shared history (no dated files needed).
+      // log of data-night.json IS the permanent shared history (no dated files needed).
       const GH_OWNER = 'justinperris';
       const GH_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
 
@@ -201,12 +201,12 @@
         if (!container) return;
         container.innerHTML = '<p class="no-history">Loading shared history from GitHub...</p>';
         try {
-          const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/commits?path=data.json&per_page=30`);
+          const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/commits?path=data-night.json&per_page=30`);
           if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
           const commits = await res.json();
 
           if (!Array.isArray(commits) || commits.length === 0) {
-            container.innerHTML = '<p class="no-history">No GitHub history for data.json yet — push once from the Piler Info page.</p>';
+            container.innerHTML = '<p class="no-history">No GitHub history for data-night.json yet — push once from the Piler Info page.</p>';
             return;
           }
 
@@ -235,7 +235,7 @@
       }
 
       function rawUrlForCommit(sha) {
-        return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${sha}/data.json`;
+        return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${sha}/data-night.json`;
       }
 
       function loadGitHubVersion(sha) {
@@ -245,8 +245,8 @@
             return r.json();
           })
           .then(data => {
-            localStorage.setItem('pilerInfoDraft', JSON.stringify(data));
-            window.location.href = 'piler-info.html';
+            localStorage.setItem('pilerInfoDraftNight', JSON.stringify(data));
+            window.location.href = 'piler-info-Night.html';
           })
           .catch(e => alert('Failed to load from GitHub: ' + e.message));
       }

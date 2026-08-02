@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crew Report - Day</title>
+  <title>Crew Report - Night</title>
   <style>
     :root {
       --sugar-red: #c8102e;
@@ -404,7 +404,7 @@
     </div>
 
     <div class="no-capture" style="text-align:center; padding:8px 0; background:#f8f8f8; font-size:0.9rem;">
-      <a href="hillsboro-signin.html" style="color:#003366; text-decoration:none;">← Back to Sign-In Sheet</a>
+      <a href="hillsboro-signin-Night.html" style="color:#003366; text-decoration:none;">← Back to Sign-In Sheet</a>
     </div>
 
     <span class="read-only-badge no-capture">SNAPSHOT OF LAST UPDATE</span>
@@ -413,7 +413,7 @@
     <div class="header">
       <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
       <div class="header-content">
-        <h1>CREW REPORT - DAY</h1>
+        <h1>CREW REPORT - NIGHT</h1>
         <div class="subtitle">American Crystal Sugar • Hillsboro Yard North</div>
       </div>
       <div class="people-count-wrapper">
@@ -508,8 +508,8 @@
     async function checkForNewerData() {
       try {
         const [dataRes, signinRes] = await Promise.all([
-          fetch('data.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null),
-          fetch('current-signin.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+          fetch('data-night.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null),
+          fetch('current-signin-night.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null)
         ]);
 
         let newer = false;
@@ -666,8 +666,8 @@
       document.getElementById('piler7-warnings').innerHTML = '';
       document.getElementById('piler8-warnings').innerHTML = '';
 
-      // Piler crew data (data.json is the shared source of truth; fall back to local draft)
-      const pilerData = (await fetchJson('data.json')) || getLocalJson('pilerInfoDraft');
+      // Piler crew data (data-night.json is the shared source of truth; fall back to local draft)
+      const pilerData = (await fetchJson('data-night.json')) || getLocalJson('pilerInfoDraftNight');
 
       if (pilerData) {
         document.getElementById('day').textContent = pilerData.day || '';
@@ -707,8 +707,8 @@
         listUnassigned.forEach((item, i) => unassignedContainer.appendChild(makeEntry(i + 1, item.name, `${item.cls} unassigned`)));
       }
 
-      // Skid-steer / Foreman (current-signin.json is the shared source; fall back to local draft)
-      const signinData = (await fetchJson('current-signin.json')) || getLocalJson('hillsboroNorthSignInDraft');
+      // Skid-steer / Foreman (current-signin-night.json is the shared source; fall back to local draft)
+      const signinData = (await fetchJson('current-signin-night.json')) || getLocalJson('hillsboroNorthSignInDraftNight');
       let notesText = '';
       if (signinData) {
         (signinData.skidSteer || []).forEach((val, i) => {

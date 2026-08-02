@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>South Yard Assignment Sheet - Night</title>
+  <title>South Yard Assignment Sheet - Day</title>
   <style>
     :root {
       --sugar-red: #c8102e;
@@ -525,7 +525,7 @@
     <div class="header">
       <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
       <div class="header-content">
-        <h1>SOUTH YARD ASSIGNMENT SHEET - NIGHT</h1>
+        <h1>SOUTH YARD ASSIGNMENT SHEET - DAY</h1>
         <div class="subtitle">American Crystal Sugar • South Yard • Piler Crew Assignments</div>
         <div class="header-last-updated">
           Last updated: <span class="value" id="lastUpdated">No entries yet</span>
@@ -621,18 +621,18 @@
     <!-- Screen-only print button -->
     <div style="text-align:center; margin-top:8px;" class="no-print">
       <button onclick="window.print()" style="padding:8px 18px; font-size:13px; font-weight:600; background:#003366; color:white; border:none; border-radius:4px; cursor:pointer;">🖨️ Print / Save as PDF</button>
-      <div style="font-size:9px; color:#666; margin-top:3px;">Recommended filename: South Yard Assignment Sheet.pdf</div>
+      <div style="font-size:9px; color:#666; margin-top:3px;">Recommended filename: South Yard Assignment Sheet - Day.pdf</div>
     </div>
   </div>
 
   <script>
     function preparePrintTitle() {
-      document.title = 'South Yard Assignment Sheet';
+      document.title = 'South Yard Assignment Sheet - Day';
     }
     window.addEventListener('beforeprint', preparePrintTitle);
 
-    const STORAGE_KEY = 'southYardAssignments';
-    const LAST_UPDATED_KEY = 'southYardLastUpdated';
+    const STORAGE_KEY = 'southYardAssignmentsDay';
+    const LAST_UPDATED_KEY = 'southYardLastUpdatedDay';
     const MIN_PILER_LINES = 8;
     const MIN_EXTRA_LINES = 10;
     const MIN_SKID_LOADER_LINES = 6;
@@ -643,7 +643,7 @@
     const GITHUB_OWNER = 'justinperris';
     const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
     const GITHUB_BRANCH = 'main';
-    const GITHUB_DATA_PATH = 'south-yard-assignments.json';
+    const GITHUB_DATA_PATH = 'south-yard-assignments-day.json';
 
     async function syncFromGitHub() {
       try {
@@ -825,7 +825,7 @@
       renderedLastUpdated = iso;
     }
 
-    const NOTES_KEY = 'southYardSheetNotes';
+    const NOTES_KEY = 'southYardSheetNotesDay';
     const notesEl = document.getElementById('notes');
     if (notesEl) {
       notesEl.value = localStorage.getItem(NOTES_KEY) || '';

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hillsboro North Sign-In Sheet - Day</title>
+  <title>Hillsboro North Sign-In Sheet - Night</title>
   <style>
     :root {
       --sugar-red: #c8102e;
@@ -538,7 +538,7 @@
     <div class="header">
       <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
       <div class="header-content">
-        <h1>HILLSBORO NORTH SIGN-IN SHEET - DAY</h1>
+        <h1>HILLSBORO NORTH SIGN-IN SHEET - NIGHT</h1>
         <div class="subtitle">American Crystal Sugar • Hillsboro Yard North</div>
       </div>
       <!-- People in Yard count - circled for attention -->
@@ -618,15 +618,15 @@
     <!-- Actions -->
     <div class="actions no-print">
       <button class="primary" onclick="printForm()">🖨️ Print / Save as PDF</button>
-      <button onclick="window.open('piler-info.html', '_blank')">⬅️ Back to Info Page</button>
+      <button onclick="window.open('piler-info-Night.html', '_blank')">⬅️ Back to Info Page</button>
       <button onclick="clearForm()">Clear All</button>
       <button onclick="clearSignInLocalData()" style="background:#f8d7da; border-color:#721c24; color:#721c24;">Wipe local draft (full reset)</button>
       <button onclick="saveToLocal()">Save Now</button>
       <button onclick="retryGitHubPush()">🔄 Retry Push to GitHub</button>
       <button onclick="loadFromLocal()">Load Saved Data</button>
       <button onclick="loadPilerNames()">Reload from Piler Info</button>
-      <button onclick="window.open('History.html', '_blank')">📜 View Crew History</button>
-      <button onclick="window.open('Crew_Report.html', '_blank')">🖼️ View/Download Crew Report</button>
+      <button onclick="window.open('History-Night.html', '_blank')">📜 View Crew History</button>
+      <button onclick="window.open('Crew_Report-Night.html', '_blank')">🖼️ View/Download Crew Report</button>
     </div>
     <div class="hint no-print">
       Piler columns load from data.json. Skid-Steer/Loader and Foreman automatically save to GitHub if a token is configured (via admin.html or console). Use "Back to Info Page" or "View Crew History". Print → Save as PDF.
@@ -652,8 +652,8 @@
     async function checkForNewerData() {
       try {
         const [dataRes, signinRes] = await Promise.all([
-          fetch('data.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null),
-          fetch('current-signin.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+          fetch('data-night.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null),
+          fetch('current-signin-night.json?_=' + Date.now(), { cache: 'no-store' }).catch(() => null)
         ]);
 
         let newer = false;
@@ -731,9 +731,9 @@
 
       let data = null;
 
-      // First, try to load from data.json (for GitHub Pages shared link)
+      // First, try to load from data-night.json (for GitHub Pages shared link)
       try {
-        const res = await fetch('data.json', { cache: 'no-store' });
+        const res = await fetch('data-night.json', { cache: 'no-store' });
         if (res.ok) {
           data = await res.json();
         }
@@ -743,7 +743,7 @@
 
       // Fallback to localStorage (for local file use or personal saves)
       if (!data) {
-        const raw = localStorage.getItem('pilerInfoDraft');
+        const raw = localStorage.getItem('pilerInfoDraftNight');
         if (raw) {
           try { data = JSON.parse(raw); } catch(e) { data = null; }
         }
@@ -918,7 +918,7 @@
       // Set print title with date + location if available
       const dateVal = document.getElementById('date').value;
       const locVal = document.getElementById('location').value || '';
-      let title = 'Hillsboro North Sign-In Sheet';
+      let title = 'Hillsboro North Sign-In Sheet - Night';
       if (dateVal) {
         const d = new Date(dateVal);
         title += ' - ' + d.toLocaleDateString();
@@ -930,7 +930,7 @@
 
       // Restore a generic title after print dialog
       setTimeout(() => {
-        document.title = 'Hillsboro North Sign-In Sheet';
+        document.title = 'Hillsboro North Sign-In Sheet - Night';
       }, 1000);
     }
 
@@ -957,7 +957,7 @@
 
     function clearSignInLocalData() {
       if (!confirm('This will wipe the local draft for the sign-in page (skid/foreman fields etc.). Continue?')) return;
-      localStorage.removeItem('hillsboroNorthSignInDraft');
+      localStorage.removeItem('hillsboroNorthSignInDraftNight');
       alert('Local sign-in draft cleared. Reloading...');
       location.reload();
     }
@@ -994,7 +994,7 @@
 
     function saveToLocal() {
       const data = getAllData();
-      localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+      localStorage.setItem('hillsboroNorthSignInDraftNight', JSON.stringify(data));
 
       const btns = document.querySelectorAll('button');
       const origText = [];
@@ -1013,7 +1013,7 @@
       pushSignInToGitHub().then(success => {
         if (success) {
           console.log('✓ Pushed skid/foreman to GitHub!');
-          setSignInGitHubStatus('✓ Saved locally AND pushed current-signin.json to GitHub.', '#1b5e20');
+          setSignInGitHubStatus('✓ Saved locally AND pushed current-signin-night.json to GitHub.', '#1b5e20');
         } else {
           setSignInGitHubStatus('✗ Saved locally — GitHub push failed (see console for details).', '#b71c1c');
         }
@@ -1021,7 +1021,7 @@
     }
 
     function loadFromLocal(silent = false) {
-      const raw = localStorage.getItem('hillsboroNorthSignInDraft');
+      const raw = localStorage.getItem('hillsboroNorthSignInDraftNight');
       if (!raw) {
         if (!silent) alert('No saved draft found.');
         return false;
@@ -1070,7 +1070,7 @@
       clearTimeout(signInSaveTimeout);
       signInSaveTimeout = setTimeout(() => {
         const data = getAllData();
-        localStorage.setItem('hillsboroNorthSignInDraft', JSON.stringify(data));
+        localStorage.setItem('hillsboroNorthSignInDraftNight', JSON.stringify(data));
       }, 650);
     }
 
@@ -1162,7 +1162,7 @@
       setSignInGitHubStatus('Pushing to GitHub…', '#555');
       pushSignInToGitHub().then(success => {
         if (success) {
-          setSignInGitHubStatus('✓ Pushed current-signin.json to GitHub.', '#1b5e20');
+          setSignInGitHubStatus('✓ Pushed current-signin-night.json to GitHub.', '#1b5e20');
         } else {
           setSignInGitHubStatus('✗ GitHub push failed — check wifi/connection and token permissions.', '#b71c1c');
         }
@@ -1192,7 +1192,7 @@
 
       const signinData = { skidSteer, foreman, lastUpdated: new Date().toISOString() };
 
-      const path = 'current-signin.json';
+      const path = 'current-signin-night.json';
       const message = `Auto-update sign-in ${new Date().toISOString()}`;
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(signinData, null, 2))));
 
@@ -1228,7 +1228,7 @@
 
     async function loadSignInFromGitHub() {
       try {
-        const res = await fetch('current-signin.json', { cache: 'no-store' });
+        const res = await fetch('current-signin-night.json', { cache: 'no-store' });
         if (!res.ok) return false;
         const data = await res.json();
         knownSigninLastUpdated = data.lastUpdated || null;
@@ -1309,7 +1309,7 @@
           // Let the browser handle it, but we can also prepare title
           const dateVal = document.getElementById('date').value;
           if (dateVal) {
-            document.title = 'Hillsboro North Sign-In Sheet - ' + new Date(dateVal).toLocaleDateString();
+            document.title = 'Hillsboro North Sign-In Sheet - Night - ' + new Date(dateVal).toLocaleDateString();
           }
         }
       });

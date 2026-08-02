@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Piler Information Input - Day</title>
+  <title>Piler Information Input - Night</title>
   <style>
     :root {
       --sugar-red: #c8102e;
@@ -371,7 +371,7 @@
     <div class="header">
       <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar Company">
       <div class="header-content">
-        <h1>PILER INFORMATION INPUT - DAY</h1>
+        <h1>PILER INFORMATION INPUT - NIGHT</h1>
         <div class="subtitle">American Crystal Sugar • Harvest Crew</div>
       </div>
     </div>
@@ -415,7 +415,7 @@
       </table>
       <div class="row-count no-print" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
         <span>
-          <span id="row-count">20</span> rows • 
+          <span id="row-count">20</span> rows •
           <button type="button" onclick="addPilerRows(5)" style="padding: 2px 8px; font-size: 11px;">+ Add 5 more</button>
         </span>
         <span id="auto-save-status" style="font-size: 10px; color: #4a7c59; min-height: 1em;"></span>
@@ -434,7 +434,7 @@
     <!-- Actions -->
     <div class="actions no-print">
       <button class="primary" onclick="printForm()">🖨️ Print / Save as PDF</button>
-      <button onclick="window.open('hillsboro-signin.html', '_blank')">📋 Go to Sign-In Sheet</button>
+      <button onclick="window.open('hillsboro-signin-Night.html', '_blank')">📋 Go to Sign-In Sheet</button>
       <button onclick="clearForm()">Clear All</button>
       <button onclick="clearNameSuggestions()" style="background:#fff3cd; border-color:#856404; color:#856404;">Clear remembered names (dropdown)</button>
       <button onclick="clearAllLocalData()" style="background:#f8d7da; border-color:#721c24; color:#721c24;">Wipe ALL local data (full reset)</button>
@@ -442,7 +442,7 @@
       <button onclick="retryGitHubPush()">🔄 Retry Push to GitHub</button>
       <button onclick="exportDataForGitHub()">Export data.json (for GitHub)</button>
       <button onclick="loadFromLocal()">Load Saved Data</button>
-      <button onclick="window.open('History.html', '_blank')">📜 View History</button>
+      <button onclick="window.open('History-Night.html', '_blank')">📜 View History</button>
     </div>
     <!-- GitHub sync status (restored so silent token failures are obvious) -->
     <div id="github-sync-box" class="no-print" style="margin-top:12px;padding:12px 14px;border:2px solid #ccc;border-radius:8px;background:#f7f9fc;">
@@ -467,10 +467,10 @@
   <script>
     const INITIAL_ROWS = 20;
     let currentRowCount = 0;
-    const STORAGE_KEY = 'pilerInfoDraft';
-    const HISTORY_KEY = 'pilerInfoHistory';
-    const NAMES_KEY = 'pilerSavedNames';
-    const LAST_UPDATED_KEY = 'pilerInfoLastUpdated';
+    const STORAGE_KEY = 'pilerInfoDraftNight';
+    const HISTORY_KEY = 'pilerInfoHistoryNight';
+    const NAMES_KEY = 'pilerSavedNamesNight';
+    const LAST_UPDATED_KEY = 'pilerInfoLastUpdatedNight';
 
     function getStoredLastUpdated() {
       return localStorage.getItem(LAST_UPDATED_KEY) || null;
@@ -770,7 +770,7 @@
     function printForm() {
       const dateVal = document.getElementById('date').value;
       const locVal = document.getElementById('location').value || '';
-      let title = 'Piler Information Input';
+      let title = 'Piler Information Input - Night';
       if (dateVal) {
         const d = new Date(dateVal);
         title += ' - ' + d.toLocaleDateString();
@@ -781,7 +781,7 @@
       window.print();
 
       setTimeout(() => {
-        document.title = 'Piler Information Input';
+        document.title = 'Piler Information Input - Night';
       }, 1000);
     }
 
@@ -806,7 +806,7 @@
 
     function clearNameSuggestions() {
       if (!confirm('Clear all remembered names from the dropdown suggestions?')) return;
-      localStorage.removeItem('pilerSavedNames');
+      localStorage.removeItem('pilerSavedNamesNight');
       const datalist = document.getElementById('piler-name-list');
       if (datalist) datalist.innerHTML = '';
       alert('Remembered names cleared. Refresh the page if needed.');
@@ -814,10 +814,10 @@
 
     function clearAllLocalData() {
       if (!confirm('This will completely wipe ALL local data for this app (drafts, name suggestions, and history). Are you sure?')) return;
-      localStorage.removeItem('pilerInfoDraft');
-      localStorage.removeItem('pilerSavedNames');
-      localStorage.removeItem('pilerInfoHistory');
-      localStorage.removeItem('hillsboroNorthSignInDraft');
+      localStorage.removeItem('pilerInfoDraftNight');
+      localStorage.removeItem('pilerSavedNamesNight');
+      localStorage.removeItem('pilerInfoHistoryNight');
+      localStorage.removeItem('hillsboroNorthSignInDraftNight');
       localStorage.removeItem(LAST_UPDATED_KEY);
       const datalist = document.getElementById('piler-name-list');
       if (datalist) datalist.innerHTML = '';
@@ -888,7 +888,7 @@
           const confirmedData = Object.assign({}, data, { lastUpdated: pendingTimestamp });
           localStorage.setItem(STORAGE_KEY, JSON.stringify(confirmedData));
           updateLastUpdatedDisplay(pendingTimestamp);
-          setGitHubStatus('✓ Saved locally AND pushed data.json to GitHub.', '#1b5e20');
+          setGitHubStatus('✓ Saved locally AND pushed data-night.json to GitHub.', '#1b5e20');
           alert('Saved and pushed to GitHub.\n\nHard-refresh the live site (Ctrl+F5) in 1–2 minutes to see updates.');
         } else {
           const hasToken = !!localStorage.getItem(GITHUB_TOKEN_KEY);
@@ -974,7 +974,7 @@
       if (warn) {
         if (isFile) {
           warn.style.display = 'block';
-          warn.innerHTML = '<strong>You opened this as a local file</strong> (file://). Browsers often block loading data.json and may block GitHub updates.<br>Best fix: use the live page:<br><a href="https://justinperris.github.io/Beet-Harvest-North-Hillsboro-Yard-day/piler-info.html" target="_blank">Open live piler-info</a> — set the token there, then Save Now.';
+          warn.innerHTML = '<strong>You opened this as a local file</strong> (file://). Browsers often block loading data-night.json and may block GitHub updates.<br>Best fix: use the live page:<br><a href="https://justinperris.github.io/Beet-Harvest-North-Hillsboro-Yard-day/piler-info-Night.html" target="_blank">Open live piler-info</a> — set the token there, then Save Now.';
         } else {
           warn.style.display = 'none';
           warn.innerHTML = '';
@@ -1026,7 +1026,7 @@
       setGitHubStatus('Testing connection to GitHub…', '#555');
       try {
         const res = await fetch(
-          'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/data.json',
+          'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/data-night.json',
           { headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' } }
         );
         if (res.ok) {
@@ -1036,7 +1036,7 @@
         } else if (res.status === 403) {
           setGitHubStatus('✗ Test failed (403) — token needs public_repo (or Contents: Read and write).', '#b71c1c');
         } else if (res.status === 404) {
-          setGitHubStatus('~ Token reached GitHub but data.json not found (404). Save Now can create/update it.', '#e65100');
+          setGitHubStatus('~ Token reached GitHub but data-night.json not found (404). Save Now can create/update it.', '#e65100');
         } else {
           setGitHubStatus('✗ Test failed — HTTP ' + res.status, '#b71c1c');
         }
@@ -1063,7 +1063,7 @@
           const confirmedData = Object.assign({}, data, { lastUpdated: pendingTimestamp });
           localStorage.setItem(STORAGE_KEY, JSON.stringify(confirmedData));
           updateLastUpdatedDisplay(pendingTimestamp);
-          setGitHubStatus('✓ Pushed data.json to GitHub.', '#1b5e20');
+          setGitHubStatus('✓ Pushed data-night.json to GitHub.', '#1b5e20');
         } else {
           const hasToken = !!(localStorage.getItem(GITHUB_TOKEN_KEY) || '').trim();
           if (!hasToken) {
@@ -1082,7 +1082,7 @@
         return false;
       }
 
-      const path = 'data.json';
+      const path = 'data-night.json';
       const message = `Auto-update crew data ${new Date().toISOString()}`;
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
 
@@ -1097,7 +1097,7 @@
           sha = fileInfo.sha;
         }
       } catch (e) {
-        console.error('Error reading existing data.json from GitHub:', e);
+        console.error('Error reading existing data-night.json from GitHub:', e);
       }
 
       const body = {
@@ -1119,7 +1119,7 @@
         });
 
         if (putRes.ok) {
-          console.log('Successfully pushed data.json to GitHub');
+          console.log('Successfully pushed data-night.json to GitHub');
           return true;
         } else {
           const err = await putRes.text();
@@ -1144,7 +1144,7 @@
           if (hasLocal) return false;
         }
 
-        const res = await fetch('data.json', { cache: 'no-store' });
+        const res = await fetch('data-night.json', { cache: 'no-store' });
         if (!res.ok) return false;
         const data = await res.json();
         if (!data || !data.rows) return false;
@@ -1405,7 +1405,7 @@
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
           const dateVal = document.getElementById('date').value;
           if (dateVal) {
-            document.title = 'Piler Information Input - ' + new Date(dateVal).toLocaleDateString();
+            document.title = 'Piler Information Input - Night - ' + new Date(dateVal).toLocaleDateString();
           }
         }
       });

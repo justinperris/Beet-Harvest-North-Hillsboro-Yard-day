@@ -113,6 +113,74 @@
       color: var(--blue);
       text-decoration: none;
     }
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 18px 0 6px;
+    }
+    .section-label:first-child {
+      margin-top: 0;
+    }
+    .day-night-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .day-night-row .button {
+      flex: 1;
+      margin-bottom: 0;
+      text-align: center;
+      padding: 18px 12px;
+      font-size: 1.15rem;
+    }
+    .button.day-btn {
+      background: #bbdefb;
+      border: 2px solid #003366;
+      color: #003366;
+    }
+    .button.day-btn:hover {
+      background: #90caf9;
+      color: #003366;
+      transform: translateY(-2px);
+    }
+    .button.night-btn {
+      background: #111;
+      border: 2px solid #111;
+      color: white;
+    }
+    .button.night-btn:hover {
+      background: #000;
+      color: white;
+      transform: translateY(-2px);
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .header {
+        padding: 24px 16px;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .content {
+        padding: 16px;
+      }
+      .button {
+        padding: 16px 18px;
+        font-size: 1.1rem;
+      }
+      .day-night-row {
+        gap: 8px;
+      }
+      .day-night-row .button {
+        padding: 16px 8px;
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -128,19 +196,17 @@
         Data is stored locally in your browser.
       </p>
 
-      <a href="javascript:void(0)" class="button" onclick="goToProtected('piler-info.html')">
-        Crew Roster &amp; Assignments
-        <span class="subtitle">Enter names, piler numbers, Operator / Boom / Relief roles</span>
-      </a>
+      <div class="section-label">North Yard Input</div>
+      <div class="day-night-row">
+        <a href="javascript:void(0)" class="button day-btn" onclick="goToProtected('piler-info.html')">Day</a>
+        <a href="javascript:void(0)" class="button night-btn" onclick="goToProtected('piler-info-Night.html')">NIGHT</a>
+      </div>
 
-      <a href="javascript:void(0)" class="button" onclick="goToProtected('hillsboro-signin.html')">
-        Daily Sign-In Sheet
-        <span class="subtitle">Hillsboro North • Piler #7 &amp; #8 columns with role colors</span>
-      </a>
-
-      <a href="Assignment-input.html" class="button red">
-        South Yard Input
-      </a>
+      <div class="section-label">South Yard Input</div>
+      <div class="day-night-row">
+        <a href="Assignment-input-Day.html" class="button day-btn">Day</a>
+        <a href="Assignment-input.html" class="button night-btn">NIGHT</a>
+      </div>
 
       <a href="Daves Yard report.html" class="button">
         Dave's Field Report
@@ -157,10 +223,11 @@
         <span class="subtitle">Alcohol / controlled substance observation record • stays on this device only</span>
       </a>
 
-      <a href="History.html" class="button secondary">
-        View History
-        <span class="subtitle">Past daily crew snapshots and versions</span>
-      </a>
+      <div class="section-label">View History</div>
+      <div class="day-night-row">
+        <a href="History.html" class="button day-btn">Day</a>
+        <a href="History-Night.html" class="button night-btn">NIGHT</a>
+      </div>
     </div>
 
     <div class="footer">

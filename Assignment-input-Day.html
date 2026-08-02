@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>South Yard - Assignment Input - Night</title>
+<title>South Yard - Assignment Input - Day</title>
 <link rel="icon" href="ACS_Logo.ico">
 <style>
   :root {
@@ -239,7 +239,7 @@
     <div class="header">
       <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar logo">
       <div class="header-text">
-        <h1>South Yard Assignment Input - Night</h1>
+        <h1>South Yard Assignment Input - Day</h1>
         <p>American Crystal Sugar &bull; Piler Crew Assignment Entry</p>
       </div>
     </div>
@@ -316,20 +316,20 @@
       <div class="success-msg" id="supportSuccessMsg"></div>
 
       <div class="footer-links">
-        <a href="south-yard-master-list-form.html">View South Yard Master List &rarr;</a>
+        <a href="south-yard-master-list-form-Day.html">View South Yard Master List &rarr;</a>
       </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'southYardAssignments';
-    const LAST_UPDATED_KEY = 'southYardLastUpdated';
+    const STORAGE_KEY = 'southYardAssignmentsDay';
+    const LAST_UPDATED_KEY = 'southYardLastUpdatedDay';
 
     // Public repo the list is shared through — reading needs no token, only pushing does.
     const GITHUB_OWNER = 'justinperris';
     const GITHUB_REPO = 'Beet-Harvest-North-Hillsboro-Yard-day';
     const GITHUB_BRANCH = 'main';
-    const GITHUB_DATA_PATH = 'south-yard-assignments.json';
+    const GITHUB_DATA_PATH = 'south-yard-assignments-day.json';
 
     async function syncFromGitHub() {
       try {
@@ -351,7 +351,7 @@
     }
     syncFromGitHub().then(() => renderLastUpdated());
 
-    const NAME_HISTORY_KEY = 'southYardNameHistory';
+    const NAME_HISTORY_KEY = 'southYardNameHistoryDay';
 
     function loadNameHistory() {
       try {
