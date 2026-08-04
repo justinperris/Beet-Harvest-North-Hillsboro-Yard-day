@@ -124,6 +124,15 @@
     .section-label:first-child {
       margin-top: 0;
     }
+    .section-note {
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0 0 10px;
+    }
+    .section-note.warning {
+      color: var(--red);
+      font-weight: 700;
+    }
     .day-night-row {
       display: flex;
       gap: 12px;
@@ -197,26 +206,38 @@
       </p>
 
       <div class="section-label">North Yard Input</div>
+      <p class="section-note warning">These are password protected.</p>
       <div class="day-night-row">
         <a href="javascript:void(0)" class="button day-btn" onclick="goToProtected('piler-info.html')">Day</a>
         <a href="javascript:void(0)" class="button night-btn" onclick="goToProtected('piler-info-Night.html')">NIGHT</a>
       </div>
 
       <div class="section-label">South Yard Input</div>
+      <p class="section-note warning">These are password protected.</p>
       <div class="day-night-row">
         <a href="javascript:void(0)" class="button day-btn" onclick="goToProtectedSouth('Assignment-input-Day.html')">Day</a>
         <a href="javascript:void(0)" class="button night-btn" onclick="goToProtectedSouth('Assignment-input.html')">NIGHT</a>
       </div>
 
       <a href="Daves Yard report.html" class="button">
-        Dave's Field Report
+        Field / Yard Report
         <span class="subtitle">Install to your home screen for offline use • photos, PDF &amp; PNG export</span>
       </a>
 
-      <a href="Crew_Report.html" class="button secondary">
-        Crew Report
-        <span class="subtitle">Read-only snapshot of the latest sign-in • downloadable as image or PDF</span>
-      </a>
+      <div class="section-label">Crew Reports</div>
+      <p class="section-note">These are read-only.</p>
+
+      <div class="section-label">North Yard</div>
+      <div class="day-night-row">
+        <a href="Crew_Report.html" class="button day-btn">Day</a>
+        <a href="Crew_Report-Night.html" class="button night-btn">NIGHT</a>
+      </div>
+
+      <div class="section-label">South Yard</div>
+      <div class="day-night-row">
+        <a href="south-yard-crew-report-Day.html" class="button day-btn">Day</a>
+        <a href="south-yard-crew-report.html" class="button night-btn">NIGHT</a>
+      </div>
 
       <a href="Reasonable-Suspicion-Form.html" class="button secondary">
         Reasonable Suspicion Form
