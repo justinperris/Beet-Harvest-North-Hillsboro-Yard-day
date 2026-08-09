@@ -5,9 +5,9 @@
   "notes": "bob came in at 10am",
   "rows": [
     {
-      "name": "Dave stewart",
+      "name": "Dave Stewart",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -22,6 +22,14 @@
     },
     {
       "name": "Josie",
+      "piler": "7",
+      "operator": false,
+      "boom": false,
+      "relief": false,
+      "hidden": false
+    },
+    {
+      "name": "Linda",
       "piler": "7",
       "operator": false,
       "boom": false,
@@ -47,14 +55,6 @@
     {
       "name": "Elsa",
       "piler": "7",
-      "operator": false,
-      "boom": false,
-      "relief": false,
-      "hidden": false
-    },
-    {
-      "name": "Linda",
-      "piler": "8",
       "operator": false,
       "boom": false,
       "relief": false,
@@ -109,7 +109,7 @@
       "hidden": false
     },
     {
-      "name": "Dave stewart",
+      "name": "Dave Stewart",
       "piler": "8",
       "operator": true,
       "boom": false,
@@ -125,7 +125,7 @@
       "hidden": false
     },
     {
-      "name": "da",
+      "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -173,6 +173,7 @@
     "Cassie",
     "da",
     "Dave stewart",
+    "Dave Stewart",
     "Elsa",
     "Josie",
     "Larry",
@@ -183,5 +184,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-08-09T14:01:58.747Z"
+  "lastUpdated": "2026-08-09T14:03:31.744Z"
 }
