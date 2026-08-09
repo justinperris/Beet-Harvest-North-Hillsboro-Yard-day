@@ -830,8 +830,39 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
             document.getElementById('report-text').value = ""; // Empty as requested
             document.title = getFileNameStamp();
             renderImages();
+            loadReporterInfo();
             generatePreview();
         };
+
+        // Remember the last-entered reporter name/yard/shift so the browser
+        // pre-fills them next time this page loads.
+        const REPORTER_INFO_KEY = 'fieldReportReporterInfo';
+
+        function loadReporterInfo() {
+            try {
+                const raw = localStorage.getItem(REPORTER_INFO_KEY);
+                if (!raw) return;
+                const info = JSON.parse(raw);
+                if (info.name) document.getElementById('reporter-name').value = info.name;
+                if (info.yard) document.getElementById('report-yard').value = info.yard;
+                if (info.shift) document.getElementById('report-shift').value = info.shift;
+            } catch (e) {
+                // Ignore corrupt/missing data — fields just stay blank.
+            }
+        }
+
+        function saveReporterInfo() {
+            const info = {
+                name: document.getElementById('reporter-name').value.trim(),
+                yard: document.getElementById('report-yard').value,
+                shift: document.getElementById('report-shift').value
+            };
+            localStorage.setItem(REPORTER_INFO_KEY, JSON.stringify(info));
+        }
+
+        document.getElementById('reporter-name').addEventListener('input', saveReporterInfo);
+        document.getElementById('report-yard').addEventListener('change', saveReporterInfo);
+        document.getElementById('report-shift').addEventListener('change', saveReporterInfo);
 
         window.addEventListener('beforeprint', () => {
             document.title = getFileNameStamp();
