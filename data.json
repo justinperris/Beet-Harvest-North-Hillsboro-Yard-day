@@ -1,13 +1,13 @@
 {
-  "date": "2026-07-30",
+  "date": "2026-08-09",
   "location": "Hillsboro / North / Kody",
-  "day": "Thursday",
+  "day": "Sunday",
   "notes": "bob came in at 10am",
   "rows": [
     {
       "name": "Dave stewart",
       "piler": "7",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -22,14 +22,6 @@
     },
     {
       "name": "Josie",
-      "piler": "7",
-      "operator": false,
-      "boom": false,
-      "relief": false,
-      "hidden": false
-    },
-    {
-      "name": "Linda",
       "piler": "7",
       "operator": false,
       "boom": false,
@@ -55,6 +47,14 @@
     {
       "name": "Elsa",
       "piler": "7",
+      "operator": false,
+      "boom": false,
+      "relief": false,
+      "hidden": false
+    },
+    {
+      "name": "Linda",
+      "piler": "8",
       "operator": false,
       "boom": false,
       "relief": false,
@@ -183,5 +183,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-07-30T18:29:08.602Z"
+  "lastUpdated": "2026-08-09T14:01:58.747Z"
 }
