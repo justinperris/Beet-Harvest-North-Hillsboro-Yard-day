@@ -1,0 +1,93 @@
+{
+  "lastUpdated": "2026-08-14T01:38:05.495Z",
+  "assignments": [
+    {
+      "id": "mss9g0vw9ylyyt",
+      "name": "Tina",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mss9gidzrqm8u3",
+      "name": "Irene",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mss9i8ul479405",
+      "name": "Cecila",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mss9j4sbz0zc2b",
+      "name": "Tonya",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mss9jvq5ezj8kz",
+      "name": "Ashly",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mss9ke7rpsiimw",
+      "name": "Doug",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mss9licdyiioeh",
+      "name": "Monica",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mss9ns6m8lswun",
+      "name": "Mereya",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mss9o57qet45l0",
+      "name": "Nora",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    },
+    {
+      "id": "mss9ovhm5krlgh",
+      "name": "Roxanne",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mss9qh8k1zk7pc",
+      "name": "Sanjuan",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 2
+    }
+  ]
+}
