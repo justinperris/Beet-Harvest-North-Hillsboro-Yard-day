@@ -88,6 +88,62 @@
       "relief": false,
       "boom": false,
       "piler": 2
+    },
+    {
+      "id": "mss9uhm0n1412x",
+      "name": "Silvia",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "piler": 3
+    },
+    {
+      "id": "mss9vngfk0q2i2",
+      "name": "John",
+      "foreman": false,
+      "skidsteer": true,
+      "loader": false,
+      "piler": null
+    },
+    {
+      "id": "mss9vuyqrbhept",
+      "name": "Ed",
+      "foreman": false,
+      "skidsteer": true,
+      "loader": false,
+      "piler": null
+    },
+    {
+      "id": "mss9wuzx720eik",
+      "name": "Denise",
+      "foreman": false,
+      "skidsteer": false,
+      "loader": true,
+      "piler": null
+    },
+    {
+      "id": "mss9xkg62z66jo",
+      "name": "Chuck",
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "piler": null
+    },
+    {
+      "id": "mssa0iyd592zvt",
+      "name": "Mary",
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "piler": null
+    },
+    {
+      "id": "mssa2acbainbq4",
+      "name": "Dave Stewart",
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "piler": null
     }
   ]
 }
