@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-14T01:38:05.495Z",
+  "lastUpdated": "2026-08-14T17:16:51.289Z",
   "assignments": [
     {
       "id": "mss9g0vw9ylyyt",
@@ -26,28 +26,12 @@
       "piler": 2
     },
     {
-      "id": "mss9j4sbz0zc2b",
-      "name": "Tonya",
-      "operator": true,
-      "relief": false,
-      "boom": false,
-      "piler": 3
-    },
-    {
-      "id": "mss9jvq5ezj8kz",
-      "name": "Ashly",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "piler": 3
-    },
-    {
       "id": "mss9ke7rpsiimw",
       "name": "Doug",
       "operator": false,
       "relief": false,
-      "boom": false,
-      "piler": 3
+      "boom": true,
+      "piler": 4
     },
     {
       "id": "mss9licdyiioeh",
@@ -55,7 +39,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 3
+      "piler": 4
     },
     {
       "id": "mss9ns6m8lswun",
@@ -71,7 +55,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 2
+      "piler": 4
     },
     {
       "id": "mss9ovhm5krlgh",
@@ -79,7 +63,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 3
+      "piler": 4
     },
     {
       "id": "mss9qh8k1zk7pc",
@@ -95,7 +79,7 @@
       "operator": false,
       "relief": false,
       "boom": false,
-      "piler": 3
+      "piler": 4
     },
     {
       "id": "mss9vngfk0q2i2",
