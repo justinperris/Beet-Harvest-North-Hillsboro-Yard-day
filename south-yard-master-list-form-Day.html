@@ -351,7 +351,7 @@
       <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-6-accent)"></span>Piler #6</div>
       <div class="legend-item"><span class="legend-swatch" style="background:var(--piler-unknown-accent)"></span>Unknown (?)</div>
       <div class="legend-item"><span class="legend-swatch" style="background:var(--role-foreman-accent)"></span>Foreman</div>
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--role-support-accent)"></span>Skid-steer / Loader</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--role-support-accent)"></span>Skid-steer / Loader / Greaser</div>
     </div>
 
     <div class="content">
@@ -365,6 +365,7 @@
             <th class="role-cell">Foreman</th>
             <th class="role-cell">Skid-steer</th>
             <th class="role-cell">Loader</th>
+            <th class="role-cell">Greaser/Water</th>
             <th>Piler #</th>
             <th class="role-cell">Out Today</th>
             <th class="no-print"></th>
@@ -468,13 +469,13 @@
       'piler-5': 'Piler #5',
       'piler-6': 'Piler #6',
       unknown: 'Unknown (?)',
-      support: 'Skid-steer / Loader'
+      support: 'Skid-steer / Loader / Greaser'
     };
     const SUPPORT_GROUPS = ['foreman', 'support'];
 
     function categoryOf(entry) {
       if (entry.foreman) return 'foreman';
-      if (entry.skidsteer || entry.loader) return 'support';
+      if (entry.skidsteer || entry.loader || entry.greaser) return 'support';
       if ([1, 2, 3, 4, 5, 6].includes(entry.piler)) return 'piler-' + entry.piler;
       return 'unknown';
     }
@@ -567,6 +568,7 @@
             <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="foreman" ${entry.foreman ? 'checked' : ''}>` : ''}</td>
             <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="skidsteer" ${entry.skidsteer ? 'checked' : ''}>` : ''}</td>
             <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="loader" ${entry.loader ? 'checked' : ''}>` : ''}</td>
+            <td class="role-cell">${isSupportRow ? `<input type="checkbox" data-field="greaser" ${entry.greaser ? 'checked' : ''}>` : ''}</td>
             <td>
               <select class="piler-select" data-field="piler">
                 ${pilerOptions.map((n) => `<option value="${n}" ${isPilerSelected(entry.piler, n) ? 'selected' : ''}>${n === '' ? '—' : n}</option>`).join('')}
@@ -609,7 +611,7 @@
       return assignments.find(a => a.id === id);
     }
 
-    const RECOLOR_FIELDS = ['piler', 'foreman', 'skidsteer', 'loader'];
+    const RECOLOR_FIELDS = ['piler', 'foreman', 'skidsteer', 'loader', 'greaser'];
 
     document.getElementById('tableBody').addEventListener('input', (e) => {
       const tr = e.target.closest('tr');
@@ -670,6 +672,7 @@
         foreman: false,
         skidsteer: false,
         loader: false,
+        greaser: false,
         piler: 1,
         hidden: false
       };

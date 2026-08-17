@@ -309,6 +309,10 @@
           <label><input type="checkbox" id="roleLoader" name="roleLoader"> Loader</label>
         </div>
 
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="roleGreaser" name="roleGreaser"> Greaser/Water Guys</label>
+        </div>
+
         <button type="submit" id="supportEnterBtn">Enter</button>
       </form>
 
@@ -556,13 +560,14 @@
       const foreman = document.getElementById('roleForeman').checked;
       const skidsteer = document.getElementById('roleSkidsteer').checked;
       const loader = document.getElementById('roleLoader').checked;
+      const greaser = document.getElementById('roleGreaser').checked;
 
       if (!name) {
         supportErrorMsg.textContent = 'Please enter a full name.';
         return;
       }
-      if (!foreman && !skidsteer && !loader) {
-        supportErrorMsg.textContent = 'Please check Foreman, Skid-steer, or Loader.';
+      if (!foreman && !skidsteer && !loader && !greaser) {
+        supportErrorMsg.textContent = 'Please check Foreman, Skid-steer, Loader, or Greaser/Water Guys.';
         return;
       }
 
@@ -572,6 +577,7 @@
         foreman: foreman,
         skidsteer: skidsteer,
         loader: loader,
+        greaser: greaser,
         piler: null
       };
 
@@ -583,7 +589,7 @@
 
       document.getElementById('supportForm').reset();
 
-      const roles = [foreman && 'Foreman', skidsteer && 'Skid-steer', loader && 'Loader'].filter(Boolean).join(' / ');
+      const roles = [foreman && 'Foreman', skidsteer && 'Skid-steer', loader && 'Loader', greaser && 'Greaser/Water'].filter(Boolean).join(' / ');
       clearTimeout(supportSuccessTimer);
       supportSuccessMsg.textContent = `Added "${entry.name}" — ${roles}.`;
       supportSuccessMsg.classList.add('show');

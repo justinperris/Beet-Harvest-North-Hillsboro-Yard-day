@@ -558,6 +558,11 @@
         <h3>Skid Steer / Loader</h3>
         <div class="entries" id="skidLoaderEntries"></div>
       </div>
+
+      <div class="skid-loader-box">
+        <h3>Greaser / Water</h3>
+        <div class="entries" id="greaserWaterEntries"></div>
+      </div>
     </div>
 
     <div class="foreman-section">
@@ -644,6 +649,7 @@
     const MIN_PILER_LINES = 8;
     const MIN_EXTRA_LINES = 10;
     const MIN_SKID_LOADER_LINES = 6;
+    const MIN_GREASER_LINES = 4;
     const ROLE_ORDER = { operator: 0, relief: 1, boom: 2, general: 3 };
     const ROLE_LABEL = { operator: 'Operator', relief: 'Relief', boom: 'Boom' };
 
@@ -758,6 +764,15 @@
       return `<div class="entry filled"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${dupHtml}${labelHtml}</div></div>`;
     }
 
+    function greaserEntryHtml(num, person, duplicateNames = new Set()) {
+      if (!person) {
+        return `<div class="entry"><span class="num">${num}</span><div class="hand-line"></div></div>`;
+      }
+      const labelHtml = '<span class="role-tag">GREASER/WATER</span>';
+      const dupHtml = duplicateNames.has(person.name.trim()) ? '<span class="dup-mark">*</span>' : '';
+      return `<div class="entry filled"><span class="num">${num}</span><div class="hand-line">${escapeHtml(person.name)}${dupHtml}${labelHtml}</div></div>`;
+    }
+
     function renderList(container, people, minLines, entryFn = entryHtml, duplicateNames = new Set()) {
       const totalLines = Math.max(minLines, people.length + 2);
       let html = '';
@@ -793,8 +808,11 @@
       const skidLoader = assignments.filter((a) => a.skidsteer || a.loader);
       renderList(document.getElementById('skidLoaderEntries'), skidLoader, MIN_SKID_LOADER_LINES, skidLoaderEntryHtml, duplicateNames);
 
+      const greaserWater = assignments.filter((a) => a.greaser);
+      renderList(document.getElementById('greaserWaterEntries'), greaserWater, MIN_GREASER_LINES, greaserEntryHtml, duplicateNames);
+
       const extraPeople = assignments.filter((a) =>
-        !a.foreman && !a.skidsteer && !a.loader &&
+        !a.foreman && !a.skidsteer && !a.loader && !a.greaser &&
         (a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler))
       );
       renderList(document.getElementById('extraPeopleEntries'), extraPeople, MIN_EXTRA_LINES, entryHtml, duplicateNames);
