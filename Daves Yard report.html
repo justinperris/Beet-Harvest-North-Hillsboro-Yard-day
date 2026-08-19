@@ -48,21 +48,69 @@
         button { padding: 12px 24px; margin: 8px 5px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
         button:hover { background: #0056b3; }
         .note { font-size: 0.9em; color: #666; margin-top: 5px; }
-        
+
+        .thumb-wrap { position: relative; display: inline-block; }
+        .thumb-wrap .annotate-btn {
+            position: absolute; left: 4px; right: 4px; bottom: 4px;
+            margin: 0; padding: 6px 4px; font-size: 12px;
+            background: rgba(0,0,0,0.65); border-radius: 4px;
+        }
+        .thumb-wrap .annotate-btn:hover { background: rgba(0,0,0,0.8); }
+
+        /* Photo annotation modal */
+        #annotate-modal {
+            display: none; position: fixed; inset: 0; z-index: 1000;
+            background: #111; flex-direction: column;
+        }
+        #annotate-modal.open { display: flex; }
+        .ann-header {
+            flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+            padding: calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;
+            background: #1b1e26; border-bottom: 1px solid #333947;
+        }
+        .ann-header strong { color: #f2f3f5; font-size: 15px; }
+        .ann-header button { margin: 0; padding: 8px 14px; font-size: 14px; }
+        #annotate-stage {
+            flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center;
+            overflow: auto; padding: 10px; background: #14161b;
+        }
+        #annotate-canvas {
+            max-width: 100%; max-height: 100%; touch-action: none; border-radius: 4px;
+            background: #000; box-shadow: 0 4px 24px rgba(0,0,0,.5);
+        }
+        #annotate-toolbar {
+            flex: 0 0 auto; background: #1b1e26;
+            padding: 8px 10px calc(env(safe-area-inset-bottom,0px) + 8px); border-top: 1px solid #333947;
+        }
+        #annotate-toolbar .ann-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        #annotate-toolbar .ann-row + .ann-row { margin-top: 8px; }
+        #annotate-toolbar button { flex: 1 1 auto; min-height: 44px; margin: 0; padding: 10px 12px; font-size: 13px; }
+        #annotate-toolbar button.ann-icon { flex: 0 0 auto; width: 44px; padding: 10px; }
+        #annotate-toolbar button:disabled { opacity: .4; cursor: default; }
+        .ann-hint { color: #9aa0ac; font-size: 11.5px; text-align: center; margin: 6px 2px 0; line-height: 1.4; }
+        .ann-swatch {
+            width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent;
+            flex: 0 0 auto; padding: 0; min-height: 0;
+        }
+        .ann-swatch.active { border-color: #fff; }
+        .ann-swatch.ann-red { background: #ff3b30; }
+        .ann-swatch.ann-yellow { background: #ffd60a; }
+        .ann-spacer { flex: 1 1 auto; }
+
         /* Print styles for clean letter pages */
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; max-width: none; padding: 0; }
-            #preview { 
-                width: 8.5in; 
-                height: 11in; 
-                margin: 0; 
-                padding: 0.75in; 
-                box-shadow: none; 
-                border: none; 
+            #preview {
+                width: 8.5in;
+                height: 11in;
+                margin: 0;
+                padding: 0.75in;
+                box-shadow: none;
+                border: none;
                 page-break-inside: auto;
             }
-            button, #drop-zone, .images { display: none !important; }
+            button, #drop-zone, .images, #annotate-modal { display: none !important; }
         }
     </style>
 </head>
@@ -130,6 +178,32 @@
             <h3 id="preview-subtitle" style="text-align:center; margin-top:5px;"></h3>
             <div id="preview-text" style="margin-top:20px; white-space: pre-wrap; font-size:18pt; font-weight:bold;"></div>
             <div id="preview-images" style="margin-top:25px; display:grid; grid-template-columns: 1fr 1fr; gap:15px;"></div>
+        </div>
+    </div>
+
+    <div id="annotate-modal">
+        <div class="ann-header">
+            <strong>Annotate Photo</strong>
+            <button type="button" id="ann-btn-cancel">✕ Close</button>
+        </div>
+        <div id="annotate-stage">
+            <canvas id="annotate-canvas"></canvas>
+        </div>
+        <div id="annotate-toolbar">
+            <div class="ann-row">
+                <button type="button" id="ann-btn-circle">⭕ Circle</button>
+                <button type="button" id="ann-btn-arrow">➜ Arrow</button>
+                <button type="button" id="ann-btn-delete" class="ann-icon" disabled>🗑️</button>
+                <button type="button" id="ann-btn-undo" class="ann-icon" disabled>↩️</button>
+                <button type="button" id="ann-btn-clear" class="ann-icon" disabled>🧹</button>
+            </div>
+            <div class="ann-row">
+                <button type="button" class="ann-swatch ann-red active" id="ann-swatch-red" title="Red"></button>
+                <button type="button" class="ann-swatch ann-yellow" id="ann-swatch-yellow" title="Yellow"></button>
+                <div class="ann-spacer"></div>
+                <button type="button" id="ann-btn-save" style="background:#28a745;">💾 Save to Photo</button>
+            </div>
+            <div class="ann-hint">Tap ⭕ or ➜ to add a shape. Drag it to move, drag the white handle(s) to resize or rotate.</div>
         </div>
     </div>
 
@@ -622,10 +696,19 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 imagePreview.innerHTML = '<p style="color:#999;">No images yet</p>';
                 return;
             }
-            uploadedImages.forEach((src) => {
+            uploadedImages.forEach((src, idx) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'thumb-wrap';
                 const img = document.createElement('img');
                 img.src = src;
-                imagePreview.appendChild(img);
+                const annotateBtn = document.createElement('button');
+                annotateBtn.type = 'button';
+                annotateBtn.className = 'annotate-btn';
+                annotateBtn.textContent = '✏️ Annotate';
+                annotateBtn.onclick = () => openAnnotator(idx);
+                wrap.appendChild(img);
+                wrap.appendChild(annotateBtn);
+                imagePreview.appendChild(wrap);
             });
         }
 
@@ -673,25 +756,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 day: '2-digit'
             }).format(now).replace(/\//g, '-');
             return `${time} ${dayName} ${dateStr}`;
-        }
-
-        async function exportAsImage() {
-            generatePreview();
-            const previewEl = document.getElementById('preview');
-
-            try {
-                const canvas = await html2canvas(previewEl, {
-                    scale: 3,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
-                });
-                const link = document.createElement('a');
-                link.download = `${getFileNameStamp()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            } catch (err) {
-                alert("Image export failed. Use Print for best multi-page results.");
-            }
         }
 
         const IMAGES_PER_PDF_PAGE = 4;
@@ -744,6 +808,91 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
             return canvas;
         }
 
+        // Pads a captured page out to a true 8.5x11 ratio by adding white space
+        // below the content, so short pages look like a full printed sheet. Never
+        // crops: if the content is already taller than a letter page (e.g. several
+        // tall photos), it's left as-is so nothing is lost.
+        function padCanvasToLetterRatio(canvas, widthPx) {
+            const captureScale = canvas.width / widthPx;
+            const targetHeight = Math.round(widthPx * (11 / 8.5) * captureScale);
+            if (canvas.height >= targetHeight) return canvas;
+            const out = document.createElement('canvas');
+            out.width = canvas.width;
+            out.height = targetHeight;
+            const octx = out.getContext('2d');
+            octx.fillStyle = '#ffffff';
+            octx.fillRect(0, 0, out.width, out.height);
+            octx.drawImage(canvas, 0, 0);
+            return out;
+        }
+
+        function buildReportPages(widthPx) {
+            const imageBatches = [];
+            for (let i = 0; i < uploadedImages.length; i += IMAGES_PER_PDF_PAGE) {
+                imageBatches.push(uploadedImages.slice(i, i + IMAGES_PER_PDF_PAGE));
+            }
+
+            const pages = [];
+
+            const firstPage = makePdfPageShell(widthPx);
+            firstPage.innerHTML = `
+                <h2 style="margin-top:0; text-align:center; font-size:22pt; font-weight:bold;">${previewTitle.textContent}</h2>
+                <div style="text-align:center; font-size:14pt; font-weight:bold; margin-top:2px;">Field Report</div>
+                <div style="text-align:center; font-size:8pt; font-weight:normal; color:#666; margin-top:2px;">Generated by Mobile App</div>
+                <div style="text-align:center; font-size:11pt; font-weight:600; margin-top:8px;">${previewMeta.textContent}</div>
+                <h3 style="text-align:center; margin-top:5px;">${previewSubtitle.textContent}</h3>
+                <div style="margin-top:20px; white-space: pre-wrap; font-size:18pt; font-weight:bold;">${previewText.innerHTML}</div>
+            `;
+            const firstBatch = imageBatches[0] || [];
+            const firstImagesRow = buildImagesRow(firstBatch);
+            firstImagesRow.style.marginTop = '25px';
+            if (firstBatch.length === 0) {
+                firstImagesRow.innerHTML = '<p style="color:#999;">Add photos above to see them here</p>';
+            }
+            firstPage.appendChild(firstImagesRow);
+            pages.push(firstPage);
+
+            for (let b = 1; b < imageBatches.length; b++) {
+                const pageEl = makePdfPageShell(widthPx);
+                pageEl.appendChild(buildImagesRow(imageBatches[b]));
+                pages.push(pageEl);
+            }
+
+            return pages;
+        }
+
+        async function exportAsImage() {
+            generatePreview();
+
+            // Match the page width to however the report is actually rendered on this
+            // device (same as the live preview and PDF export). Each page is padded
+            // out to a true 8.5x11 ratio afterward so it looks like an actual printed
+            // sheet instead of one endlessly tall strip of photos.
+            const source = document.getElementById('preview');
+            const widthPx = source.getBoundingClientRect().width;
+
+            try {
+                const pages = buildReportPages(widthPx);
+                const stamp = getFileNameStamp();
+
+                for (let p = 0; p < pages.length; p++) {
+                    let canvas = await renderPageToCanvas(pages[p]);
+                    canvas = padCanvasToLetterRatio(canvas, widthPx);
+                    const link = document.createElement('a');
+                    link.download = pages.length > 1 ? `${stamp} - page ${p + 1}.png` : `${stamp}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    if (p < pages.length - 1) {
+                        // Give mobile browsers a moment between downloads so each one
+                        // actually completes instead of the next click cancelling it.
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                }
+            } catch (err) {
+                alert("Image export failed. Use Print for best multi-page results.");
+            }
+        }
+
         async function exportAsPDF() {
             generatePreview();
             const source = document.getElementById('preview');
@@ -756,33 +905,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
             const widthPx = source.getBoundingClientRect().width;
             const pageWidthIn = widthPx / 96;
 
-            const imageBatches = [];
-            for (let i = 0; i < uploadedImages.length; i += IMAGES_PER_PDF_PAGE) {
-                imageBatches.push(uploadedImages.slice(i, i + IMAGES_PER_PDF_PAGE));
-            }
-
             try {
                 const { jsPDF } = window.jspdf;
+                const pages = buildReportPages(widthPx);
 
                 // Page 1: title, report text, and the first batch of photos.
-                const firstPage = makePdfPageShell(widthPx);
-                firstPage.innerHTML = `
-                    <h2 style="margin-top:0; text-align:center; font-size:22pt; font-weight:bold;">${previewTitle.textContent}</h2>
-                    <div style="text-align:center; font-size:14pt; font-weight:bold; margin-top:2px;">Field Report</div>
-                    <div style="text-align:center; font-size:8pt; font-weight:normal; color:#666; margin-top:2px;">Generated by Mobile App</div>
-                    <div style="text-align:center; font-size:11pt; font-weight:600; margin-top:8px;">${previewMeta.textContent}</div>
-                    <h3 style="text-align:center; margin-top:5px;">${previewSubtitle.textContent}</h3>
-                    <div style="margin-top:20px; white-space: pre-wrap; font-size:18pt; font-weight:bold;">${previewText.innerHTML}</div>
-                `;
-                const firstBatch = imageBatches[0] || [];
-                const firstImagesRow = buildImagesRow(firstBatch);
-                firstImagesRow.style.marginTop = '25px';
-                if (firstBatch.length === 0) {
-                    firstImagesRow.innerHTML = '<p style="color:#999;">Add photos above to see them here</p>';
-                }
-                firstPage.appendChild(firstImagesRow);
-
-                const canvas1 = await renderPageToCanvas(firstPage);
+                const canvas1 = await renderPageToCanvas(pages[0]);
                 const height1In = (canvas1.height / canvas1.width) * pageWidthIn;
                 const pdf = new jsPDF({
                     orientation: 'portrait',
@@ -792,10 +920,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 pdf.addImage(canvas1.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthIn, height1In);
 
                 // Additional pages: remaining photos, 2 per page.
-                for (let b = 1; b < imageBatches.length; b++) {
-                    const pageEl = makePdfPageShell(widthPx);
-                    pageEl.appendChild(buildImagesRow(imageBatches[b]));
-                    const canvas = await renderPageToCanvas(pageEl);
+                for (let p = 1; p < pages.length; p++) {
+                    const canvas = await renderPageToCanvas(pages[p]);
                     const heightIn = (canvas.height / canvas.width) * pageWidthIn;
                     pdf.addPage([pageWidthIn, heightIn]);
                     pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthIn, heightIn);
@@ -887,6 +1013,363 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 generatePreview();
             });
         });
+    </script>
+
+    <script>
+        (function(){
+            const annModal = document.getElementById('annotate-modal');
+            const annCanvas = document.getElementById('annotate-canvas');
+            const annCtx = annCanvas.getContext('2d');
+            const annBtnCircle = document.getElementById('ann-btn-circle');
+            const annBtnArrow = document.getElementById('ann-btn-arrow');
+            const annBtnDelete = document.getElementById('ann-btn-delete');
+            const annBtnUndo = document.getElementById('ann-btn-undo');
+            const annBtnClear = document.getElementById('ann-btn-clear');
+            const annBtnSave = document.getElementById('ann-btn-save');
+            const annBtnCancel = document.getElementById('ann-btn-cancel');
+            const annSwatchRed = document.getElementById('ann-swatch-red');
+            const annSwatchYellow = document.getElementById('ann-swatch-yellow');
+
+            const ANN_COLORS = { red: '#ff3b30', yellow: '#ffd60a' };
+
+            let annSourceImg = null;
+            let annShapes = [];
+            let annSelectedId = null;
+            let annCurrentColor = ANN_COLORS.red;
+            let annHistory = [];
+            let annDragState = null;
+            let annIdCounter = 1;
+            let annCurrentIndex = -1;
+
+            function annNextId(){ return annIdCounter++; }
+
+            window.openAnnotator = function(idx){
+                annCurrentIndex = idx;
+                const img = new Image();
+                img.onload = () => {
+                    annSourceImg = img;
+                    const MAX = 1920;
+                    const scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+                    annCanvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+                    annCanvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+                    annShapes = [];
+                    annSelectedId = null;
+                    annHistory = [];
+                    annCurrentColor = ANN_COLORS.red;
+                    annSwatchRed.classList.add('active');
+                    annSwatchYellow.classList.remove('active');
+                    annRedraw();
+                    annModal.classList.add('open');
+                };
+                img.src = uploadedImages[idx];
+            };
+
+            function annCloseModal(){
+                annModal.classList.remove('open');
+                annSourceImg = null;
+                annCurrentIndex = -1;
+                annDragState = null;
+            }
+
+            annBtnCancel.addEventListener('click', annCloseModal);
+
+            annBtnSave.addEventListener('click', () => {
+                if (annCurrentIndex < 0) return;
+                const out = annRenderFinal();
+                uploadedImages[annCurrentIndex] = out.toDataURL('image/jpeg', 0.92);
+                annCloseModal();
+                renderImages();
+                generatePreview();
+            });
+
+            function annUpdateContextButtons(){
+                annBtnDelete.disabled = annSelectedId === null;
+                annBtnUndo.disabled = annHistory.length === 0;
+                annBtnClear.disabled = annShapes.length === 0;
+            }
+
+            function annDrawHandle(c, x, y){
+                const r = Math.max(9, annCanvas.width * 0.012);
+                c.save();
+                c.beginPath();
+                c.arc(x, y, r, 0, Math.PI * 2);
+                c.fillStyle = '#ffffff';
+                c.shadowColor = 'rgba(0,0,0,.6)';
+                c.shadowBlur = 4;
+                c.fill();
+                c.lineWidth = 2;
+                c.strokeStyle = '#222';
+                c.shadowBlur = 0;
+                c.stroke();
+                c.restore();
+            }
+
+            function annDrawArrow(c, x1, y1, x2, y2, color){
+                const lineWidth = Math.max(6, annCanvas.width * 0.012);
+                const headLen = Math.max(20, lineWidth * 3.2);
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const lineEndX = x2 - Math.cos(angle) * headLen * 0.6;
+                const lineEndY = y2 - Math.sin(angle) * headLen * 0.6;
+
+                c.save();
+                c.shadowColor = 'rgba(0,0,0,.55)';
+                c.shadowBlur = 5;
+                c.strokeStyle = color;
+                c.fillStyle = color;
+                c.lineWidth = lineWidth;
+                c.lineCap = 'round';
+
+                c.beginPath();
+                c.moveTo(x1, y1);
+                c.lineTo(lineEndX, lineEndY);
+                c.stroke();
+
+                c.beginPath();
+                c.moveTo(x2, y2);
+                c.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+                c.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+                c.closePath();
+                c.fill();
+                c.restore();
+            }
+
+            function annDrawShape(c, s, selected){
+                c.save();
+                if (s.type === 'circle'){
+                    c.beginPath();
+                    c.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    c.lineWidth = Math.max(5, s.r * 0.07);
+                    c.strokeStyle = s.color;
+                    c.shadowColor = 'rgba(0,0,0,.55)';
+                    c.shadowBlur = 5;
+                    c.stroke();
+                    c.restore();
+                    if (selected){
+                        c.save();
+                        c.setLineDash([6, 6]);
+                        c.lineWidth = 1.5;
+                        c.strokeStyle = 'rgba(255,255,255,.8)';
+                        c.beginPath();
+                        c.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                        c.stroke();
+                        c.restore();
+                        annDrawHandle(c, s.x + s.r, s.y);
+                    }
+                } else if (s.type === 'arrow'){
+                    annDrawArrow(c, s.x1, s.y1, s.x2, s.y2, s.color);
+                    c.restore();
+                    if (selected){
+                        annDrawHandle(c, s.x1, s.y1);
+                        annDrawHandle(c, s.x2, s.y2);
+                    }
+                } else {
+                    c.restore();
+                }
+            }
+
+            function annRedraw(){
+                if (!annSourceImg) return;
+                annCtx.clearRect(0, 0, annCanvas.width, annCanvas.height);
+                annCtx.drawImage(annSourceImg, 0, 0, annCanvas.width, annCanvas.height);
+                for (const s of annShapes){
+                    annDrawShape(annCtx, s, s.id === annSelectedId);
+                }
+                annUpdateContextButtons();
+            }
+
+            function annPushHistory(){
+                annHistory.push(JSON.stringify(annShapes));
+                if (annHistory.length > 25) annHistory.shift();
+            }
+
+            function annUndo(){
+                if (!annHistory.length) return;
+                annShapes = JSON.parse(annHistory.pop());
+                if (!annShapes.find(s => s.id === annSelectedId)) annSelectedId = null;
+                annRedraw();
+            }
+
+            function annAddCircle(){
+                if (!annSourceImg) return;
+                annPushHistory();
+                const r = Math.max(30, Math.round(Math.min(annCanvas.width, annCanvas.height) * 0.15));
+                const s = { id: annNextId(), type: 'circle', x: annCanvas.width / 2, y: annCanvas.height / 2, r, color: annCurrentColor };
+                annShapes.push(s);
+                annSelectedId = s.id;
+                annRedraw();
+            }
+
+            function annAddArrow(){
+                if (!annSourceImg) return;
+                annPushHistory();
+                const len = Math.max(60, Math.round(Math.min(annCanvas.width, annCanvas.height) * 0.28));
+                const cx = annCanvas.width / 2, cy = annCanvas.height / 2;
+                const s = { id: annNextId(), type: 'arrow', x1: cx - len / 2, y1: cy, x2: cx + len / 2, y2: cy, color: annCurrentColor };
+                annShapes.push(s);
+                annSelectedId = s.id;
+                annRedraw();
+            }
+
+            function annDeleteSelected(){
+                if (annSelectedId === null) return;
+                annPushHistory();
+                annShapes = annShapes.filter(s => s.id !== annSelectedId);
+                annSelectedId = null;
+                annRedraw();
+            }
+
+            function annClearAll(){
+                if (!annShapes.length) return;
+                if (!confirm('Remove all circles and arrows from this photo?')) return;
+                annPushHistory();
+                annShapes = [];
+                annSelectedId = null;
+                annRedraw();
+            }
+
+            function annSetColor(colorKey){
+                annCurrentColor = ANN_COLORS[colorKey];
+                annSwatchRed.classList.toggle('active', colorKey === 'red');
+                annSwatchYellow.classList.toggle('active', colorKey === 'yellow');
+                const sel = annShapes.find(s => s.id === annSelectedId);
+                if (sel){
+                    annPushHistory();
+                    sel.color = annCurrentColor;
+                    annRedraw();
+                }
+            }
+
+            annBtnCircle.addEventListener('click', annAddCircle);
+            annBtnArrow.addEventListener('click', annAddArrow);
+            annBtnDelete.addEventListener('click', annDeleteSelected);
+            annBtnUndo.addEventListener('click', annUndo);
+            annBtnClear.addEventListener('click', annClearAll);
+            annSwatchRed.addEventListener('click', () => annSetColor('red'));
+            annSwatchYellow.addEventListener('click', () => annSetColor('yellow'));
+
+            function annHandleRadius(){ return Math.max(16, annCanvas.width * 0.022); }
+
+            function annHitTestHandles(s, pos){
+                const hr = annHandleRadius();
+                if (s.type === 'circle'){
+                    const hx = s.x + s.r, hy = s.y;
+                    if (Math.hypot(pos.x - hx, pos.y - hy) <= hr) return 'resize';
+                } else if (s.type === 'arrow'){
+                    if (Math.hypot(pos.x - s.x2, pos.y - s.y2) <= hr) return 'head';
+                    if (Math.hypot(pos.x - s.x1, pos.y - s.y1) <= hr) return 'tail';
+                }
+                return null;
+            }
+
+            function annDistToSegment(p, a, b){
+                const dx = b.x - a.x, dy = b.y - a.y;
+                const len2 = dx * dx + dy * dy;
+                if (len2 === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+                let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2;
+                t = Math.max(0, Math.min(1, t));
+                const projX = a.x + t * dx, projY = a.y + t * dy;
+                return Math.hypot(p.x - projX, p.y - projY);
+            }
+
+            function annHitTestBody(s, pos){
+                if (s.type === 'circle'){
+                    const d = Math.hypot(pos.x - s.x, pos.y - s.y);
+                    return d <= s.r + Math.max(18, s.r * 0.15);
+                } else if (s.type === 'arrow'){
+                    return annDistToSegment(pos, {x: s.x1, y: s.y1}, {x: s.x2, y: s.y2}) <= Math.max(20, annCanvas.width * 0.025);
+                }
+                return false;
+            }
+
+            function annGetCanvasPos(evt){
+                const rect = annCanvas.getBoundingClientRect();
+                const scaleX = annCanvas.width / rect.width;
+                const scaleY = annCanvas.height / rect.height;
+                return {
+                    x: (evt.clientX - rect.left) * scaleX,
+                    y: (evt.clientY - rect.top) * scaleY
+                };
+            }
+
+            function annClamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+            function annOnPointerDown(e){
+                if (!annSourceImg) return;
+                e.preventDefault();
+                try { annCanvas.setPointerCapture(e.pointerId); } catch(err){}
+                const pos = annGetCanvasPos(e);
+
+                const sel = annShapes.find(s => s.id === annSelectedId);
+                if (sel){
+                    const h = annHitTestHandles(sel, pos);
+                    if (h){
+                        annPushHistory();
+                        annDragState = { mode: h, id: sel.id, start: pos, orig: Object.assign({}, sel) };
+                        return;
+                    }
+                }
+
+                for (let i = annShapes.length - 1; i >= 0; i--){
+                    if (annHitTestBody(annShapes[i], pos)){
+                        annSelectedId = annShapes[i].id;
+                        annPushHistory();
+                        annDragState = { mode: 'move', id: annShapes[i].id, start: pos, orig: Object.assign({}, annShapes[i]) };
+                        annRedraw();
+                        return;
+                    }
+                }
+
+                annSelectedId = null;
+                annDragState = null;
+                annRedraw();
+            }
+
+            function annOnPointerMove(e){
+                if (!annDragState) return;
+                e.preventDefault();
+                const pos = annGetCanvasPos(e);
+                const s = annShapes.find(x => x.id === annDragState.id);
+                if (!s) return;
+                const dx = pos.x - annDragState.start.x;
+                const dy = pos.y - annDragState.start.y;
+
+                if (s.type === 'circle'){
+                    if (annDragState.mode === 'move'){
+                        s.x = annClamp(annDragState.orig.x + dx, 0, annCanvas.width);
+                        s.y = annClamp(annDragState.orig.y + dy, 0, annCanvas.height);
+                    } else if (annDragState.mode === 'resize'){
+                        s.r = annClamp(Math.hypot(pos.x - s.x, pos.y - s.y), 15, Math.max(annCanvas.width, annCanvas.height));
+                    }
+                } else if (s.type === 'arrow'){
+                    if (annDragState.mode === 'move'){
+                        s.x1 = annDragState.orig.x1 + dx; s.y1 = annDragState.orig.y1 + dy;
+                        s.x2 = annDragState.orig.x2 + dx; s.y2 = annDragState.orig.y2 + dy;
+                    } else if (annDragState.mode === 'head'){
+                        s.x2 = pos.x; s.y2 = pos.y;
+                    } else if (annDragState.mode === 'tail'){
+                        s.x1 = pos.x; s.y1 = pos.y;
+                    }
+                }
+                annRedraw();
+            }
+
+            function annOnPointerUp(){ annDragState = null; }
+
+            annCanvas.addEventListener('pointerdown', annOnPointerDown);
+            window.addEventListener('pointermove', annOnPointerMove, {passive: false});
+            window.addEventListener('pointerup', annOnPointerUp);
+            window.addEventListener('pointercancel', annOnPointerUp);
+
+            function annRenderFinal(){
+                const out = document.createElement('canvas');
+                out.width = annCanvas.width;
+                out.height = annCanvas.height;
+                const octx = out.getContext('2d');
+                octx.drawImage(annSourceImg, 0, 0, out.width, out.height);
+                for (const s of annShapes) annDrawShape(octx, s, false);
+                return out;
+            }
+        })();
     </script>
 </body>
 </html>
