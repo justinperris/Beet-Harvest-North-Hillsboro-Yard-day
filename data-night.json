@@ -125,7 +125,7 @@
       "hidden": true
     },
     {
-      "name": "",
+      "name": "ok person 3",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -166,6 +166,7 @@
     }
   ],
   "savedNames": [
+    "ok person 3",
     "perso 2",
     "person 1",
     "person 2",
@@ -183,5 +184,5 @@
     "test 8",
     "test 9"
   ],
-  "lastUpdated": "2026-08-20T22:37:02.033Z"
+  "lastUpdated": "2026-08-20T22:44:20.990Z"
 }
