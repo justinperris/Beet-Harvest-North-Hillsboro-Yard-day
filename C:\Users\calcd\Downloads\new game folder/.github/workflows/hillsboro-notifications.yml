@@ -1,0 +1,114 @@
+name: Hillsboro Yard Notifications
+
+on:
+  push:
+    paths:
+      - "data.json"
+      - "data-night.json"
+      - "south-yard-assignments-day.json"
+      - "south-yard-assignments.json"
+  schedule:
+    # GitHub cron is UTC. Run at both 14:00 and 15:00 UTC so the script
+    # can catch 9 AM/9 PM America/Chicago across daylight-saving changes.
+    - cron: "0 14 * * *"
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "Run an immediate test using the enabled recipients"
+        required: true
+        default: "test"
+        type: choice
+        options:
+          - test
+          - scheduled-day
+          - scheduled-night
+      yard:
+        description: "Yard for the manual test"
+        required: true
+        default: "north"
+        type: choice
+        options:
+          - north
+          - south
+      shift:
+        description: "Shift for the manual test"
+        required: true
+        default: "day"
+        type: choice
+        options:
+          - day
+          - night
+
+permissions:
+  contents: write
+
+jobs:
+  notify-change:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Install Playwright (for the page screenshot)
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Send immediate change notification(s)
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD 2>/dev/null || git show --name-only --pretty=format: HEAD)
+          echo "Changed files: $CHANGED"
+          echo "$CHANGED" | grep -qx "data.json" && python3 .github/hillsboro_notify.py --event change --yard north --shift day
+          echo "$CHANGED" | grep -qx "data-night.json" && python3 .github/hillsboro_notify.py --event change --yard north --shift night
+          echo "$CHANGED" | grep -qx "south-yard-assignments-day.json" && python3 .github/hillsboro_notify.py --event change --yard south --shift day
+          echo "$CHANGED" | grep -qx "south-yard-assignments.json" && python3 .github/hillsboro_notify.py --event change --yard south --shift night
+          true
+
+  notify-schedule:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Playwright (for the page screenshot)
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Determine shift and send scheduled reports
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
+        run: |
+          HOUR=$(TZ=America/Chicago date +%H)
+          if [ "$HOUR" = "09" ]; then
+            python3 .github/hillsboro_notify.py --event schedule --yard north --shift day
+            python3 .github/hillsboro_notify.py --event schedule --yard south --shift day
+          elif [ "$HOUR" = "21" ]; then
+            python3 .github/hillsboro_notify.py --event schedule --yard north --shift night
+            python3 .github/hillsboro_notify.py --event schedule --yard south --shift night
+          else
+            echo "Not 9 AM or 9 PM Central; nothing to send."
+          fi
+
+  manual-test:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Playwright (for the page screenshot)
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Run manual notification
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
+        run: |
+          python3 .github/hillsboro_notify.py --event "${{ inputs.test_mode == 'test' && 'test' || 'schedule' }}" --yard "${{ inputs.yard }}" --shift "${{ inputs.shift }}"
