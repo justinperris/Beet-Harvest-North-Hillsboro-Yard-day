@@ -127,7 +127,7 @@
     {
       "name": "ok person 3",
       "piler": "",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -184,5 +184,5 @@
     "test 8",
     "test 9"
   ],
-  "lastUpdated": "2026-08-20T22:45:23.061Z"
+  "lastUpdated": "2026-08-20T22:49:28.860Z"
 }
