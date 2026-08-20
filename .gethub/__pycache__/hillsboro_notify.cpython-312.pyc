@@ -1,0 +1,392 @@
+Ë
+    ïV‡j6  ã                   ó  — d Z ddlZddlZddlZddlZddlZddl Z ddlZddl	Z	ddl
+Z
+ddl
+Z
+ddlZddl
+mZ ddlmZ ddlmZmZ ddlmZ dd lmZ  ee«      j3                  «       j4                  d   Zed	z
+  Zed
+z
+  Z ed
+«      ZdZed
+z
+  edz
+  edz
+  edz
+  dœZ dddddœZ!dddœZ"dddœZ# ejH                  d«       ejH                  d«      dœZ%d„ Z&d„ Z'd „ Z(d!„ Z)d"„ Z*d#„ Z+d$„ Z,d%„ Z-d&„ Z.d'„ Z/d/d(„Z0d0d)„Z1d*„ Z2d+„ Z3d,„ Z4d-„ Z5e6d.k(  r e5«        yy)1a±  
+Hillsboro Yard notification sender (North + South, Day + Night).
+
+- Reads the relevant roster file for each yard/shift from the repository:
+    North Day:   data.json
+    North Night: data-night.json
+    South Day:   south-yard-assignments-day.json
+    South Night: south-yard-assignments.json
+- Sends scheduled Day/Night summaries at 9:00 AM / 9:00 PM America/Chicago,
+  for both yards.
+- Sends an immediate notification when the relevant data file changes.
+- Each email embeds a real screenshot of the live report page (rendered with
+  the current data), not just a text summary; text is kept as a plaintext
+  fallback for accessibility / non-HTML mail clients.
+- North Crystal Sugar recipients are OFF until 2026-10-01 (crystal_sugar
+  config section). South Yard recipients are a simple on/off switch
+  (south_yard config section), off by default until configured.
+- A one-time Day test can be enabled per yard in notification-config.json.
+é    N)ÚEmailMessage)Ú
+formataddr)Ú
+HTTPServerÚSimpleHTTPRequestHandler)ÚPath)ÚZoneInfoé   únotification-config.jsonú.notification-state.jsonzAmerica/ChicagozEhttps://justinperris.github.io/Beet-Harvest-North-Hillsboro-Yard-day/z	data.jsonzdata-night.jsonzsouth-yard-assignments-day.jsonzsouth-yard-assignments.json))ÚnorthÚday)r   Únight)Úsouthr
+   )r   r   zhillsboro-signin.htmlzhillsboro-signin-Night.htmlzsouth-yard-crew-report-Day.htmlzsouth-yard-crew-report.htmlzHillsboro North Yardz
+South Yard)r   r   Ú
+crystal_sugarÚ
+south_yardz south-yard-assignments-day\.jsonzsouth-yard-assignments\.json)r
+   r   c                 ó&   — t         t        | |f   z   S ©N)Ú
+REPO_PAGESÚPAGE_FOR©ÚyardÚshifts     úWC:/Users/calcd/Downloads/sugar/forman sign in/hillboro form/.github/hillsboro_notify.pyÚpage_url_forr   :   s   € Ü
+œ $¨ Ñ/Ñ
+/Ð/ó    c                 ó   — t         | |f   S r   )Ú	DATA_PATHr   s     r   Ú
+data_path_forr   =   s   € Ü
+d˜E]Ñ
+#Ð#r   c                 óp   — 	 t        j                  | j                  d¬«      «      S # t        $ r |cY S w xY w)Núutf-8©Úencoding)ÚjsonÚloadsÚ	read_textÚ	Exception)ÚpathÚ defaults     r   Ú	load_jsonr)   @   s5   € ðÜz‰z˜$Ÿ.™.°'˜.Ó:Ó;Ð;øÜ
+ò ØŠðús   ‚$' §
+5´5c                 óÜ   — | j                  d«      ry| j                  d«      ry| j                  d«      ry| j                  d «      ry| j                  d	«      ry
+| j                  d
+«      ryy )
+NÚoperatorÚOperatorÚreliefÚReliefÚboomÚBoomÚ foremanÚ ForemanÚ	skidsteerÚSkidÚloaderÚLoader)Úget)Úrows    r   Úrole_forr9   F   sX   € Ø 
+‡wwˆzÔ  :Ø 
+‡wwˆxÔ  Ø 
+‡wwˆv„˜vØ 
+‡wwˆyÔ  )Ø 
+‡wwˆ{Ô  FØ 
+‡wwˆxÔ  Ø
+r   c                 óÈ  — g g g g f\  }}}}| D ]Í  }|j                  d«      xs dj                  «       }|sŒ)|j                  d«      r|j                  |«       ŒLt         |«      } | r|› d| › dn|}t	        |j                  d«      xs d«      j                  «       }	|	d k(  r|j                  |«       Œ¦|	dk(  r|j                  |«       Œ½|j                  |«       ŒÏ ||||fS )	NÚnameÚ Úhiddenú (Ú)ÚpilerÚ7Ú8)r7   ÚstripÚappendr9   Ústr)
+ÚrowsÚpiler7Úpiler8Ú
+unassignedr=   r8   r;   ÚroleÚentryr@   s
+             r   Úgroup_rows_northrL   O   sã   € Ø)+¨R°°R¨Ñ&€FˆFJ ÛˆØ— ‘ ˜“Ò% 2×,Ñ,Ó.ˆÙØØ
+7‰78Ô
+ØM‰M˜$ÔØÜ˜‹}ˆÙ&*4&˜˜4˜& Ñ"°ˆÜC—G‘G˜GÓ$Ò*¨Ó+×1Ñ1Ó3ˆØ
+CŠ<ØM‰M˜%Õ Ø
+cŠ\ØM‰M˜%Õ à×Ñ˜eÕ$ð ð  6˜: vÐ
+-Ð-r   c           
+      óZ  — | j                  d«      xs g }t        |«      \  }}}}| j                  d«      xs d} | j                  d«      xs d}| j                  d«      xs d j                  «       }	| j                  d«      xs d j                  «       }
+| › d	|› |	rd	|	› nd z   }
+t         |«      t         |«      z   t         |«      z   }d
+|j	                  «       › |
+d d
+|› d dt         |«      › d
+|rdj
+                  |«      ndz   dt         |«      › d
+|rdj
+                  |«      ndz   g }
+|r0|
+j
+                  dt         |«      › d
+dj
+                  |«      z   «       |r|
+j
+                  dt         |«      › «       |
+r
+|
+d d|
+› gz
+  }
+|
+d dt        d|«      gz
+  }
+dj
+                  |
+«      S )NrF   ÚlocationzHillsboro Yard NorthÚdateú Not setr
+   r<   Únotesõ    â€” u   Hillsboro North Yard â€” úTotal crew on roster: z
+Piler #7 (ú): ú, z
+none assignedz
+Piler #8 (zUnassigned (zHidden/removed entries: ú Notes: zView the current sign-in:r   Ú
+)r7   rL   rC   ÚlenÚupperÚjoinrD   r   )Údatar   rF   rG   rH   rI   r=   rN   rO   Ú	day_labelrQ   ÚheaderÚtotalÚliness                 r   Ú
+summary_northr`   c   s¶  € Ø
+8‰8FÓ
+Ò
+!˜r€DÜ)9¸$Ó)?Ñ&€FˆFJ Øx‰x˜
+Ó#Ò=Ð'=€HØ
+8‰8FÓ
+Ò
+(˜y€DØ—‘˜%“Ò& B×-Ñ-Ó/€IØ
+X‰XgÓ
+Ò
+$ "×+Ñ+Ó-€Eàˆz˜˜t˜fÐ
+%Á	¨5°°
+Ñ)<ÈrÑ
+R€FÜ‹Kœ#˜f›+Ñ%¬¨J«Ñ7€Eà(¨¯©«¨Ð
+8¸&À"Ø% e WÐ
+-¨rØœ#˜f›+˜ cÐ
+*Á6¨d¯i©i¸Ô.?ÈÑ
+_Øœ#˜f›+˜ cÐ
+*Á6¨d¯i©i¸Ô.?ÈÑ
+_ð 
+a€Eñ Ø
+‰|¤C¨
+£OÐ#4°CÐ8¸4¿9¹9ÀZÓ;PÑPÔQÙ 
+Ø
+‰Ð/´°F³
+¨}Ð=Ô>Ù Ø
+"˜  ˜wÐ'Ð(Ñ(ˆØ	ˆbÐ-¬|¸GÀUÓ/KÐ
+LÑL€EØ
+9‰9UÓ
+Ðr   c                 ó6  — i g g g g f\  }}}}}| D ]   }|j                  d«      xs dj                  «       } | sŒ*|j                  d«      r|j                  | «       ŒMt         |«      }|r| › d|› dn| }	|j                  d«      }
+|j                  d «      r|j                  |	«       Œ˜|j                  d«      s|j                  d	«      r|j                  |	«       ŒÌ|
+"|j	                  |
+g «      j                  |	«       Œð|j                  |	«       Œ |||||fS )
+Nr;   r<   r=   r>   r?   r@   r1   r3   r5   )r7   rC   rD   r9   Ú
+setdefault)
+Ú
+assignmentsÚpilersr1   Ú
+skid_loaderÚextrar=   Úar;   rJ   rK   r@   s
+              r   Úgroup_assignments_southrh   {   s
+  € Ø24°b¸"¸bÀ"Ð2DÑ/€FˆG[ %¨Ü
+ˆØ—‘f“
+Ò# ×*Ñ*Ó,ˆÙØØ
+5‰5Œ?ØM‰M˜$ÔØÜ˜‹{ˆÙ&*4&˜˜4˜& Ñ"°ˆØ—‘g“ˆØ
+5‰5Ô
+ØN‰N˜5Õ!Ø
+U‰U;Ô
+ 1§5¡5¨¤?Ø×Ñ˜uÕ%Ø
+Ð
+Ø×Ñ˜e RÓ(×/Ñ/°Õ6àL‰L˜Öð# ð$ 7˜K¨°Ð
+6Ð6r   c           	      óö  — | j                  d«      xs g }t        |«      \  }}}}} | j                  d«      xs d}| j                  d«      xs dj                  «       }	t         d„ |j	                  «       D «       «      t
+        |«      z   t
+        |«      z   t
+        |«      z   }
+d |j
+                  «       › d|› dd	|
+› dg}
+t        |j                  «       «      D ]:  }||   }
+|
+j                  d
+|› d
+t
+        |
+«      › dd
+j                  |
+«      z   «       Œ< |r0|
+j                  dt
+        |«      › dd
+j                  |«      z   «       |r0|
+j                  dt
+        |«      › dd
+j                  |«      z   «       |r0|
+j                  dt
+        |«      › dd
+j                  |«      z   «       | r|
+j                  dt
+        | «      › «       |	r
+|
+dd|	› gz
+  }
+|
+ddt        d|«      gz
+  }
+dj                  |
+«      S )Nrc   Ú
+lastUpdatedrP   rQ   r<   c              3   ó2   K  — | ]  }t        |«      –— Œ y ­wr   )rX   )Ú.0Úvs     r   Ú	<genexpr>z summary_south.<locals>.<genexpr>–   s   è ø€ Ð0¡˜1”A—¡ùs   ‚u   South Yard â€” zLast updated: rS   z Piler #r>   rT   rU   zYard Foreman (zSkid Steer/Loader (zExtra People (z
+Out today: rV   zView the current report:r   rW   )r7   rh   rC   ÚsumÚvaluesrX   rY   ÚsortedÚkeysrD   rZ   r   )r[   r   rc   rd   r1   re   rf   r=   Úlast_updatedrQ   r^   r_   ÚnumÚ entriess                 r   Ú
+summary_southrv   ‘   sæ  € Ø—(‘(˜=Ó)Ò/¨R€KÜ2IÈ+Ó2VÑ/€FˆG[ %¨Ø—8‘8˜MÓ*Ò7¨i€LØ
+X‰XgÓ
+Ò
+$ "×+Ñ+Ó-€EÜÑ0 §
+¡
+¤Ó0Ó0´3°w³<Ñ?Ä#ÀkÓBRÑRÔUXÐY^ÓU_Ñ_€Eà˜uŸ{™{›}˜oÐ
+.°.ÀÀÐ0OÐQSØ% e WÐ
+-¨rð
+3€Eäf—k‘k“mÖ$ˆØ˜‘+ˆ Ø
+‰w˜s˜e 2¤c¨'£l ^°3Ð7¸$¿)¹)ÀGÓ:LÑLÕMð %ñ Ø
+‰~¤c¨'£l ^°3Ð7¸$¿)¹)ÀGÓ:LÑLÔMÙ Ø
+‰Ð*¬3¨{Ó+;Ð*<¸CÐ@À4Ç9Á9È[ÓCYÑYÔZÙ Ø
+‰~¤c¨%£j \°Ð5¸¿	¹	À%Ó8HÑHÔIÙ 
+Ø
+‰{¤3 v£; -Ð0Ô1Ù Ø
+"˜  ˜wÐ'Ð(Ñ(ˆØ	ˆbÐ,¬l¸7ÀEÓ.JÐ
+KÑK€EØ
+9‰9UÓ
+Ðr   c                 ó<   — | dk(  rt        ||«      S t        ||«      S )Nr   )r`   rv   )r   r[   r   s      r   Ú
+summary_forrx   ª   s"   € Ø)-°ªŒ=˜˜uÓ
+%ÐX¼mÈDÐRWÓ>XÐXr   c                 ó¾  ‡‡— 	 ddl m} t        | |f   }t
+        j                  t        t        t        «      ¬«      }t        d|«      }t        j                  |j                  d ¬«      } | j                  «        	 d	|j                  › d
+|› } |«       5 }	|	j                   j#                  «       }
+|
+j%                  d
+dd
+œ¬«      }
+| dk(  r@t'        d|«      Št(        |   Šˆˆfd„}|
+j+                  t-        j.                  d«      |«       |
+j1                  |dd¬«       |
+j3                  d«       |
+j5                  d ¬«      }
+|
+j7                  «        ddd«       
+|j9                  «        S # t        $ r}t         d|«       Y d}~yd}~ww xY w# 1 sw Y   Œ=xY w# t        $ r&}t         d|«       Y d}~|j9                  «        yd}~ww xY w# |j9                  «        w xY w)a  Screenshots the real report page (with today's data loaded) so the email
+    can show an actual static copy of the page instead of a hand-built summary.
+    Returns None on any failure so the caller can fall back to text-only rather
+    than lose the notification entirely.r   )Úsync_playwrightz.Playwright not available, skipping screenshot:N)Ú	directory)z	127.0.0.1r   T)ÚtargetÚdaemonzhttp://127.0.0.1:Ú/ix  iè  )ÚwidthÚheight)Úviewportr   c                  óÚ   •— ‰j                  «       rJ‰j                  | j                  j                  «      r%| j	                  dd‰j
+                  d¬«      ¬«       y | j
+                  «        y )NéÈ   zapplication/jsonr    r!   )ÚstatusÚcontent_typeÚbody) ÚexistsÚsearchÚ requestÚurlÚ fulfillr%   Ú	continue_)ÚrouteÚ
+local_pathÚ patterns    €€r   Úhandle_routez%render_page_png.<locals>.handle_routeÇ   sX   ø€ Ø!×(Ñ(Ô*¨w¯~©~¸e¿m¹m×>OÑ>OÔ/PØŸ
+™
+¨SÐ?QØ,6×,@Ñ,@È'Ð,@Ó,Rð &õ Tð Ÿ™Õ)r   zraw\.githubusercontent\.comÚ
+networkidlei N  )Ú
+wait_untilÚ timeoutiX  )Ú	full_pagez3Screenshot failed, falling back to text-only email:)Úplaywright.sync_apirz   r&   Úprintr   Ú	functoolsÚ partialr   rE   ÚROOTr   Ú	threadingÚThreadÚ
+serve_foreverÚstartÚ
+server_portÚchromiumÚlaunchÚnew_pager   ÚSOUTH_REMOTE_FILE_REr   ÚreÚ compileÚgotoÚwait_for_timeoutÚ
+screenshotÚcloseÚshutdown)r   r   rz   ÚeÚ	page_fileÚ handlerÚhttpdÚthreadrŠ   ÚpÚ browserÚpager   Ú	png_bytesrŽ   r   s                 @@r   Úrender_page_pngr³   ­   s›  ù€ ð
+Ý7ô
+ ˜$ ˜Ñ'€IÜ×ÑÔ 8ÄCÌÃIÔN€GÜÐ'¨Ó1€EÜ
+×
+Ñ
+ U×%8Ñ%8ÀÔ
+F€FØ
+‡LL„NðØ! %×"3Ñ"3Ð!4°A°i°[ÐAˆÙ
+Ô
+ !Ø—j‘j×'Ñ'Ó)ˆGØ×#Ñ#°tÀtÑ-LÐ#ÓMˆDàwŠÜ*¨7°EÓ:
+Ü.¨uÑ5 õ*ð —
+‘
+œ2Ÿ:™:Ð&DÓEÀ|ÔTàI‰Ic m¸UˆIÔCØ×!Ñ! #Ô&ØŸ™°$˜Ó7ˆIØM‰MŒO÷% ð& ð
+ 	‰ÕøôI ò Ü
+Ð>ÀÔBÜûðú÷ Ð
+ûô( ò Ü
+ÐCÀQÔGÛà
+‰Õûð	ûð 	‰ÕúsZ   „E* Á;F ÂB<FÅ	F Å*	F	Å3FÆF	ÆF Æ F Æ	G Æ!GÆ-G
+ ÇG Ç G
+ Ç
+Gc                 ó6  — | j                  dd«      rt        | j                  dg «      «      ng }| j                  t        |   i «      }|dk(  r| j                  dd«      } n|j                  d d«      } |j                   «       t        j                  j
+                  | «      k\  }|dk(  r,|r|j                  d	d
+«      s|r?||j                  d
+g «      z
+  }n)|r'|j                  dd
+«      r||j                  d
+g «      z
+  }t        t        j                  |«      «      S )NÚtest_enabledTÚtest_recipientsr   Úcrystal_sugar_enabled_fromz
+2026-10-01Úenabled_fromr
+   Ú
+day_enabledFÚday_recipientsÚ
+night_enabledÚnight_recipients)r7   ÚlistÚCONFIG_SECTIONrO   ÚdtÚ
+fromisoformatÚdictÚfromkeys)	Úcfgr   r   ÚnowÚone_timeÚoutÚ sectionr¸   Ú enableds	            r   Ú
+recipientsrÉ   Ú   sí   € Ø25·'±'¸.È$Ô2OŒ$ˆsw‰wÐ(¨"Ó-Ô
+.ÐUW€CØg‰g”n TÑ*¨BÓ/€GØ 
+ˆw‚Ø—w‘wÐ;¸\ÓJ‰à—{‘{ >°<Ó@ˆØh‰h‹jœBŸG™G×1Ñ1°,Ó?Ñ?€GØ ‚~Ù˜ Ÿ
+™
+ M°5Ô9¹hØ7—;‘;Ð/°Ó4Ñ4‰Cá
+w—{‘{ ?°EÔ:Ø7—;‘;Ð1°2Ó6Ñ6ˆCÜ
+”—
+‘
+˜cÓ"Ó
+#Ð#r   c                 ób  — |st        d«       y t        j                  d   }t        j                  d   } t         «       }|r
+t	        ||f«      n||d<   dj
+                  |«      |d<   | |d <   |j
+                  |«       |rAd|› d	}	|j                  |	d
+¬
+«       |j                  «       d   }
+|
+j                  |d
+dd¬«       t        j                  «       }
+t        j                  dd|
+¬«      5 }|j                  || «       |j                  |«       d d d «       t        d|«       y # 1 sw Y   ŒxY w)Nz$No recipients enabled; nothing sent.Ú	SMTP_USERÚSMTP_APP_PASSWORDÚFromrU   ÚToÚ Subjectz8<html><body style="font-family:sans-serif;"><p><a href="z~">Open the live report page</a></p><img src="cid:signin-snapshot" style="max-width:100%;border:1px solid #ccc;"></body></html>Úhtml)Ú subtypeéÿÿÿÿÚimageÚpngzsignin-snapshot)ÚmaintyperÑ   Úcidzsmtp.gmail.comiÑ  )Ú contextzSent:)r–   ÚosÚ environr   r   rZ   Ú
+set_contentÚadd_alternativeÚ
+get_payloadÚ
+add_relatedÚsslÚcreate_default_contextÚ smtplibÚSMTP_SSLÚloginÚsend_message)
+Ú subjectr†   Ú to_listÚ
+image_bytesÚpage_urlÚ
+sender_nameÚuserÚpasswordÚmsgÚ	html_bodyÚ	html_partr×   Úsmtps
+                r   Ú
+send_emailrï   ê   s(  € Ù
+Ü
+Ð4Ô5ØÜ
+
+:‰:kÑ
+"€DÜz‰zÐ-Ñ.€HÜ
+‹.€CÙ5@”*˜k¨4Ð0Ô1Àd€CˆKØ—	‘	˜'Ó"€CˆIØ€Cˆ	NØ ‡OODÔá ð
+Ø$˜:ð &ð
+ð 	ð 	×Ñ˜I¨vÐÔ6Ø—O‘OÓ% bÑ)ˆ	Ø×Ñ˜k°GÀUÐPaÐÔbä×(Ñ(Ó*€GÜ	×	Ñ	Ð*¨C¸Õ	AÀTØ
+‰
+4˜Ô"Ø×Ñ˜#Ô÷ 
+Bô 
+ˆ'7Õ÷  
+BÐ	Aús   Ã,$D%Ä%D. c                 ód   — t        j                  | j                  «       «      j                   «       S r   )Ú hashlibÚsha256Ú
+read_bytesÚ	hexdigest)r'   s    r   Ú	data_hashrõ      s!   € Ü
+>‰>˜$Ÿ/™/Ó+Ó
+,×
+6Ñ
+6Ó
+8Ð8r   c                 ób   — t         j                  t        j                  | d¬«      dz   d¬«       y )Né   ©ÚindentrW   r    r!   )ÚSTATEÚ
+write_textr#   Údumps)Ústates    r   Ú
+save_staterþ   
+  s%   € Ü	×Ñ”T—Z‘Z ¨aÔ0°4Ñ7À'ÐÕJr   c                  óL  — t        j                  g d¢d¬«       t        j                  g d¢d¬«       t        j                  g d¢d¬«       t        j                  g d ¢«      } | j                  dk7  r3t        j                  g d	¢d¬«       t        j                  d
+d
+gd¬«       y y )N)ÚgitÚconfigz	user.namezhillsboro-notifications[bot]T)Úcheck)r   r  z
+user.emailz541898282+github-actions[bot]@users.noreply.github.com)r   Úaddr
+   r
+   F)r   Údiffz--cachedz --quietr   )r   Úcommitz-mzUpdate notification stater   Úpush)Ú
+subprocessÚrunÚ
+returncode)Úresults    r   Úmaybe_commit_stater
+  
+  sv   € ä‡NNÒQÐY]Õ^Ü‡NNÒkÐswÕxÜ‡NNÒYÐafÕgÜ
+^‰^ÒBÓ
+C€FØ 
+× Ñ ˜AÒ Ü‰ÒKÐSWÕXÜ‰˜˜v¨dÖ3ð r   c            
+      óÀ  — t        j                  «       } | j                  dg d¢d¬«       | j                  ddd gd¬«       | j                  d	d
+d
+gd¬«       | j                   «       }t	        t
+        i «      }t	        t        i «      }t        j                  j                  t        «      }t        |j                     }|j                  dk(  xr3 |j                  d
+k(  xr" |j                  |i «      j                  d
+d«      }|j                  dk(  r|j                   } |j                  d
+k(  rdnd}| |k7  rt#        d«       y |j%                  «       › d|j                  › d|j                  › }	|j                  d«      |	k(  rt#        d«       y |	|d<   t'        |j                  |j                  «      }
+|j                  dk(  rLt)        |
+«      }
+d|j                  › d|j                  › }|j                  |«      |
+k(  rt#        d«       y |
+||<   t+        |j                  t	        |
+i «      |j                  «      }
+t,        |j                     }|› d|j                  j/                  «       › d|j                  dk7  rdnd› }t1        ||j                  |j                  ||¬«      }t3        |j                  |j                  «      }t5        |j                  |j                  «      }t7        ||
+||||j                  d«      ¬ «       |rDd|j9                  |i «      d
+<   t
+        j;                  t=        j>                  |d!¬"«      d#z   d$¬%«       tA        |«       |r
+tC        «        y y )&Nz --event)ÚchangeÚscheduleÚtestT)Ú choicesÚrequiredz--yardr   r   )r  r(   z --shiftr
+   r   r  Ú
+day_test_onceFr  é	   é   z&Not the scheduled local hour; exiting.Ú-Úlast_scheduledzScheduled report already sent.r
+  Úlast_data_hash_Ú_zNo data change detected.rR   Ú ÚUpdateÚReport)rÅ   rè   )ræ   rç   rè   r÷   rø   rW   r    r!   )"ÚargparseÚArgumentParserÚadd_argumentÚ
+parse_argsr)   ÚCONFIGrú   r¿   ÚdatetimerÄ   ÚTZr¾   r   Úeventr   r7   Úhourr–   rO   r   rõ   rx   Ú
+YARD_LABELÚtitlerÉ   r   r³   rï   rb   rû   r#   rü   rþ   r
+  )ÚapÚargsrÃ   rý   rÄ   Ú
+section_keyrÅ   r$  ÚexpectedÚkeyÚ	data_pathÚhÚhash_keyr†   Úlabelrä   Útorç   ræ   s                      r   Úmainr1    sÖ  € Ü	×	 Ñ	 Ó	"€BØ‡OOIÒ'EÐPT€OÔUØ‡OOH w° Ð&8À'€OÔJØ‡OOI¨¨wÐ'7À$€OÔGØ
+
+=‰=‹?€Dä
+”F˜BÓ
+€CÜ”e˜RÓ €EÜ
++‰+/‰/œ"Ó
+€CÜ  §¡Ñ+€Kð z‰z˜VÑ#Òt¨¯
+©
+°eÑ(;ÒtÀÇ Á È
+ÐUWÓ@X×@\Ñ@\Ð]lÐnsÓ@t€Hà 
+‡zzZÒ Øx‰xˆØŸ
+™
+ eÒ+‘1°ˆØ
+8Ò
+ÜÐ:Ô;ØØ—‘“˜A˜dŸi™i˜[¨¨$¯*©*¨Ð6ˆØ
+9‰9Ð%Ó
+&¨#Ò
+-ÜÐ2Ô3ØØ"%ˆÐÑä˜dŸi™i¨¯©Ó4€Ià 
+‡zzXÒ ÜiÓ ˆØ$ T§Y¡Y K¨q°·±°Ð=ˆØ
+9‰9XÓ
+ !Ò
+#ÜÐ,Ô-ØØˆˆh‰ä
+t—y‘y¤)¨I°rÓ":¸D¿J¹JÓ
+G€DÜt—y‘yÑ!€EØ u˜TŸZ™Z×-Ñ-Ó/Ð0°¸d¿j¹jÈJÒ>V±(Ð\dÐ1eÐf€GÜ	C˜Ÿ™ D§J¡J°¸hÔ	G€BÜ˜DŸI™I t§z¡zÓ2€HÜ! $§)¡)¨T¯Z©ZÓ8€KÜˆw˜˜b¨kÀHØŸ7™7 =Ó1õ3ñ Ø;@ˆ‰{ BÓ'¨Ñ8Ü×Ñœ$Ÿ*™* S°Ô3°dÑ:ÀWÐÔMäˆuÔÙ ÜÕð r   Ú__main__)F)NNN)7Ú __doc__r  r!  r¿   r—   rñ   r#   rØ   r£   rà   rÞ   r   rš   Ú
+email.messager   Ú
+email.utilsr   Ú
+http.serverr   r   Ú pathlibr    Úzoneinfor   Ú__file__Ú resolveÚ parentsr™   r   rú   r"  r   r   r   r%  r¾   r¤   r¢   r   r   r)   r9   rL   r`   rh   rv   rx   r³   rÉ   rï   rõ   rþ   r
+  r1  Ú__name__© r   r   Ú<module>r>     sX  ðñ÷& g× f× f× f× fÓ fÝ &Ý "ß <Ý Ý á 
+ˆHƒ~× Ñ Ó × 'Ñ '¨Ñ *€Ø	
+Ð*Ñ	*€ØÐ)Ñ)€Ù
+ÐÓ €Ø
+T€
+ð ˜[Ñ(ØÐ0Ñ0ØÐ>Ñ>ØÐ<Ñ<ñ	
+€	ð .Ø5Ø7Ø5ñ	€ð .¸Ñ
+E€
+Ø*°\ÑB€ð ˆ2:‰:Ð9Ó
+:Ø
+ˆRZ‰ZÐ7Ó
+8ñÐ ò
+0ò$òò ò.ò(ò07ò,ò2Yò+óZ$ó ò:9òKò4ò4ðl ˆzÒÙ…Fð r   
