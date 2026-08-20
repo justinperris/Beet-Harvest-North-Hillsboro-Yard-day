@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-14T17:16:51.289Z",
+  "lastUpdated": "2026-08-20T23:56:36.946Z",
   "assignments": [
     {
       "id": "mss9g0vw9ylyyt",
@@ -127,6 +127,15 @@
       "foreman": true,
       "skidsteer": false,
       "loader": false,
+      "piler": null
+    },
+    {
+      "id": "mt26j1zmfwl7ri",
+      "name": "larry",
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": true,
       "piler": null
     }
   ]
