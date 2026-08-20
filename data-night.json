@@ -40,7 +40,7 @@
       "name": "test 9",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false,
       "hidden": false
     },
@@ -48,7 +48,7 @@
       "name": "test 12",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false,
       "hidden": false
     },
@@ -184,5 +184,5 @@
     "test 8",
     "test 9"
   ],
-  "lastUpdated": "2026-08-20T23:23:14.719Z"
+  "lastUpdated": "2026-08-20T23:48:42.175Z"
 }
