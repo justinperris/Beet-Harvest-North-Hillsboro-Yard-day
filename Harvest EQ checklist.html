@@ -201,13 +201,12 @@
     const visualItems = [
       { id: 'v1', text: 'Fluid levels (oil, hydraulic, coolant, battery water) – correct and visible' },
       { id: 'v2', text: 'No visible leaks (hydraulic, oil, fuel, coolant) under or on the equipment' },
-      { id: 'v3', text: 'Tires/wheels in good condition – proper pressure, no cuts, gouges, flat spots or chunking' },
+      { id: 'v3', text: 'Tires/wheels/tracks in good condition – proper pressure, no cuts, gouges, flat spots or chunking' },
       { id: 'v4', text: 'Forks/Bucket condition good – no cracks, bends, excessive wear. Retaining pin/heel secure' },
-      { id: 'v5', text: 'Load backrest extension securely attached and undamaged' },
-      { id: 'v6', text: 'Mast, carriage, lift chains, rollers & hydraulic hoses – no visible damage, cracks or excessive wear' },
-      { id: 'v7', text: 'Overhead guard and load backrest – secure with no damage' },
-      { id: 'v8', text: 'Battery (if electric) – secure, cables insulated and connected, no excessive corrosion' },
-      { id: 'v9', text: 'General structure – no cracks, major dents, or damage to frame, counterweight or body' },
+      { id: 'v5', text: 'Load backrest if using forks, are securely attached and undamaged' },
+      { id: 'v6', text: 'Carriage & hydraulic hoses – no visible damage, cracks or excessive wear' },
+      { id: 'v8', text: 'Battery – secure, cables insulated and connected, no excessive corrosion' },
+      { id: 'v9', text: 'General structure – no cracks, major dents, or damage to frame, or body' },
       { id: 'v10', text: 'Seat belt / operator restraint system – functional with no fraying or damage' },
       { id: 'v11', text: 'Safety decals, capacity plate and nameplates – present, legible, and correct for unit' }
     ];
@@ -216,12 +215,11 @@
       { id: 'o1', text: 'Horn and all audible warning devices (backup alarm) – loud and working' },
       { id: 'o2', text: 'All lights functional (headlights, taillights, brake lights, warning beacon/strobe)' },
       { id: 'o3', text: 'Steering – smooth, responsive with no excessive play or binding' },
-      { id: 'o4', text: 'Service brakes – stop forklift promptly and evenly without pulling' },
-      { id: 'o5', text: 'Parking / hand brake – holds forklift securely on incline' },
+      { id: 'o4', text: 'Service brakes – stop Equipment promptly and evenly' },
+      { id: 'o5', text: 'Parking / hand brake – holds equipment securely on incline' },
       { id: 'o6', text: 'Hydraulic functions (raise/lower, tilt, side shift) – smooth operation, no unusual noises or drift' },
       { id: 'o7', text: 'Gauges, battery discharge indicator and hour meter – functioning and readable' },
-      { id: 'o8', text: 'Controls, directional switch and accelerator – responsive and return to neutral correctly' },
-      { id: 'o9', text: 'Seat switch / operator presence system (if equipped) – prevents operation when not seated' }
+      { id: 'o8', text: 'Controls, directional switch and accelerator – responsive and return to neutral correctly' }
     ];
 
     function createChecklistItem(item, section) {
@@ -651,10 +649,12 @@
       y += 4;
       doc.text('Form by Dave Stewart', 20, y);
 
-      // Generate filename from who filled it out and the inspection date
+      // Generate filename from who filled it out, the yard, the equipment, and the date
       const namePart = sanitizeFilename(data.inspectorName);
+      const locationPart = sanitizeFilename(data.location);
+      const equipmentPart = sanitizeFilename(data.forkliftId);
       const datePart = data.date || 'no-date';
-      const filename = `${namePart}_${datePart}.pdf`;
+      const filename = `${namePart}_${locationPart}_${equipmentPart}_${datePart}.pdf`;
 
       doc.save(filename);
     }
