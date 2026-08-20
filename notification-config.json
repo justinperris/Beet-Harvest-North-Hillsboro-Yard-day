@@ -1,0 +1,18 @@
+{
+  "test_enabled": true,
+  "test_recipients": [
+    "calstage1@gmail.com"
+  ],
+  "crystal_sugar_enabled_from": "2026-10-01",
+  "crystal_sugar": {
+    "day_enabled": true,
+    "night_enabled": true,
+    "day_test_once": false,
+    "day_recipients": [
+      "KKyllo@crystalsugar.com"
+    ],
+    "night_recipients": [
+      "mdoeden@crystalsugar.com"
+    ]
+  }
+}
