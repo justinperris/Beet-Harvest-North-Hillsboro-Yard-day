@@ -1,7 +1,7 @@
 {
   "date": "2026-08-20",
   "location": "North Yard",
-  "day": "Thursday Night",
+  "day": "Thursday",
   "notes": "",
   "rows": [
     {
@@ -16,7 +16,7 @@
       "name": "test 3",
       "piler": "7",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false,
       "hidden": false
     },
@@ -24,7 +24,7 @@
       "name": "test 4",
       "piler": "7",
       "operator": false,
-      "boom": false,
+      "boom": true,
       "relief": false,
       "hidden": false
     },
@@ -39,7 +39,7 @@
     {
       "name": "test 9",
       "piler": "7",
-      "operator": false,
+      "operator": true,
       "boom": false,
       "relief": true,
       "hidden": false
@@ -47,7 +47,7 @@
     {
       "name": "test 12",
       "piler": "7",
-      "operator": true,
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -183,5 +183,5 @@
     "test 8",
     "test 9"
   ],
-  "lastUpdated": "2026-08-20T20:25:11.707Z"
+  "lastUpdated": "2026-08-20T20:32:34.781Z"
 }
