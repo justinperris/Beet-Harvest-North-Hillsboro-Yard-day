@@ -17,10 +17,15 @@
     ]
   },
   "south_yard": {
-    "day_enabled": false,
-    "night_enabled": false,
+    "enabled_from": "2026-10-01",
+    "day_enabled": true,
+    "night_enabled": true,
     "day_test_once": false,
-    "day_recipients": [],
-    "night_recipients": []
+    "day_recipients": [
+      "KKyllo@crystalsugar.com"
+    ],
+    "night_recipients": [
+      "mdoeden@crystalsugar.com"
+    ]
   }
 }
