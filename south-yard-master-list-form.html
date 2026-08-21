@@ -188,6 +188,23 @@
     border-radius: 5px;
     background: rgba(255,255,255,0.7);
   }
+  .name-cell {
+    position: relative;
+  }
+  .dup-star {
+    display: none;
+    position: absolute;
+    top: -7px;
+    right: -3px;
+    color: var(--sugar-red);
+    font-weight: 800;
+    font-size: 1.15rem;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .dup-star.show {
+    display: inline;
+  }
   .role-cell {
     text-align: center;
   }
@@ -561,7 +578,7 @@
           tr.classList.toggle('row-hidden', !!entry.hidden);
 
           tr.innerHTML = `
-            <td><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"></td>
+            <td><div class="name-cell"><input type="text" class="name-input" value="${escapeHtml(entry.name)}" data-field="name" placeholder="Full name"><span class="dup-star" data-dup-for="${entry.id}" title="This name appears more than once in the list \u2014 may be working multiple roles or pilers">*</span></div></td>
             <td class="role-cell">${isSupportRow ? '' : `<input type="checkbox" data-field="operator" ${entry.operator ? 'checked' : ''}>`}</td>
             <td class="role-cell">${isSupportRow ? '' : `<input type="checkbox" data-field="relief" ${entry.relief ? 'checked' : ''}>`}</td>
             <td class="role-cell">${isSupportRow ? '' : `<input type="checkbox" data-field="boom" ${entry.boom ? 'checked' : ''}>`}</td>
@@ -579,6 +596,27 @@
           `;
           tbody.appendChild(tr);
         });
+      });
+
+      updateDuplicateMarks();
+    }
+
+    function getDuplicateNames(list) {
+      const counts = {};
+      list.forEach((a) => {
+        const n = (a.name || '').trim();
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+      return new Set(Object.keys(counts).filter((n) => counts[n] > 1));
+    }
+
+    function updateDuplicateMarks() {
+      const dupNames = getDuplicateNames(assignments);
+      assignments.forEach((entry) => {
+        const star = document.querySelector(`.dup-star[data-dup-for="${entry.id}"]`);
+        if (!star) return;
+        star.classList.toggle('show', dupNames.has((entry.name || '').trim()));
       });
     }
 
@@ -624,6 +662,7 @@
       if (field === 'name') {
         entry.name = e.target.value;
         persist(assignments);
+        updateDuplicateMarks();
       } else if (['operator', 'relief', 'boom'].includes(field)) {
         entry[field] = e.target.checked;
         persist(assignments);
