@@ -56,6 +56,7 @@
     .header-content {
       flex: 1;
       text-align: center;
+      min-width: 0;
     }
     .header-content h1 {
       margin: 0;
@@ -364,6 +365,77 @@
       padding: 2px 8px;
       margin: 0 0 6px 0;
       letter-spacing: 0.4px;
+    }
+    @media (max-width: 700px) {
+      body {
+        padding: 8px;
+      }
+      .container {
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        flex-wrap: wrap;
+        row-gap: 6px;
+      }
+      .header img {
+        height: 55px;
+      }
+      .header-content h1 {
+        font-size: 15px;
+        letter-spacing: 0.5px;
+      }
+      .header-content .subtitle {
+        font-size: 9.5px;
+      }
+      .header-last-updated {
+        font-size: 9px;
+      }
+      .people-count {
+        width: 70px;
+      }
+      .people-count-circle {
+        width: 58px;
+        height: 58px;
+        border-width: 2px;
+      }
+      .people-count-label {
+        font-size: 6.5px;
+      }
+      .people-count-number {
+        font-size: 18px;
+      }
+      .people-count-note {
+        font-size: 6px;
+      }
+
+      /* Reflow the sidebar (normally absolutely-positioned, reserving 240px
+         via margin on the columns below) into normal stacked document flow
+         instead — 240px reserved space leaves almost nothing for a phone. */
+      .header { order: 0; }
+      .foreman-section {
+        order: 1;
+        margin-right: 0;
+      }
+      .piler-grid {
+        order: 2;
+        grid-template-columns: 1fr;
+        margin-right: 0;
+      }
+      .right-column {
+        order: 3;
+        position: static;
+        width: 100%;
+        top: auto;
+        right: auto;
+      }
+      .notes-section {
+        order: 4;
+      }
+      .piler-watermark {
+        font-size: 90px;
+      }
     }
     @media print {
       @page {
