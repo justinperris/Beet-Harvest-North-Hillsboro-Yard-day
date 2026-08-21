@@ -802,12 +802,27 @@
       return div.innerHTML;
     }
 
+    // Counts how many separate boxes this one row will actually render into
+    // (Piler group / Foreman / Skid-Loader / Greaser / Extra People), since a
+    // single person checked for two roles (e.g. Foreman *and* Loader) shows up
+    // twice on the sheet even though they're only one row in the data.
+    function appearanceCount(a) {
+      let n = 0;
+      if ([1, 2, 3, 4, 5, 6].includes(a.piler)) n++;
+      if (a.foreman) n++;
+      if (a.skidsteer || a.loader) n++;
+      if (a.greaser) n++;
+      if (!a.foreman && !a.skidsteer && !a.loader && !a.greaser &&
+          (a.piler === '?' || ![1, 2, 3, 4, 5, 6].includes(a.piler))) n++;
+      return n;
+    }
+
     function getDuplicateNames(assignments) {
       const counts = {};
       assignments.forEach((a) => {
         const n = (a.name || '').trim();
         if (!n) return;
-        counts[n] = (counts[n] || 0) + 1;
+        counts[n] = (counts[n] || 0) + appearanceCount(a);
       });
       return new Set(Object.keys(counts).filter((n) => counts[n] > 1));
     }
