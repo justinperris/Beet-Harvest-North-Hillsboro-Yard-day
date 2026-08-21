@@ -56,6 +56,7 @@
     .header-content {
       text-align: center;
       flex: 1;
+      min-width: 0;
     }
 
     .people-count-circle {
@@ -529,6 +530,42 @@
       }
       .side-box {
         flex: 1;
+      }
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+      .container {
+        padding: 14px 12px;
+      }
+      .header img {
+        height: 60px;
+      }
+      .header-content h1 {
+        font-size: 17px;
+        letter-spacing: 0.5px;
+      }
+      .header-content .subtitle {
+        font-size: 10.5px;
+      }
+      .people-count-circle {
+        width: 56px;
+        height: 56px;
+        border-width: 4px;
+      }
+      .people-count-circle .label {
+        font-size: 6px;
+      }
+      .people-count-circle .number {
+        font-size: 18px;
+      }
+      .yard-disclaimer {
+        font-size: 5.5px;
+        max-width: 80px;
+      }
+      .piler-columns {
+        gap: 10px;
       }
     }
   </style>
