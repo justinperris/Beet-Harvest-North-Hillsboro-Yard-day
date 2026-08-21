@@ -40,6 +40,9 @@
       width: auto;
       flex-shrink: 0;
     }
+    .header-content {
+      min-width: 0;
+    }
     .header-content h1 {
       margin: 0;
       font-size: 24px;
@@ -360,6 +363,27 @@
         font-size: 9px;
       }
     }
+    .table-scroll {
+      overflow-x: auto;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+      .container {
+        padding: 12px 10px;
+      }
+      .header img {
+        height: 55px;
+      }
+      .header-content h1 {
+        font-size: 16px;
+        letter-spacing: 0.5px;
+      }
+      .header-content .subtitle {
+        font-size: 10.5px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -398,7 +422,7 @@
     <!-- Main table -->
     <div>
       <div class="section-title">Piler Crew — Name, Number &amp; Role Assignments</div>
-      <table class="piler-table" id="piler-table">
+      <div class="table-scroll"><table class="piler-table" id="piler-table">
         <thead>
           <tr>
             <th style="width: 28px">#</th>
@@ -412,7 +436,7 @@
           </tr>
         </thead>
         <tbody id="piler-tbody"></tbody>
-      </table>
+      </table></div>
       <div class="row-count no-print" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
         <span>
           <span id="row-count">20</span> rows •
