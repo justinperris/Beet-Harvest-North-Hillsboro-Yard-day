@@ -1,11 +1,11 @@
 {
-  "lastUpdated": "2026-08-20T23:56:36.946Z",
+  "lastUpdated": "2026-08-21T00:33:39.997Z",
   "assignments": [
     {
       "id": "mss9g0vw9ylyyt",
       "name": "Tina",
       "operator": false,
-      "relief": false,
+      "relief": true,
       "boom": false,
       "piler": 2
     },
@@ -22,7 +22,7 @@
       "name": "Cecila",
       "operator": true,
       "relief": false,
-      "boom": false,
+      "boom": true,
       "piler": 2
     },
     {
@@ -30,7 +30,7 @@
       "name": "Doug",
       "operator": false,
       "relief": false,
-      "boom": true,
+      "boom": false,
       "piler": 4
     },
     {
@@ -52,16 +52,16 @@
     {
       "id": "mss9o57qet45l0",
       "name": "Nora",
-      "operator": false,
+      "operator": true,
       "relief": false,
-      "boom": false,
+      "boom": true,
       "piler": 4
     },
     {
       "id": "mss9ovhm5krlgh",
       "name": "Roxanne",
       "operator": false,
-      "relief": false,
+      "relief": true,
       "boom": false,
       "piler": 4
     },
@@ -87,7 +87,7 @@
       "foreman": false,
       "skidsteer": true,
       "loader": false,
-      "piler": null
+      "piler": 2
     },
     {
       "id": "mss9vuyqrbhept",
@@ -126,7 +126,7 @@
       "name": "Dave Stewart",
       "foreman": true,
       "skidsteer": false,
-      "loader": false,
+      "loader": true,
       "piler": null
     },
     {
