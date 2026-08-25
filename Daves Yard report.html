@@ -795,10 +795,49 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
             return container;
         }
 
-        async function renderPageToCanvas(pageEl) {
+        const BASE_CAPTURE_SCALE = 3;
+
+        // Waits for every <img> in the page to finish decoding so naturalWidth/
+        // naturalHeight are available before we decide how sharp to capture it.
+        function waitForImages(container) {
+            const imgs = Array.from(container.querySelectorAll('img'));
+            return Promise.all(imgs.map(img => {
+                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve();
+                });
+            }));
+        }
+
+        // A flat scale of 3 caps every photo's exported resolution at 3x its
+        // on-screen CSS size, regardless of how many megapixels the source photo
+        // actually has - that's what made exports look soft next to the originals.
+        // Here we bump the capture scale up to whatever the sharpest photo on the
+        // page actually needs (native resolution), while capping it so the
+        // resulting canvas stays within safe memory limits for mobile browsers.
+        function computeCaptureScale(pageEl, widthPx) {
+            const CANVAS_SAFE_MAX_WIDTH = 4200;
+            const ABS_MAX_SCALE = 6;
+            const widthCap = Math.max(BASE_CAPTURE_SCALE, Math.floor(CANVAS_SAFE_MAX_WIDTH / widthPx));
+
+            let neededScale = BASE_CAPTURE_SCALE;
+            pageEl.querySelectorAll('img').forEach(img => {
+                const cellWidth = img.getBoundingClientRect().width;
+                if (cellWidth > 0 && img.naturalWidth > 0) {
+                    neededScale = Math.max(neededScale, img.naturalWidth / cellWidth);
+                }
+            });
+
+            return Math.min(neededScale, widthCap, ABS_MAX_SCALE);
+        }
+
+        async function renderPageToCanvas(pageEl, widthPx) {
             document.body.appendChild(pageEl);
+            await waitForImages(pageEl);
+            const scale = computeCaptureScale(pageEl, widthPx);
             const canvas = await html2canvas(pageEl, {
-                scale: 3,
+                scale: scale,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 windowWidth: pageEl.scrollWidth,
@@ -876,7 +915,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 const stamp = getFileNameStamp();
 
                 for (let p = 0; p < pages.length; p++) {
-                    let canvas = await renderPageToCanvas(pages[p]);
+                    let canvas = await renderPageToCanvas(pages[p], widthPx);
                     canvas = padCanvasToLetterRatio(canvas, widthPx);
                     const link = document.createElement('a');
                     link.download = pages.length > 1 ? `${stamp} - page ${p + 1}.png` : `${stamp}.png`;
@@ -910,7 +949,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 const pages = buildReportPages(widthPx);
 
                 // Page 1: title, report text, and the first batch of photos.
-                const canvas1 = await renderPageToCanvas(pages[0]);
+                const canvas1 = await renderPageToCanvas(pages[0], widthPx);
                 const height1In = (canvas1.height / canvas1.width) * pageWidthIn;
                 const pdf = new jsPDF({
                     orientation: 'portrait',
@@ -921,7 +960,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
                 // Additional pages: remaining photos, 2 per page.
                 for (let p = 1; p < pages.length; p++) {
-                    const canvas = await renderPageToCanvas(pages[p]);
+                    const canvas = await renderPageToCanvas(pages[p], widthPx);
                     const heightIn = (canvas.height / canvas.width) * pageWidthIn;
                     pdf.addPage([pageWidthIn, heightIn]);
                     pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageWidthIn, heightIn);
