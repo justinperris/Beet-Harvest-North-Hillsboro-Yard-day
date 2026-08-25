@@ -200,8 +200,6 @@
     .button.checklist-btn {
       border-color: #111;
       color: #111;
-      text-transform: uppercase;
-      font-weight: 800;
     }
     .button.checklist-btn:hover {
       background: #111;
@@ -221,6 +219,32 @@
       border-radius: 10px;
       padding: 14px 14px 2px;
       margin: 18px 0;
+    }
+    .install-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px 18px;
+      margin-top: 20px;
+      background: var(--blue);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .install-btn:hover {
+      background: #00509e;
+      transform: translateY(-2px);
+    }
+    .install-btn svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
     }
     .section-box .section-label:first-child {
       margin-top: 0;
@@ -291,6 +315,11 @@
         <span class="subtitle">Report</span>
       </a>
 
+      <a href="Reasonable-Suspicion-Form.html" class="button secondary">
+        Reasonable Suspicion Form
+        <span class="subtitle">Alcohol / controlled substance observation record • stays on this device only</span>
+      </a>
+
       <div class="section-box">
         <div class="section-label">Crew Reports</div>
         <p class="section-note">These are read-only.</p>
@@ -308,16 +337,20 @@
         </div>
       </div>
 
-      <a href="Reasonable-Suspicion-Form.html" class="button secondary">
-        Reasonable Suspicion Form
-        <span class="subtitle">Alcohol / controlled substance observation record • stays on this device only</span>
-      </a>
-
       <div class="section-label">View History</div>
       <div class="day-night-row">
         <a href="History.html" class="button day-btn">Day</a>
         <a href="History-Night.html" class="button night-btn">NIGHT</a>
       </div>
+
+      <button id="installBtn" class="install-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"></path>
+          <path d="M7 10l5 5 5-5"></path>
+          <path d="M5 21h14"></path>
+        </svg>
+        Install App
+      </button>
     </div>
 
     <div class="footer">
@@ -370,6 +403,27 @@
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });
     }
+
+    let deferredInstallPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      installBtn.style.display = 'flex';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installBtn.style.display = 'none';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+    });
   </script>
 </body>
 </html>
