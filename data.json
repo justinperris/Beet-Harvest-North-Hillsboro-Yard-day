@@ -1,123 +1,123 @@
 {
-  "date": "2026-08-20",
-  "location": "Hillsboro / North / Kody",
-  "day": "Thursday",
-  "notes": "bob came in at 10am",
+  "date": "2026-08-26",
+  "location": "",
+  "day": "Tuesday",
+  "notes": "",
   "rows": [
     {
-      "name": "Dave Stewart",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Tim B",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Josie",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Linda",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Tonya",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Robert",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Elsa",
-      "piler": "7",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Suzie",
-      "piler": "8",
-      "operator": false,
-      "boom": true,
-      "relief": false,
-      "hidden": false
-    },
-    {
-      "name": "Larry",
-      "piler": "8",
-      "operator": false,
-      "boom": false,
-      "relief": true,
-      "hidden": false
-    },
-    {
-      "name": "Dave",
-      "piler": "8",
-      "operator": true,
-      "boom": false,
-      "relief": false,
-      "hidden": true
-    },
-    {
-      "name": "Carrie",
-      "piler": "8",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Scott",
-      "piler": "8",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Cassie",
-      "piler": "8",
+      "name": "",
+      "piler": "",
       "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Dave Stewart",
-      "piler": "8",
-      "operator": true,
+      "name": "",
+      "piler": "",
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
     },
     {
-      "name": "Bronco Nunigerski",
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false,
+      "hidden": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false,
+      "hidden": false
+    },
+    {
+      "name": "",
+      "piler": "",
+      "operator": false,
+      "boom": false,
+      "relief": false,
+      "hidden": false
+    },
+    {
+      "name": "",
       "piler": "",
       "operator": false,
       "boom": false,
@@ -184,5 +184,5 @@
     "Tim B",
     "Tonya"
   ],
-  "lastUpdated": "2026-08-20T22:19:36.894Z"
+  "lastUpdated": "2026-08-26T01:13:15.724Z"
 }
