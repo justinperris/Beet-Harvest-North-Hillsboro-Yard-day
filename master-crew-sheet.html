@@ -182,6 +182,7 @@
   .row-status.ok { color: #1b5e20; }
   .row-status.err { color: #b71c1c; }
   .row-status.busy { color: #555; }
+  .move-hint { font-size: 0.68rem; color: #b26a00; font-weight: 700; margin-top: 2px; }
 
   .log-wrap { padding: 12px 26px 22px; }
   .log-wrap h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 0 0 6px; }
@@ -286,6 +287,11 @@
       Suggestions appear once you've typed 3 letters. Names are matched case-insensitively
       (&ldquo;dave stewart&rdquo; = &ldquo;Dave Stewart&rdquo;). If the same name is on more than one row, that row is
       flagged and Send asks you to confirm.
+      <br><br>
+      <strong>Moving someone:</strong> change their Yard and/or Shift on a row you've already sent, then Send again.
+      They're added to the new roster and <strong>removed from the old one</strong> by name. The row shows
+      &ldquo;&rarr; will move off &hellip;&rdquo; until you send it. If the name changed since the last send, the old
+      entry is left in place &mdash; fix the name back first, send, then rename.
     </div>
   </div>
 
@@ -534,6 +540,40 @@
     });
   }
 
+  /* ---------- remove a person from a roster (used when a row is moved) ---------- */
+  function removePersonFrom(targetKey, name) {
+    return ghQueue(async function () {
+      const t = TARGETS[targetKey];
+      if (!token()) throw new Error('No GitHub token saved.');
+      const nm = normName(name);
+      if (!nm) return { removed: 0, target: t };
+
+      const got = await ghGet(t.path);
+      if (!got.doc) return { removed: 0, target: t };
+
+      let removed = 0;
+      if (t.shape === 'north') {
+        (got.doc.rows || []).forEach(function (r) {
+          if (normName(r.name) === nm) {
+            r.name = ''; r.piler = '';
+            r.operator = false; r.boom = false; r.relief = false;
+            removed++;
+          }
+        });
+      } else {
+        const before = (got.doc.assignments || []).length;
+        got.doc.assignments = (got.doc.assignments || []).filter(function (a) { return normName(a.name) !== nm; });
+        removed = before - got.doc.assignments.length;
+      }
+
+      if (!removed) return { removed: 0, target: t };
+      got.doc.lastUpdated = new Date().toISOString();
+      await ghPut(t.path, got.doc, got.sha, 'Master sheet → remove ' + name.trim() + ' from ' + t.label + ' (moved)');
+      mirrorToLocalStorage(t, got.doc);
+      return { removed: removed, target: t };
+    });
+  }
+
   /* ---------- sheet model + rendering ---------- */
   let sheet = [];
 
@@ -541,7 +581,8 @@
     return {
       name: '', yard: 'North', shift: 'Day', piler: '',
       operator: false, relief: false, boom: false,
-      foreman: false, skidsteer: false, loader: false, greaser: false
+      foreman: false, skidsteer: false, loader: false, greaser: false,
+      sentTo: null   // last roster this row was sent to — used to move people off the old roster
     };
   }
 
@@ -568,7 +609,7 @@
         '<td class="support-cell"><input type="checkbox" data-f="skidsteer"></td>' +
         '<td class="support-cell"><input type="checkbox" data-f="loader"></td>' +
         '<td class="support-cell"><input type="checkbox" data-f="greaser"></td>' +
-        '<td><button type="button" class="send-btn">Send</button><div class="row-status"></div></td>' +
+        '<td><button type="button" class="send-btn">Send</button><div class="row-status"></div><div class="move-hint"></div></td>' +
         '<td><button type="button" class="row-remove">✕</button></td>';
 
       // set values
@@ -592,6 +633,7 @@
             tr.classList.toggle('yard-north', row.yard !== 'South');
             applySupportDim(tr, row);
           }
+          refreshMoveHint(tr, row);
           saveSheet();
         });
       });
@@ -599,6 +641,7 @@
       const nameInput = tr.querySelector('[data-f="name"]');
       setupNameAutocomplete(nameInput, tr.querySelector('.name-suggestions'));
       nameInput.addEventListener('input', markDuplicates);
+      refreshMoveHint(tr, row);
 
       tr.querySelector('.send-btn').addEventListener('click', function () {
         sendRow(i, tr);
@@ -622,6 +665,18 @@
     tr.querySelectorAll('td.support-cell').forEach(function (td) {
       td.classList.toggle('dim', dim);
     });
+  }
+
+  // Show "will move off <old roster>" when a sent row's Yard/Shift no longer matches
+  // the roster it was last sent to.
+  function refreshMoveHint(tr, row) {
+    const el = tr.querySelector('.move-hint');
+    if (!el) return;
+    if (row.name.trim() && row.sentTo && row.sentTo !== targetKeyFor(row)) {
+      el.textContent = '→ will move off ' + TARGETS[row.sentTo].label;
+    } else {
+      el.textContent = '';
+    }
   }
 
   function setRowStatus(tr, text, cls) {
@@ -664,10 +719,34 @@
     btn.disabled = true;
     setRowStatus(tr, 'Sending…', 'busy');
     log('Sending ' + row.name.trim() + ' → ' + TARGETS[tk].label + '…', 'info');
+    const movingFrom = (row.sentTo && row.sentTo !== tk) ? row.sentTo : null;
     try {
       const res = await deliver(tk, [Object.assign({}, row)]);
       rememberName(row.name);
-      setRowStatus(tr, '✓ ' + res.target.label, 'ok');
+
+      let moveMsg = '';
+      let moveOk = true;
+      if (movingFrom) {
+        try {
+          const rm = await removePersonFrom(movingFrom, row.name);
+          if (rm.removed) {
+            moveMsg = ' — moved off ' + TARGETS[movingFrom].label;
+            log('✓ Removed ' + row.name.trim() + ' from ' + TARGETS[movingFrom].label + ' (' + rm.target.path + ').', 'ok');
+          } else {
+            moveMsg = ' — ' + TARGETS[movingFrom].label + ' had no matching name';
+            log('~ ' + row.name.trim() + ' was not found on ' + TARGETS[movingFrom].label + ' — nothing to remove.', 'info');
+          }
+        } catch (e2) {
+          moveOk = false;
+          moveMsg = ' — ⚠ still on ' + TARGETS[movingFrom].label + ' — Send again';
+          log('⚠ Added to ' + res.target.label + ' but could NOT remove from ' + TARGETS[movingFrom].label + ': ' + e2.message, 'err');
+        }
+      }
+
+      if (moveOk) row.sentTo = tk;   // keep old sentTo if the removal failed, so a re-Send retries it
+      saveSheet();
+      refreshMoveHint(tr, row);
+      setRowStatus(tr, '✓ ' + res.target.label + moveMsg, moveOk ? 'ok' : 'err');
       log('✓ ' + row.name.trim() + ' saved to ' + res.target.label + ' (' + res.target.path + ').', 'ok');
     } catch (e) {
       setRowStatus(tr, '✗ failed', 'err');
@@ -681,7 +760,7 @@
     if (!token()) { log('Cannot send — no GitHub token saved.', 'err'); alert('Paste and save your GitHub token first.'); return; }
     const groups = { northDay: [], northNight: [], southDay: [], southNight: [] };
     sheet.forEach(function (row) {
-      if (row.name.trim()) groups[targetKeyFor(row)].push(Object.assign({}, row));
+      if (row.name.trim()) groups[targetKeyFor(row)].push(row);
     });
     const active = Object.keys(groups).filter(function (k) { return groups[k].length; });
     if (!active.length) { log('Nothing to send — no named rows.', 'err'); return; }
@@ -698,10 +777,31 @@
     log('Sending all rows: ' + active.map(function (k) { return TARGETS[k].label + ' ×' + groups[k].length; }).join(', '), 'info');
     document.querySelectorAll('.send-btn').forEach(function (b) { b.disabled = true; });
 
+    const rows = document.querySelectorAll('#tbody tr');
     for (const k of active) {
       try {
         const res = await deliver(k, groups[k]);
-        groups[k].forEach(function (p) { rememberName(p.name); });
+        for (const row of groups[k]) {
+          rememberName(row.name);
+          const movingFrom = (row.sentTo && row.sentTo !== k) ? row.sentTo : null;
+          let moveOk = true;
+          if (movingFrom) {
+            try {
+              const rm = await removePersonFrom(movingFrom, row.name);
+              log(rm.removed
+                ? '✓ Moved ' + row.name.trim() + ': removed from ' + TARGETS[movingFrom].label
+                : '~ ' + row.name.trim() + ' not found on ' + TARGETS[movingFrom].label + ' — nothing to remove.',
+                rm.removed ? 'ok' : 'info');
+            } catch (e2) {
+              moveOk = false;
+              log('⚠ ' + row.name.trim() + ' added to ' + res.target.label + ' but NOT removed from ' + TARGETS[movingFrom].label + ' — Send again: ' + e2.message, 'err');
+            }
+          }
+          if (moveOk) row.sentTo = k;
+          const idx = sheet.indexOf(row);
+          if (idx >= 0 && rows[idx]) refreshMoveHint(rows[idx], row);
+        }
+        saveSheet();
         log('✓ ' + res.target.label + ': ' + res.count + ' sent (' + res.who + ').', 'ok');
       } catch (e) {
         log('✗ ' + TARGETS[k].label + ': ' + e.message, 'err');
