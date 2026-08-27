@@ -286,10 +286,12 @@
       After a send, hard-refresh the roster page (Ctrl+F5) &mdash; GitHub's raw files can lag a minute or two.
       <br><br>
       <strong>Roles by yard.</strong>
-      North: Operator / Boom / Relief go on the roster; <strong>Foreman</strong> and
-      <strong>Skid-steer / Loader</strong> go on the North <em>sign-in sheet</em>
-      (<code>current-signin.json</code> / <code>current-signin-night.json</code>) &mdash; Loader shares the
-      Skid-steer list there. Greaser is not used on North and stays locked.
+      North: name, Piler #, Operator / Boom / Relief go on <code>piler-info</code> (the roster).
+      <strong>Foreman</strong> and <strong>Skid-steer / Loader</strong> go ONLY on the North
+      <em>sign-in sheet</em> (<code>current-signin.json</code> / <code>current-signin-night.json</code>) &mdash;
+      Loader shares the Skid-steer list there. A North person who is <em>only</em> Foreman or Skid/Loader
+      (no Piler #, no O/B/R) is kept off <code>piler-info</code> entirely so it doesn't show them as
+      &ldquo;Unassigned&rdquo;; if they had a piler row before, it's cleared. Greaser is not used on North and stays locked.
       South: all seven roles go on the South assignment list.
       <br><br>
       <strong>Pull latest from rosters</strong> reads back minor changes a foreman makes on a roster page
@@ -577,6 +579,16 @@
     } catch (e) { /* other origin / storage blocked */ }
   }
 
+  // On North, someone who is ONLY foreman / skid-steer / loader is NOT piler crew —
+  // they belong on the sign-in sheet only, never on piler-info (which would list them
+  // as "Unassigned"). Piler crew = has a Piler # or an Operator/Boom/Relief role.
+  function isNorthPilerCrew(p) {
+    return (p.piler || '').trim() !== '' || !!p.operator || !!p.boom || !!p.relief;
+  }
+  function isNorthSupportOnly(p) {
+    return !isNorthPilerCrew(p) && (!!p.foreman || !!p.skidsteer || !!p.loader);
+  }
+
   /* ---------- deliver: one target, one or more people ---------- */
   function deliver(targetKey, people) {
     return ghQueue(async function () {
@@ -584,22 +596,57 @@
       if (!token()) throw new Error('No GitHub token saved.');
       const named = people.filter(function (p) { return p.name.trim(); });
       if (!named.length) throw new Error('No name entered.');
+      const who = named.map(function (p) { return p.name.trim(); }).join(', ');
+
+      if (t.shape !== 'north') {
+        const got = await ghGet(t.path);
+        const merged = mergeSouth(got.doc, named);
+        await ghPut(t.path, merged, got.sha, 'Master sheet → ' + t.label + ': ' + who);
+        mirrorToLocalStorage(t, merged);
+        return { target: t, count: named.length, who: who, signinWarning: null };
+      }
+
+      // ----- North -----
+      const toRoster    = named.filter(function (p) { return !isNorthSupportOnly(p); });   // piler crew (+ plain names)
+      const supportOnly = named.filter(isNorthSupportOnly);
 
       const got = await ghGet(t.path);
-      const merged = t.shape === 'north'
-        ? mergeNorth(got.doc, named)
-        : mergeSouth(got.doc, named);
+      let doc = got.doc;
+      let rosterChanged = false;
 
-      const who = named.map(function (p) { return p.name.trim(); }).join(', ');
-      await ghPut(t.path, merged, got.sha, 'Master sheet → ' + t.label + ': ' + who);
-      mirrorToLocalStorage(t, merged);
+      if (toRoster.length) {
+        doc = mergeNorth(doc, toRoster);          // adds / updates their piler-info row
+        rosterChanged = true;
+      }
+      // A support-only person may have been piler crew before — clear any leftover
+      // piler-info row so they don't linger as "Unassigned".
+      if (supportOnly.length && doc && Array.isArray(doc.rows)) {
+        supportOnly.forEach(function (p) {
+          const nm = normName(p.name);
+          doc.rows.forEach(function (r) {
+            if (normName(r.name) === nm && ((r.name || '').trim() || r.piler || r.operator || r.boom || r.relief)) {
+              r.name = ''; r.piler = ''; r.operator = false; r.boom = false; r.relief = false;
+              rosterChanged = true;
+            }
+          });
+        });
+      }
+
+      if (rosterChanged) {
+        doc.lastUpdated = new Date().toISOString();
+        await ghPut(t.path, doc, got.sha, 'Master sheet → ' + t.label + ': ' + who);
+        mirrorToLocalStorage(t, doc);
+      }
 
       let signinWarning = null;
-      if (t.shape === 'north') {
-        try { await syncNorthSignin(t, named); }
-        catch (e) { signinWarning = e.message; }
-      }
-      return { target: t, count: named.length, who: who, signinWarning: signinWarning };
+      try { await syncNorthSignin(t, named); }          // foreman / skid-steer / loader lists
+      catch (e) { signinWarning = e.message; }
+
+      return {
+        target: t, count: named.length, who: who,
+        signinWarning: signinWarning,
+        supportOnly: supportOnly.map(function (p) { return p.name.trim(); })
+      };
     });
   }
 
@@ -842,16 +889,21 @@
       let northSigninOk = true;
       if (t.shape === 'north') {
         const hit = (d.main.rows || []).find(function (r) { return normName(r.name) === nm; });
-        if (!hit) { next = { missing: true }; }
+        const sd = d.signin;
+        const onForeman = !!sd && Array.isArray(sd.foreman)   && sd.foreman.some(function (x) { return normName(x) === nm; });
+        const onSkid    = !!sd && Array.isArray(sd.skidSteer) && sd.skidSteer.some(function (x) { return normName(x) === nm; });
+        if (!hit && !sd) { return; }                              // roster miss + sign-in unreachable → can't tell, leave row alone
+        if (!hit && !onForeman && !onSkid) { next = { missing: true }; }
         else {
-          const sd = d.signin;
           northSigninOk = !!sd;
           next = {
-            piler: hit.piler == null ? '' : String(hit.piler),
-            operator: !!hit.operator, boom: !!hit.boom, relief: !!hit.relief,
-            foreman: !!sd && Array.isArray(sd.foreman) && sd.foreman.some(function (x) { return normName(x) === nm; }),
-            skidsteer: !!sd && Array.isArray(sd.skidSteer) && sd.skidSteer.some(function (x) { return normName(x) === nm; }),
-            out: !!hit.hidden
+            piler:    hit ? (hit.piler == null ? '' : String(hit.piler)) : '',
+            operator: hit ? !!hit.operator : false,
+            boom:     hit ? !!hit.boom : false,
+            relief:   hit ? !!hit.relief : false,
+            foreman:  onForeman,
+            skidsteer: onSkid,
+            out:      hit ? !!hit.hidden : false
           };
         }
       } else {
@@ -889,8 +941,11 @@
         const nv  = f === 'piler' ? (next.piler || '') : !!next[f];
         if (cur !== nv) { diffs.push(f + ' ' + fmtVal(cur) + '→' + fmtVal(nv)); row[f] = nv; }
       });
+      const northSupportOnly = (t.shape === 'north') && (next.foreman || next.skidsteer)
+        && !next.piler && !next.operator && !next.boom && !next.relief;
       row._rosterNote = next.out ? 'marked OUT on ' + t.label
-                                 : (diffs.length ? 'pulled: ' + diffs.map(function (x) { return x.split(' ')[0]; }).join(', ') : '');
+        : northSupportOnly ? 'sign-in only (foreman/skid)'
+        : (diffs.length ? 'pulled: ' + diffs.map(function (x) { return x.split(' ')[0]; }).join(', ') : '');
       if (diffs.length) {
         changed++;
         log('↻ ' + row.name.trim() + ' — ' + diffs.join(', ') + '  (from ' + t.label + ')', 'ok');
@@ -971,9 +1026,15 @@
         log('⚠ ' + res.target.label + ' roster saved, but the sign-in foreman/skid list failed: ' + res.signinWarning, 'err');
       }
 
+      const supportOnly = (res.supportOnly || []).length > 0;
+      if (supportOnly) {
+        moveMsg += ' — sign-in only (not on piler-info)';
+        log('ℹ ' + row.name.trim() + ' is foreman/skid only — added to the North sign-in sheet, kept off piler-info.', 'info');
+      }
+
       if (moveOk) row.sentTo = tk;   // keep old sentTo if the removal failed, so a re-Send retries it
       row.dirty = false;
-      row._rosterNote = '';
+      row._rosterNote = supportOnly ? 'sign-in only (foreman/skid)' : '';
       saveSheet();
       refreshMoveHint(tr, row);
       refreshRosterNote(tr, row);
