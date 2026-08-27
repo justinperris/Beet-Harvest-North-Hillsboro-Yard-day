@@ -123,8 +123,31 @@
     top: 0;
   }
   td.num { width: 26px; font-weight: 700; color: #555; }
-  td.name-col { text-align: left; min-width: 170px; }
+  td.name-col { text-align: left; min-width: 190px; position: relative; }
   td.name-col input { width: 100%; }
+  .name-suggestions {
+    display: none;
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    top: 100%;
+    z-index: 30;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    max-height: 190px;
+    overflow-y: auto;
+    text-align: left;
+  }
+  .name-suggestions.show { display: block; }
+  .name-suggestions .sugg { padding: 6px 10px; font-size: 0.88rem; cursor: pointer; }
+  .name-suggestions .sugg:hover,
+  .name-suggestions .sugg.active { background: #e8f0f8; }
+  .name-suggestions .sugg:not(:last-child) { border-bottom: 1px solid #eee; }
+  tr.dup-row td.name-col { box-shadow: inset 4px 0 0 var(--sugar-red); }
+  .dup-badge { display: none; margin-left: 6px; color: var(--sugar-red); font-weight: 800; font-size: 0.72rem; }
+  tr.dup-row .dup-badge { display: inline; }
   input[type="text"] {
     padding: 5px 6px;
     font-size: 0.9rem;
@@ -216,6 +239,8 @@
       <button type="button" onclick="addRows(5)">+ Add 5 rows</button>
       <button type="button" class="primary" onclick="sendAll()">Send ALL rows to their rosters</button>
       <button type="button" class="ghost" onclick="clearSheet()">Clear sheet</button>
+      <button type="button" class="ghost" onclick="clearNameMemory()">Clear name memory</button>
+      <span id="nameMemCount" style="font-size:0.72rem;color:#777;"></span>
       <span id="sheetStatus" style="font-size:0.78rem;color:#4a7c59;"></span>
     </div>
 
@@ -242,7 +267,6 @@
         <tbody id="tbody"></tbody>
       </table>
     </div>
-    <datalist id="nameList"></datalist>
 
     <div class="log-wrap">
       <h2>Activity log</h2>
@@ -257,6 +281,11 @@
       South&nbsp;Day &rarr; <code>south-yard-assignments-day.json</code> &bull;
       South&nbsp;Night &rarr; <code>south-yard-assignments.json</code>.
       After a send, hard-refresh the roster page (Ctrl+F5) &mdash; GitHub's raw files can lag a minute or two.
+      <br><br>
+      Name auto-complete is this sheet's own memory (starts empty, holds up to 80 names, keeps them after a send).
+      Suggestions appear once you've typed 3 letters. Names are matched case-insensitively
+      (&ldquo;dave stewart&rdquo; = &ldquo;Dave Stewart&rdquo;). If the same name is on more than one row, that row is
+      flagged and Send asks you to confirm.
     </div>
   </div>
 
@@ -271,6 +300,11 @@
   const GH = { owner: 'justinperris', repo: 'Beet-Harvest-North-Hillsboro-Yard-day', branch: 'main' };
   const TOKEN_KEY = 'githubPAT';
   const SHEET_KEY = 'masterCrewSheet';
+  const NAMES_KEY = 'masterCrewSheetNames';   // this sheet's OWN name memory — starts empty
+  const MAX_NAMES = 80;                        // keep up to 80 names, even after sending
+  const MIN_CHARS = 3;                         // letters typed before suggestions show
+
+  function normName(s) { return (s || '').trim().toLowerCase(); }
 
   const TARGETS = {
     northDay:   { label: 'North · Day',   shape: 'north', path: 'data.json',
@@ -523,7 +557,7 @@
       tr.className = row.yard === 'South' ? 'yard-south' : 'yard-north';
       tr.innerHTML =
         '<td class="num">' + (i + 1) + '</td>' +
-        '<td class="name-col"><input type="text" list="nameList" data-f="name" placeholder="Full name"></td>' +
+        '<td class="name-col"><input type="text" autocomplete="off" data-f="name" placeholder="Full name"><span class="dup-badge" title="This name is on more than one row">DUP</span><div class="name-suggestions"></div></td>' +
         '<td class="yard-col"><select data-f="yard"><option>North</option><option>South</option></select></td>' +
         '<td><select data-f="shift"><option>Day</option><option>Night</option></select></td>' +
         '<td class="piler-col"><input type="text" data-f="piler" placeholder=""></td>' +
@@ -553,10 +587,18 @@
         const evt = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input';
         el.addEventListener(evt, function () {
           row[f] = el.type === 'checkbox' ? el.checked : el.value;
-          if (f === 'yard') { tr.className = row.yard === 'South' ? 'yard-south' : 'yard-north'; applySupportDim(tr, row); }
+          if (f === 'yard') {
+            tr.classList.toggle('yard-south', row.yard === 'South');
+            tr.classList.toggle('yard-north', row.yard !== 'South');
+            applySupportDim(tr, row);
+          }
           saveSheet();
         });
       });
+
+      const nameInput = tr.querySelector('[data-f="name"]');
+      setupNameAutocomplete(nameInput, tr.querySelector('.name-suggestions'));
+      nameInput.addEventListener('input', markDuplicates);
 
       tr.querySelector('.send-btn').addEventListener('click', function () {
         sendRow(i, tr);
@@ -572,6 +614,7 @@
       applySupportDim(tr, row);
       tbody.appendChild(tr);
     });
+    markDuplicates();
   }
 
   function applySupportDim(tr, row) {
@@ -606,6 +649,16 @@
     const row = sheet[i];
     if (!row.name.trim()) { setRowStatus(tr, 'Enter a name', 'err'); return; }
     if (!token()) { setRowStatus(tr, 'No token', 'err'); log('Cannot send — no GitHub token saved.', 'err'); return; }
+
+    if (duplicateSet().has(normName(row.name))) {
+      const count = sheet.filter(function (r) { return normName(r.name) === normName(row.name); }).length;
+      if (!confirm('"' + row.name.trim() + '" is entered on ' + count + ' rows of this sheet.\n\nSend this row anyway?')) {
+        setRowStatus(tr, 'cancelled — duplicate', 'err');
+        log('Send cancelled — "' + row.name.trim() + '" is on ' + count + ' rows.', 'err');
+        return;
+      }
+    }
+
     const tk = targetKeyFor(row);
     const btn = tr.querySelector('.send-btn');
     btn.disabled = true;
@@ -613,6 +666,7 @@
     log('Sending ' + row.name.trim() + ' → ' + TARGETS[tk].label + '…', 'info');
     try {
       const res = await deliver(tk, [Object.assign({}, row)]);
+      rememberName(row.name);
       setRowStatus(tr, '✓ ' + res.target.label, 'ok');
       log('✓ ' + row.name.trim() + ' saved to ' + res.target.label + ' (' + res.target.path + ').', 'ok');
     } catch (e) {
@@ -632,12 +686,22 @@
     const active = Object.keys(groups).filter(function (k) { return groups[k].length; });
     if (!active.length) { log('Nothing to send — no named rows.', 'err'); return; }
 
+    const dups = duplicateSet();
+    if (dups.size) {
+      const names = Array.from(dups).map(displayName);
+      if (!confirm('These names are on more than one row of the sheet:\n\n' + names.join(', ') + '\n\nSend everything anyway?')) {
+        log('Send ALL cancelled — duplicate names on the sheet: ' + names.join(', '), 'err');
+        return;
+      }
+    }
+
     log('Sending all rows: ' + active.map(function (k) { return TARGETS[k].label + ' ×' + groups[k].length; }).join(', '), 'info');
     document.querySelectorAll('.send-btn').forEach(function (b) { b.disabled = true; });
 
     for (const k of active) {
       try {
         const res = await deliver(k, groups[k]);
+        groups[k].forEach(function (p) { rememberName(p.name); });
         log('✓ ' + res.target.label + ': ' + res.count + ' sent (' + res.who + ').', 'ok');
       } catch (e) {
         log('✗ ' + TARGETS[k].label + ': ' + e.message, 'err');
@@ -676,36 +740,117 @@
     for (let k = 0; k < 12; k++) sheet.push(blankRow());
   }
 
-  /* ---------- name suggestions from the live roster files (best effort) ---------- */
-  async function loadNameSuggestions() {
-    const names = new Set();
-    const files = ['data.json', 'data-night.json', 'south-yard-assignments.json', 'south-yard-assignments-day.json'];
-    await Promise.all(files.map(async function (f) {
-      try {
-        const r = await fetch('https://raw.githubusercontent.com/' + GH.owner + '/' + GH.repo + '/' + GH.branch + '/' + f + '?_=' + Date.now(), { cache: 'no-store' });
-        if (!r.ok) return;
-        const d = await r.json();
-        (d.savedNames || []).forEach(function (n) { if (n) names.add(n); });
-        (d.rows || []).forEach(function (row) { if (row.name) names.add(row.name); });
-        (d.assignments || []).forEach(function (a) { if (a.name) names.add(a.name); });
-      } catch (e) {}
-    }));
-    const dl = document.getElementById('nameList');
-    dl.innerHTML = '';
-    Array.from(names).sort(function (a, b) { return a.localeCompare(b, undefined, { sensitivity: 'base' }); })
-      .forEach(function (n) {
-        const o = document.createElement('option');
-        o.value = n;
-        dl.appendChild(o);
-      });
-    if (names.size) log('Loaded ' + names.size + ' known names for auto-complete.', 'info');
+  /* ---------- this sheet's own name memory (starts empty) ---------- */
+  function getNames() {
+    try {
+      const raw = localStorage.getItem(NAMES_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+
+  function saveNames(arr) {
+    try { localStorage.setItem(NAMES_KEY, JSON.stringify(arr)); } catch (e) {}
+    updateNameMemCount();
+  }
+
+  // Add a name and keep it — even after the row is sent. Case-insensitive de-dupe.
+  // When the list passes MAX_NAMES, the oldest name drops off so the newest stays.
+  function rememberName(name) {
+    const nm = (name || '').trim();
+    if (nm.length < 2) return;
+    const names = getNames();
+    if (names.some(function (n) { return normName(n) === normName(nm); })) return;
+    names.push(nm);
+    while (names.length > MAX_NAMES) names.shift();
+    saveNames(names);
+  }
+
+  function clearNameMemory() {
+    if (!confirm('Clear all remembered names from this master sheet?\n\n(The rosters are not touched.)')) return;
+    saveNames([]);
+    document.querySelectorAll('.name-suggestions').forEach(function (d) { d.classList.remove('show'); d.innerHTML = ''; });
+    log('Name memory cleared — starting fresh.', 'info');
+  }
+
+  function updateNameMemCount() {
+    const el = document.getElementById('nameMemCount');
+    if (el) el.textContent = getNames().length + ' / ' + MAX_NAMES + ' names remembered';
+  }
+
+  // Custom dropdown: only opens after MIN_CHARS letters, matches case-insensitively.
+  function setupNameAutocomplete(input, dropdown) {
+    let active = -1;
+    function hide() { dropdown.classList.remove('show'); dropdown.innerHTML = ''; active = -1; }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function show(matches) {
+      dropdown.innerHTML = matches.map(function (n) { return '<div class="sugg">' + esc(n) + '</div>'; }).join('');
+      dropdown.classList.add('show');
+      active = -1;
+    }
+    input.addEventListener('input', function () {
+      const v = input.value.trim();
+      if (v.length < MIN_CHARS) { hide(); return; }
+      const lv = v.toLowerCase();
+      const matches = getNames().filter(function (n) { return n.toLowerCase().includes(lv); }).slice(0, 8);
+      if (!matches.length) { hide(); return; }
+      show(matches);
+    });
+    dropdown.addEventListener('mousedown', function (e) {
+      const item = e.target.closest('.sugg');
+      if (!item) return;
+      e.preventDefault();
+      input.value = item.textContent;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      hide();
+    });
+    input.addEventListener('keydown', function (e) {
+      const items = Array.prototype.slice.call(dropdown.querySelectorAll('.sugg'));
+      if (!items.length || !dropdown.classList.contains('show')) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, items.length - 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); }
+      else if (e.key === 'Enter') {
+        if (active >= 0) { e.preventDefault(); input.value = items[active].textContent; input.dispatchEvent(new Event('input', { bubbles: true })); hide(); }
+        return;
+      } else if (e.key === 'Escape') { hide(); return; }
+      items.forEach(function (it, idx) { it.classList.toggle('active', idx === active); });
+    });
+    input.addEventListener('blur', function () { setTimeout(hide, 150); });
+  }
+
+  /* ---------- duplicate-name detection (case-insensitive) ---------- */
+  function duplicateSet() {
+    const counts = {};
+    sheet.forEach(function (r) {
+      const n = normName(r.name);
+      if (!n) return;
+      counts[n] = (counts[n] || 0) + 1;
+    });
+    const set = new Set();
+    Object.keys(counts).forEach(function (n) { if (counts[n] > 1) set.add(n); });
+    return set;
+  }
+
+  function markDuplicates() {
+    const dups = duplicateSet();
+    const rows = document.querySelectorAll('#tbody tr');
+    rows.forEach(function (tr, i) {
+      const r = sheet[i];
+      if (!r) return;
+      tr.classList.toggle('dup-row', dups.has(normName(r.name)));
+    });
+  }
+
+  function displayName(norm) {
+    const hit = sheet.find(function (r) { return normName(r.name) === norm; });
+    return hit ? hit.name.trim() : norm;
   }
 
   /* ---------- boot ---------- */
   loadSheet();
   renderSheet();
   renderTokenStatus();
-  loadNameSuggestions();
+  updateNameMemCount();
 </script>
 </body>
 </html>
