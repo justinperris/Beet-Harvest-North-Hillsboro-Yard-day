@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Crew Sheet</title>
+<link rel="icon" href="ACS_Logo.ico">
+<style>
+  :root {
+    --sugar-blue: #003366;
+    --sugar-red: #c8102e;
+    --line: #999;
+    --north: #cfe8ff;
+    --south: #ffe0b2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f4f4;
+    color: #111;
+    line-height: 1.4;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  .home-bar {
+    text-align: center;
+    padding: 8px 0;
+    background: #f8f8f8;
+    font-size: 0.9rem;
+  }
+  .home-bar a { color: var(--sugar-blue); text-decoration: none; }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--sugar-blue);
+    color: #fff;
+    padding: 22px 26px;
+    flex-wrap: wrap;
+  }
+  .header img {
+    height: 68px;
+    width: 68px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 8px;
+    padding: 5px;
+    flex-shrink: 0;
+  }
+  .header h1 { margin: 0; font-size: 1.5rem; }
+  .header p { margin: 3px 0 0; font-size: 0.9rem; opacity: 0.9; }
+
+  .sync-box {
+    margin: 0;
+    padding: 14px 26px;
+    background: #f7f9fc;
+    border-bottom: 1px solid #e2e2e2;
+    font-size: 0.85rem;
+  }
+  .sync-box .title { font-weight: 700; color: var(--sugar-blue); margin-bottom: 6px; }
+  #tokenStatus { margin-bottom: 8px; }
+  .sync-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .sync-row input {
+    flex: 1;
+    min-width: 180px;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+  }
+  .sync-row button { padding: 6px 11px; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 14px 26px;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+  }
+  button {
+    padding: 8px 15px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid var(--sugar-blue);
+    background: #fff;
+    color: var(--sugar-blue);
+    border-radius: 5px;
+  }
+  button:hover { background: var(--sugar-blue); color: #fff; }
+  button.primary { background: var(--sugar-red); border-color: var(--sugar-red); color: #fff; }
+  button.primary:hover { background: #a50d24; border-color: #a50d24; }
+  button.ghost { border-color: #999; color: #444; }
+  button.ghost:hover { background: #444; border-color: #444; }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  .table-scroll { overflow-x: auto; padding: 10px 26px 4px; }
+  table { width: 100%; border-collapse: collapse; min-width: 1050px; font-size: 0.85rem; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 5px 6px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  th {
+    background: #e8f0f8;
+    color: var(--sugar-blue);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+  }
+  td.num { width: 26px; font-weight: 700; color: #555; }
+  td.name-col { text-align: left; min-width: 170px; }
+  td.name-col input { width: 100%; }
+  input[type="text"] {
+    padding: 5px 6px;
+    font-size: 0.9rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background: #fff;
+  }
+  .piler-col input { width: 58px; text-align: center; }
+  select {
+    padding: 5px 4px;
+    font-size: 0.85rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background: #fff;
+  }
+  input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--sugar-blue); }
+  tr.yard-north td.yard-col { background: var(--north); }
+  tr.yard-south td.yard-col { background: var(--south); }
+  td.support-cell.dim { background: #f0f0f0; }
+  td.support-cell.dim input { opacity: 0.35; pointer-events: none; }
+  .send-btn { padding: 6px 12px; font-size: 0.78rem; }
+  .row-remove {
+    border: 1px solid var(--sugar-red);
+    color: var(--sugar-red);
+    background: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+  .row-remove:hover { background: var(--sugar-red); color: #fff; }
+  .row-status { font-size: 0.72rem; min-width: 90px; display: inline-block; }
+  .row-status.ok { color: #1b5e20; }
+  .row-status.err { color: #b71c1c; }
+  .row-status.busy { color: #555; }
+
+  .log-wrap { padding: 12px 26px 22px; }
+  .log-wrap h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 0 0 6px; }
+  #log {
+    background: #1e1e1e;
+    color: #d6d6d6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    padding: 10px 12px;
+    border-radius: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  #log .ok { color: #7ee787; }
+  #log .err { color: #ff7b72; }
+  #log .info { color: #79c0ff; }
+
+  .note {
+    font-size: 0.78rem;
+    color: #666;
+    padding: 0 26px 18px;
+  }
+  .note code { background: #eee; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="home-bar"><a href="index.html">&larr; Home</a></div>
+
+    <div class="header">
+      <img src="American-Crystal-Sugar-Company-logo-nb-500x500.png" alt="American Crystal Sugar logo">
+      <div>
+        <h1>Master Crew Sheet</h1>
+        <p>American Crystal Sugar &bull; One list &rarr; feeds the North &amp; South, Day &amp; Night rosters</p>
+      </div>
+    </div>
+
+    <div class="sync-box">
+      <div class="title">GitHub Sync</div>
+      <div id="tokenStatus">Checking token&hellip;</div>
+      <div class="sync-row">
+        <input id="tokenInput" type="password" placeholder="Paste ghp_&hellip; token here">
+        <button type="button" onclick="saveToken()">Save Token</button>
+        <button type="button" onclick="testToken()">Test</button>
+        <button type="button" onclick="clearToken()">Clear</button>
+      </div>
+      <div class="note" style="padding:8px 0 0;">
+        Uses the same token the other pages use (<code>githubPAT</code>). Needs write access to
+        <code>justinperris/Beet-Harvest-North-Hillsboro-Yard-day</code>. Classic token scope: <code>public_repo</code>.
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" onclick="addRows(5)">+ Add 5 rows</button>
+      <button type="button" class="primary" onclick="sendAll()">Send ALL rows to their rosters</button>
+      <button type="button" class="ghost" onclick="clearSheet()">Clear sheet</button>
+      <span id="sheetStatus" style="font-size:0.78rem;color:#4a7c59;"></span>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Yard</th>
+            <th>Shift</th>
+            <th>Piler&nbsp;#</th>
+            <th>Oper.</th>
+            <th>Relief</th>
+            <th>Boom</th>
+            <th title="South yard only">Frmn</th>
+            <th title="South yard only">Skid</th>
+            <th title="South yard only">Loader</th>
+            <th title="South yard only">Greaser</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <datalist id="nameList"></datalist>
+
+    <div class="log-wrap">
+      <h2>Activity log</h2>
+      <div id="log">Ready.</div>
+    </div>
+
+    <div class="note">
+      Each <strong>Send</strong> reads that roster's file straight from GitHub, adds or updates the person by name
+      (matching an existing row, or filling the first blank one), bumps its "last updated" stamp, and pushes it back.
+      The four targets:
+      North&nbsp;Day &rarr; <code>data.json</code> &bull; North&nbsp;Night &rarr; <code>data-night.json</code> &bull;
+      South&nbsp;Day &rarr; <code>south-yard-assignments-day.json</code> &bull;
+      South&nbsp;Night &rarr; <code>south-yard-assignments.json</code>.
+      After a send, hard-refresh the roster page (Ctrl+F5) &mdash; GitHub's raw files can lag a minute or two.
+    </div>
+  </div>
+
+<script>
+  /* ------------------------------------------------------------------ *
+   *  Master Crew Sheet
+   *  Feeds the existing roster pages by updating their shared JSON
+   *  files in the justinperris/Beet-Harvest-North-Hillsboro-Yard-day
+   *  repo, and mirroring into localStorage for any tab already open.
+   * ------------------------------------------------------------------ */
+
+  const GH = { owner: 'justinperris', repo: 'Beet-Harvest-North-Hillsboro-Yard-day', branch: 'main' };
+  const TOKEN_KEY = 'githubPAT';
+  const SHEET_KEY = 'masterCrewSheet';
+
+  const TARGETS = {
+    northDay:   { label: 'North · Day',   shape: 'north', path: 'data.json',
+                  lsKey: 'pilerInfoDraft',        namesKey: 'pilerSavedNames',      updatedKey: 'pilerInfoLastUpdated' },
+    northNight: { label: 'North · Night', shape: 'north', path: 'data-night.json',
+                  lsKey: 'pilerInfoDraftNight',   namesKey: 'pilerSavedNamesNight', updatedKey: 'pilerInfoLastUpdatedNight' },
+    southDay:   { label: 'South · Day',   shape: 'south', path: 'south-yard-assignments-day.json',
+                  lsKey: 'southYardAssignmentsDay', updatedKey: 'southYardLastUpdatedDay' },
+    southNight: { label: 'South · Night', shape: 'south', path: 'south-yard-assignments.json',
+                  lsKey: 'southYardAssignments',    updatedKey: 'southYardLastUpdated' }
+  };
+
+  const SUPPORT_ROLES = ['foreman', 'skidsteer', 'loader', 'greaser'];
+  const ALL_ROLES = ['operator', 'relief', 'boom'].concat(SUPPORT_ROLES);
+
+  /* ---------- tiny logger ---------- */
+  function log(msg, cls) {
+    const el = document.getElementById('log');
+    const stamp = new Date().toLocaleTimeString();
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = '[' + stamp + '] ' + msg;
+    if (el.textContent === 'Ready.') el.textContent = '';
+    el.appendChild(line);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  /* ---------- token handling ---------- */
+  function token() { return (localStorage.getItem(TOKEN_KEY) || '').trim(); }
+
+  function renderTokenStatus() {
+    const el = document.getElementById('tokenStatus');
+    const t = token();
+    if (t) {
+      const mask = t.length >= 8 ? t.slice(0, 4) + '…' + t.slice(-4) : '(short)';
+      el.innerHTML = '<span style="color:#1b5e20;font-weight:700;">✓ Token saved (' + mask + ')</span> — Send buttons will push to GitHub.';
+    } else {
+      el.innerHTML = '<span style="color:#b71c1c;font-weight:700;">✗ No token</span> — paste one below, then Save Token. Sends will fail without it.';
+    }
+  }
+
+  function saveToken() {
+    const inp = document.getElementById('tokenInput');
+    const raw = (inp.value || '').trim();
+    if (!raw) { alert('Paste your ghp_ token first.'); return; }
+    if (/^[•·.\s]+$/.test(raw)) { alert('That is not a real token. Paste the actual ghp_… value.'); return; }
+    try { localStorage.setItem(TOKEN_KEY, raw); }
+    catch (e) { alert('Browser blocked saving the token.'); return; }
+    inp.value = '';
+    renderTokenStatus();
+    log('Token saved.', 'ok');
+  }
+
+  function clearToken() {
+    if (!confirm('Remove the GitHub token from this browser?')) return;
+    localStorage.removeItem(TOKEN_KEY);
+    renderTokenStatus();
+    log('Token cleared.', 'info');
+  }
+
+  async function testToken() {
+    const t = token();
+    if (!t) { log('No token to test.', 'err'); return; }
+    log('Testing token against ' + GH.owner + '/' + GH.repo + '…', 'info');
+    try {
+      const res = await fetch('https://api.github.com/repos/' + GH.owner + '/' + GH.repo + '/contents/data.json', {
+        headers: { Authorization: 'token ' + t, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (res.ok) log('✓ Token works — can read the repo. Push should work too.', 'ok');
+      else if (res.status === 401) log('✗ 401 — token wrong / expired / revoked.', 'err');
+      else if (res.status === 403) log('✗ 403 — token lacks permission (need public_repo / Contents: write).', 'err');
+      else if (res.status === 404) log('~ Reached GitHub but data.json not found (404). A send can still create it.', 'info');
+      else log('✗ HTTP ' + res.status, 'err');
+    } catch (e) {
+      log('✗ Network / CORS error: ' + e.message, 'err');
+    }
+  }
+
+  /* ---------- GitHub read / write (serialized) ---------- */
+  let ghChain = Promise.resolve();
+  function ghQueue(fn) {
+    const run = ghChain.then(function () { return fn(); });
+    ghChain = run.then(function () {}, function () {});
+    return run;
+  }
+
+  function b64decodeUtf8(b64) {
+    return decodeURIComponent(escape(atob((b64 || '').replace(/\s/g, ''))));
+  }
+  function b64encodeUtf8(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  async function ghGet(path) {
+    const url = 'https://api.github.com/repos/' + GH.owner + '/' + GH.repo +
+                '/contents/' + path + '?ref=' + GH.branch + '&_=' + Date.now();
+    const res = await fetch(url, {
+      headers: { Authorization: 'token ' + token(), Accept: 'application/vnd.github.v3+json' },
+      cache: 'no-store'
+    });
+    if (res.status === 404) return { doc: null, sha: null };
+    if (!res.ok) throw new Error('GET ' + path + ' → HTTP ' + res.status);
+    const info = await res.json();
+    let doc = null;
+    try { doc = JSON.parse(b64decodeUtf8(info.content)); }
+    catch (e) { throw new Error('Could not parse ' + path + ' from GitHub: ' + e.message); }
+    return { doc: doc, sha: info.sha };
+  }
+
+  async function ghPut(path, docObj, sha, message) {
+    const body = {
+      message: message,
+      content: b64encodeUtf8(JSON.stringify(docObj, null, 2)),
+      branch: GH.branch
+    };
+    if (sha) body.sha = sha;
+    const res = await fetch('https://api.github.com/repos/' + GH.owner + '/' + GH.repo + '/contents/' + path, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'token ' + token(),
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      let detail = '';
+      try { detail = (await res.json()).message || ''; } catch (e) {}
+      throw new Error('PUT ' + path + ' → HTTP ' + res.status + (detail ? ' (' + detail + ')' : ''));
+    }
+    return res.json();
+  }
+
+  /* ---------- merge helpers ---------- */
+  function normalizePiler(v) {
+    v = (v || '').trim();
+    if (v === '') return null;
+    if (v === '?') return '?';
+    const n = parseInt(v, 10);
+    return isNaN(n) ? '?' : n;
+  }
+
+  function mergeNorth(doc, people) {
+    if (!doc || typeof doc !== 'object') doc = {};
+    if (!Array.isArray(doc.rows)) doc.rows = [];
+    if (!Array.isArray(doc.savedNames)) doc.savedNames = [];
+    if (!doc.date) {
+      const now = new Date();
+      doc.date = now.toISOString().split('T')[0];
+      doc.day = doc.day || now.toLocaleDateString(undefined, { weekday: 'long' });
+    }
+    people.forEach(function (p) {
+      const nm = p.name.trim();
+      if (!nm) return;
+      let row = doc.rows.find(function (r) { return (r.name || '').trim().toLowerCase() === nm.toLowerCase(); });
+      if (!row) row = doc.rows.find(function (r) { return !(r.name || '').trim(); });
+      if (!row) { row = {}; doc.rows.push(row); }
+      row.name = nm;
+      row.piler = (p.piler || '').trim();
+      row.operator = !!p.operator;
+      row.boom = !!p.boom;
+      row.relief = !!p.relief;
+      if (!doc.savedNames.some(function (n) { return n.toLowerCase() === nm.toLowerCase(); })) {
+        doc.savedNames.push(nm);
+      }
+    });
+    doc.savedNames.sort(function (a, b) { return a.localeCompare(b, undefined, { sensitivity: 'base' }); });
+    doc.lastUpdated = new Date().toISOString();
+    return doc;
+  }
+
+  function mergeSouth(doc, people) {
+    if (!doc || typeof doc !== 'object') doc = {};
+    if (!Array.isArray(doc.assignments)) doc.assignments = [];
+    people.forEach(function (p) {
+      const nm = p.name.trim();
+      if (!nm) return;
+      let e = doc.assignments.find(function (a) { return (a.name || '').trim().toLowerCase() === nm.toLowerCase(); });
+      if (!e) {
+        e = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) };
+        doc.assignments.push(e);
+      }
+      e.name = nm;
+      e.operator = !!p.operator;
+      e.relief = !!p.relief;
+      e.boom = !!p.boom;
+      e.foreman = !!p.foreman;
+      e.skidsteer = !!p.skidsteer;
+      e.loader = !!p.loader;
+      e.greaser = !!p.greaser;
+      e.piler = normalizePiler(p.piler);
+    });
+    doc.lastUpdated = new Date().toISOString();
+    return doc;
+  }
+
+  function mirrorToLocalStorage(t, merged) {
+    try {
+      if (t.shape === 'north') {
+        localStorage.setItem(t.lsKey, JSON.stringify(merged));
+        localStorage.setItem(t.updatedKey, merged.lastUpdated);
+        localStorage.setItem(t.namesKey, JSON.stringify(merged.savedNames || []));
+      } else {
+        localStorage.setItem(t.lsKey, JSON.stringify(merged.assignments));
+        localStorage.setItem(t.updatedKey, merged.lastUpdated);
+      }
+    } catch (e) { /* different origin or storage blocked — GitHub push is the real delivery */ }
+  }
+
+  /* ---------- deliver: one target, one or more people ---------- */
+  function deliver(targetKey, people) {
+    return ghQueue(async function () {
+      const t = TARGETS[targetKey];
+      if (!token()) throw new Error('No GitHub token saved.');
+      const named = people.filter(function (p) { return p.name.trim(); });
+      if (!named.length) throw new Error('No name entered.');
+
+      const got = await ghGet(t.path);
+      const merged = t.shape === 'north'
+        ? mergeNorth(got.doc, named)
+        : mergeSouth(got.doc, named);
+
+      const who = named.map(function (p) { return p.name.trim(); }).join(', ');
+      await ghPut(t.path, merged, got.sha, 'Master sheet → ' + t.label + ': ' + who);
+      mirrorToLocalStorage(t, merged);
+      return { target: t, count: named.length, who: who };
+    });
+  }
+
+  /* ---------- sheet model + rendering ---------- */
+  let sheet = [];
+
+  function blankRow() {
+    return {
+      name: '', yard: 'North', shift: 'Day', piler: '',
+      operator: false, relief: false, boom: false,
+      foreman: false, skidsteer: false, loader: false, greaser: false
+    };
+  }
+
+  function targetKeyFor(row) {
+    return (row.yard === 'South' ? 'south' : 'north') + (row.shift === 'Night' ? 'Night' : 'Day');
+  }
+
+  function renderSheet() {
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+    sheet.forEach(function (row, i) {
+      const tr = document.createElement('tr');
+      tr.className = row.yard === 'South' ? 'yard-south' : 'yard-north';
+      tr.innerHTML =
+        '<td class="num">' + (i + 1) + '</td>' +
+        '<td class="name-col"><input type="text" list="nameList" data-f="name" placeholder="Full name"></td>' +
+        '<td class="yard-col"><select data-f="yard"><option>North</option><option>South</option></select></td>' +
+        '<td><select data-f="shift"><option>Day</option><option>Night</option></select></td>' +
+        '<td class="piler-col"><input type="text" data-f="piler" placeholder=""></td>' +
+        '<td><input type="checkbox" data-f="operator"></td>' +
+        '<td><input type="checkbox" data-f="relief"></td>' +
+        '<td><input type="checkbox" data-f="boom"></td>' +
+        '<td class="support-cell"><input type="checkbox" data-f="foreman"></td>' +
+        '<td class="support-cell"><input type="checkbox" data-f="skidsteer"></td>' +
+        '<td class="support-cell"><input type="checkbox" data-f="loader"></td>' +
+        '<td class="support-cell"><input type="checkbox" data-f="greaser"></td>' +
+        '<td><button type="button" class="send-btn">Send</button><div class="row-status"></div></td>' +
+        '<td><button type="button" class="row-remove">✕</button></td>';
+
+      // set values
+      tr.querySelector('[data-f="name"]').value = row.name;
+      tr.querySelector('[data-f="yard"]').value = row.yard;
+      tr.querySelector('[data-f="shift"]').value = row.shift;
+      tr.querySelector('[data-f="piler"]').value = row.piler;
+      ALL_ROLES.forEach(function (f) {
+        const cb = tr.querySelector('[data-f="' + f + '"]');
+        if (cb) cb.checked = !!row[f];
+      });
+
+      // wire inputs
+      tr.querySelectorAll('[data-f]').forEach(function (el) {
+        const f = el.dataset.f;
+        const evt = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input';
+        el.addEventListener(evt, function () {
+          row[f] = el.type === 'checkbox' ? el.checked : el.value;
+          if (f === 'yard') { tr.className = row.yard === 'South' ? 'yard-south' : 'yard-north'; applySupportDim(tr, row); }
+          saveSheet();
+        });
+      });
+
+      tr.querySelector('.send-btn').addEventListener('click', function () {
+        sendRow(i, tr);
+      });
+      tr.querySelector('.row-remove').addEventListener('click', function () {
+        if (row.name.trim() && !confirm('Remove "' + row.name.trim() + '" from the sheet?')) return;
+        sheet.splice(i, 1);
+        if (!sheet.length) sheet.push(blankRow());
+        saveSheet();
+        renderSheet();
+      });
+
+      applySupportDim(tr, row);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function applySupportDim(tr, row) {
+    const dim = row.yard !== 'South';
+    tr.querySelectorAll('td.support-cell').forEach(function (td) {
+      td.classList.toggle('dim', dim);
+    });
+  }
+
+  function setRowStatus(tr, text, cls) {
+    const el = tr.querySelector('.row-status');
+    el.textContent = text;
+    el.className = 'row-status ' + (cls || '');
+  }
+
+  /* ---------- actions ---------- */
+  function addRows(n) {
+    for (let k = 0; k < n; k++) sheet.push(blankRow());
+    saveSheet();
+    renderSheet();
+  }
+
+  function clearSheet() {
+    if (!confirm('Clear the whole master sheet? (This does not touch the rosters.)')) return;
+    sheet = [];
+    for (let k = 0; k < 12; k++) sheet.push(blankRow());
+    saveSheet();
+    renderSheet();
+  }
+
+  async function sendRow(i, tr) {
+    const row = sheet[i];
+    if (!row.name.trim()) { setRowStatus(tr, 'Enter a name', 'err'); return; }
+    if (!token()) { setRowStatus(tr, 'No token', 'err'); log('Cannot send — no GitHub token saved.', 'err'); return; }
+    const tk = targetKeyFor(row);
+    const btn = tr.querySelector('.send-btn');
+    btn.disabled = true;
+    setRowStatus(tr, 'Sending…', 'busy');
+    log('Sending ' + row.name.trim() + ' → ' + TARGETS[tk].label + '…', 'info');
+    try {
+      const res = await deliver(tk, [Object.assign({}, row)]);
+      setRowStatus(tr, '✓ ' + res.target.label, 'ok');
+      log('✓ ' + row.name.trim() + ' saved to ' + res.target.label + ' (' + res.target.path + ').', 'ok');
+    } catch (e) {
+      setRowStatus(tr, '✗ failed', 'err');
+      log('✗ ' + row.name.trim() + ' → ' + TARGETS[tk].label + ': ' + e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function sendAll() {
+    if (!token()) { log('Cannot send — no GitHub token saved.', 'err'); alert('Paste and save your GitHub token first.'); return; }
+    const groups = { northDay: [], northNight: [], southDay: [], southNight: [] };
+    sheet.forEach(function (row) {
+      if (row.name.trim()) groups[targetKeyFor(row)].push(Object.assign({}, row));
+    });
+    const active = Object.keys(groups).filter(function (k) { return groups[k].length; });
+    if (!active.length) { log('Nothing to send — no named rows.', 'err'); return; }
+
+    log('Sending all rows: ' + active.map(function (k) { return TARGETS[k].label + ' ×' + groups[k].length; }).join(', '), 'info');
+    document.querySelectorAll('.send-btn').forEach(function (b) { b.disabled = true; });
+
+    for (const k of active) {
+      try {
+        const res = await deliver(k, groups[k]);
+        log('✓ ' + res.target.label + ': ' + res.count + ' sent (' + res.who + ').', 'ok');
+      } catch (e) {
+        log('✗ ' + TARGETS[k].label + ': ' + e.message, 'err');
+      }
+    }
+    document.querySelectorAll('.send-btn').forEach(function (b) { b.disabled = false; });
+    log('Send ALL finished. Hard-refresh the roster pages (Ctrl+F5) to see changes.', 'info');
+  }
+
+  /* ---------- persistence of this sheet ---------- */
+  let saveTimer = null;
+  function saveSheet() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try {
+        localStorage.setItem(SHEET_KEY, JSON.stringify(sheet));
+        const s = document.getElementById('sheetStatus');
+        s.textContent = '✓ saved';
+        setTimeout(function () { if (s.textContent === '✓ saved') s.textContent = ''; }, 1500);
+      } catch (e) {}
+    }, 400);
+  }
+
+  function loadSheet() {
+    try {
+      const raw = localStorage.getItem(SHEET_KEY);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length) {
+          sheet = arr.map(function (r) { return Object.assign(blankRow(), r); });
+          return;
+        }
+      }
+    } catch (e) {}
+    sheet = [];
+    for (let k = 0; k < 12; k++) sheet.push(blankRow());
+  }
+
+  /* ---------- name suggestions from the live roster files (best effort) ---------- */
+  async function loadNameSuggestions() {
+    const names = new Set();
+    const files = ['data.json', 'data-night.json', 'south-yard-assignments.json', 'south-yard-assignments-day.json'];
+    await Promise.all(files.map(async function (f) {
+      try {
+        const r = await fetch('https://raw.githubusercontent.com/' + GH.owner + '/' + GH.repo + '/' + GH.branch + '/' + f + '?_=' + Date.now(), { cache: 'no-store' });
+        if (!r.ok) return;
+        const d = await r.json();
+        (d.savedNames || []).forEach(function (n) { if (n) names.add(n); });
+        (d.rows || []).forEach(function (row) { if (row.name) names.add(row.name); });
+        (d.assignments || []).forEach(function (a) { if (a.name) names.add(a.name); });
+      } catch (e) {}
+    }));
+    const dl = document.getElementById('nameList');
+    dl.innerHTML = '';
+    Array.from(names).sort(function (a, b) { return a.localeCompare(b, undefined, { sensitivity: 'base' }); })
+      .forEach(function (n) {
+        const o = document.createElement('option');
+        o.value = n;
+        dl.appendChild(o);
+      });
+    if (names.size) log('Loaded ' + names.size + ' known names for auto-complete.', 'info');
+  }
+
+  /* ---------- boot ---------- */
+  loadSheet();
+  renderSheet();
+  renderTokenStatus();
+  loadNameSuggestions();
+</script>
+</body>
+</html>

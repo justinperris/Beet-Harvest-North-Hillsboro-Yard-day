@@ -305,6 +305,10 @@
         <a href="javascript:void(0)" class="button night-input-btn" onclick="goToProtectedSouth('Assignment-input.html')">NIGHT</a>
       </div>
 
+      <div class="section-label">Master Crew Sheet</div>
+      <p class="section-note warning">Password protected. Feeds all four rosters (North / South, Day / Night) from one list.</p>
+      <a href="javascript:void(0)" class="button red" onclick="goToMaster('master-crew-sheet.html')">Master Crew Sheet</a>
+
       <a href="Field%20report%20video.html" class="video-link">Watch Field Report video : CLICK HERE</a>
 
       <a href="Daves Yard report.html" class="button">
@@ -369,6 +373,7 @@
     const HISTORY_CLEAR_PIN = '001100';
     const PAGE_ACCESS_PIN = '001100';
     const SOUTH_YARD_PIN = '002200';
+    const MASTER_SHEET_PIN = '1371';
 
     function goToProtected(url) {
       const pin = prompt('Enter PIN to continue:');
@@ -384,6 +389,16 @@
       const pin = prompt('Enter PIN to continue:');
       if (pin === null) return;
       if (pin !== SOUTH_YARD_PIN) {
+        alert('Incorrect PIN.');
+        return;
+      }
+      window.location.href = url;
+    }
+
+    function goToMaster(url) {
+      const pin = prompt('Enter PIN to continue:');
+      if (pin === null) return;
+      if (pin !== MASTER_SHEET_PIN) {
         alert('Incorrect PIN.');
         return;
       }
