@@ -183,6 +183,7 @@
   .row-status.err { color: #b71c1c; }
   .row-status.busy { color: #555; }
   .move-hint { font-size: 0.68rem; color: #b26a00; font-weight: 700; margin-top: 2px; }
+  .roster-note { font-size: 0.68rem; color: #7a4a00; margin-top: 2px; }
 
   .log-wrap { padding: 12px 26px 22px; }
   .log-wrap h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 0 0 6px; }
@@ -239,6 +240,7 @@
     <div class="toolbar">
       <button type="button" onclick="addRows(5)">+ Add 5 rows</button>
       <button type="button" class="primary" onclick="sendAll()">Send ALL rows to their rosters</button>
+      <button type="button" id="pullBtn" onclick="refreshFromRosters()">&#8635; Pull latest from rosters</button>
       <button type="button" class="ghost" onclick="clearSheet()">Clear sheet</button>
       <button type="button" class="ghost" onclick="clearNameMemory()">Clear name memory</button>
       <span id="nameMemCount" style="font-size:0.72rem;color:#777;"></span>
@@ -257,9 +259,9 @@
             <th>Oper.</th>
             <th>Relief</th>
             <th>Boom</th>
-            <th title="South yard only">Frmn</th>
-            <th title="South yard only">Skid</th>
-            <th title="South yard only">Loader</th>
+            <th title="North: sign-in foreman list · South: foreman role">Frmn</th>
+            <th title="North: sign-in skid-steer/loader list · South: skid-steer role">Skid</th>
+            <th title="North: sign-in skid-steer/loader list · South: loader role">Loader</th>
             <th title="South yard only">Greaser</th>
             <th></th>
             <th></th>
@@ -282,6 +284,19 @@
       South&nbsp;Day &rarr; <code>south-yard-assignments-day.json</code> &bull;
       South&nbsp;Night &rarr; <code>south-yard-assignments.json</code>.
       After a send, hard-refresh the roster page (Ctrl+F5) &mdash; GitHub's raw files can lag a minute or two.
+      <br><br>
+      <strong>Roles by yard.</strong>
+      North: Operator / Boom / Relief go on the roster; <strong>Foreman</strong> and
+      <strong>Skid-steer / Loader</strong> go on the North <em>sign-in sheet</em>
+      (<code>current-signin.json</code> / <code>current-signin-night.json</code>) &mdash; Loader shares the
+      Skid-steer list there. Greaser is not used on North and stays locked.
+      South: all seven roles go on the South assignment list.
+      <br><br>
+      <strong>Pull latest from rosters</strong> reads back minor changes a foreman makes on a roster page
+      &mdash; different Piler #, Operator / Boom / Relief, foreman / skid-steer &mdash; for rows you've already
+      sent. It runs automatically when this page opens. Foremen can't change Yard or Shift, so a sent row always
+      knows which roster to re-read. Rows with your own unsent edits are skipped (Send them first); anyone removed
+      from a roster is flagged &ldquo;no longer on &hellip;&rdquo;.
       <br><br>
       Name auto-complete is this sheet's own memory (starts empty, holds up to 80 names, keeps them after a send).
       Suggestions appear once you've typed 3 letters. Names are matched case-insensitively
@@ -314,9 +329,11 @@
 
   const TARGETS = {
     northDay:   { label: 'North · Day',   shape: 'north', path: 'data.json',
-                  lsKey: 'pilerInfoDraft',        namesKey: 'pilerSavedNames',      updatedKey: 'pilerInfoLastUpdated' },
+                  lsKey: 'pilerInfoDraft',        namesKey: 'pilerSavedNames',      updatedKey: 'pilerInfoLastUpdated',
+                  signinPath: 'current-signin.json',       signinLsKey: 'hillsboroNorthSignInDraft' },
     northNight: { label: 'North · Night', shape: 'north', path: 'data-night.json',
-                  lsKey: 'pilerInfoDraftNight',   namesKey: 'pilerSavedNamesNight', updatedKey: 'pilerInfoLastUpdatedNight' },
+                  lsKey: 'pilerInfoDraftNight',   namesKey: 'pilerSavedNamesNight', updatedKey: 'pilerInfoLastUpdatedNight',
+                  signinPath: 'current-signin-night.json', signinLsKey: 'hillsboroNorthSignInDraftNight' },
     southDay:   { label: 'South · Day',   shape: 'south', path: 'south-yard-assignments-day.json',
                   lsKey: 'southYardAssignmentsDay', updatedKey: 'southYardLastUpdatedDay' },
     southNight: { label: 'South · Night', shape: 'south', path: 'south-yard-assignments.json',
@@ -520,6 +537,46 @@
     } catch (e) { /* different origin or storage blocked — GitHub push is the real delivery */ }
   }
 
+  /* ---------- North sign-in sheet: Foreman + Skid-steer/Loader are plain name lists
+                in current-signin.json / current-signin-night.json, not row roles. ---------- */
+  function listSetMembership(arr, name, want) {
+    const nm = normName(name);
+    const has = arr.some(function (x) { return normName(x) === nm; });
+    if (want && !has) { arr.push(name.trim()); return true; }
+    if (!want && has) {
+      for (let i = arr.length - 1; i >= 0; i--) if (normName(arr[i]) === nm) arr.splice(i, 1);
+      return true;
+    }
+    return false;
+  }
+
+  // Runs INSIDE an existing ghQueue task — uses ghGet/ghPut directly, never ghQueue.
+  async function syncNorthSignin(t, people) {
+    if (!t.signinPath) return;
+    const got = await ghGet(t.signinPath);
+    const doc = (got.doc && typeof got.doc === 'object') ? got.doc : {};
+    if (!Array.isArray(doc.skidSteer)) doc.skidSteer = [];
+    if (!Array.isArray(doc.foreman)) doc.foreman = [];
+
+    let changed = false;
+    people.forEach(function (p) {
+      if (!p.name.trim()) return;
+      if (listSetMembership(doc.foreman, p.name, !!p.foreman)) changed = true;
+      if (listSetMembership(doc.skidSteer, p.name, !!(p.skidsteer || p.loader))) changed = true;
+    });
+    if (!changed) return;
+
+    doc.lastUpdated = new Date().toISOString();
+    await ghPut(t.signinPath, doc, got.sha, 'Master sheet → ' + t.label + ' sign-in (foreman / skid-steer / loader)');
+    try {
+      const raw = localStorage.getItem(t.signinLsKey);
+      const draft = raw ? JSON.parse(raw) : {};
+      draft.skidSteer = doc.skidSteer;
+      draft.foreman = doc.foreman;
+      localStorage.setItem(t.signinLsKey, JSON.stringify(draft));
+    } catch (e) { /* other origin / storage blocked */ }
+  }
+
   /* ---------- deliver: one target, one or more people ---------- */
   function deliver(targetKey, people) {
     return ghQueue(async function () {
@@ -536,7 +593,13 @@
       const who = named.map(function (p) { return p.name.trim(); }).join(', ');
       await ghPut(t.path, merged, got.sha, 'Master sheet → ' + t.label + ': ' + who);
       mirrorToLocalStorage(t, merged);
-      return { target: t, count: named.length, who: who };
+
+      let signinWarning = null;
+      if (t.shape === 'north') {
+        try { await syncNorthSignin(t, named); }
+        catch (e) { signinWarning = e.message; }
+      }
+      return { target: t, count: named.length, who: who, signinWarning: signinWarning };
     });
   }
 
@@ -560,12 +623,44 @@
             removed++;
           }
         });
-      } else {
-        const before = (got.doc.assignments || []).length;
-        got.doc.assignments = (got.doc.assignments || []).filter(function (a) { return normName(a.name) !== nm; });
-        removed = before - got.doc.assignments.length;
+        if (removed) {
+          got.doc.lastUpdated = new Date().toISOString();
+          await ghPut(t.path, got.doc, got.sha, 'Master sheet → remove ' + name.trim() + ' from ' + t.label + ' (moved)');
+          mirrorToLocalStorage(t, got.doc);
+        }
+        // also drop from the North sign-in foreman / skid-steer lists
+        if (t.signinPath) {
+          try {
+            const sg = await ghGet(t.signinPath);
+            if (sg.doc) {
+              let sch = false;
+              ['skidSteer', 'foreman'].forEach(function (key) {
+                if (!Array.isArray(sg.doc[key])) return;
+                const before = sg.doc[key].length;
+                sg.doc[key] = sg.doc[key].filter(function (x) { return normName(x) !== nm; });
+                if (sg.doc[key].length !== before) { sch = true; removed += before - sg.doc[key].length; }
+              });
+              if (sch) {
+                sg.doc.lastUpdated = new Date().toISOString();
+                await ghPut(t.signinPath, sg.doc, sg.sha, 'Master sheet → remove ' + name.trim() + ' from ' + t.label + ' sign-in (moved)');
+                try {
+                  const raw = localStorage.getItem(t.signinLsKey);
+                  const draft = raw ? JSON.parse(raw) : {};
+                  draft.skidSteer = sg.doc.skidSteer;
+                  draft.foreman = sg.doc.foreman;
+                  localStorage.setItem(t.signinLsKey, JSON.stringify(draft));
+                } catch (e) {}
+              }
+            }
+          } catch (e) { /* best effort */ }
+        }
+        return { removed: removed, target: t };
       }
 
+      // South
+      const before = (got.doc.assignments || []).length;
+      got.doc.assignments = (got.doc.assignments || []).filter(function (a) { return normName(a.name) !== nm; });
+      removed = before - got.doc.assignments.length;
       if (!removed) return { removed: 0, target: t };
       got.doc.lastUpdated = new Date().toISOString();
       await ghPut(t.path, got.doc, got.sha, 'Master sheet → remove ' + name.trim() + ' from ' + t.label + ' (moved)');
@@ -582,7 +677,8 @@
       name: '', yard: 'North', shift: 'Day', piler: '',
       operator: false, relief: false, boom: false,
       foreman: false, skidsteer: false, loader: false, greaser: false,
-      sentTo: null   // last roster this row was sent to — used to move people off the old roster
+      sentTo: null,   // last roster this row was sent to — used to move people off the old roster
+      dirty: false    // has unsent local edits — Pull-latest leaves these rows alone
     };
   }
 
@@ -608,8 +704,8 @@
         '<td class="support-cell"><input type="checkbox" data-f="foreman"></td>' +
         '<td class="support-cell"><input type="checkbox" data-f="skidsteer"></td>' +
         '<td class="support-cell"><input type="checkbox" data-f="loader"></td>' +
-        '<td class="support-cell"><input type="checkbox" data-f="greaser"></td>' +
-        '<td><button type="button" class="send-btn">Send</button><div class="row-status"></div><div class="move-hint"></div></td>' +
+        '<td class="support-cell greaser-cell"><input type="checkbox" data-f="greaser"></td>' +
+        '<td><button type="button" class="send-btn">Send</button><div class="row-status"></div><div class="move-hint"></div><div class="roster-note"></div></td>' +
         '<td><button type="button" class="row-remove">✕</button></td>';
 
       // set values
@@ -628,6 +724,7 @@
         const evt = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input';
         el.addEventListener(evt, function () {
           row[f] = el.type === 'checkbox' ? el.checked : el.value;
+          if (f !== 'name') row.dirty = true;   // unsent edit — Pull-latest will skip this row
           if (f === 'yard') {
             tr.classList.toggle('yard-south', row.yard === 'South');
             tr.classList.toggle('yard-north', row.yard !== 'South');
@@ -642,6 +739,7 @@
       setupNameAutocomplete(nameInput, tr.querySelector('.name-suggestions'));
       nameInput.addEventListener('input', markDuplicates);
       refreshMoveHint(tr, row);
+      refreshRosterNote(tr, row);
 
       tr.querySelector('.send-btn').addEventListener('click', function () {
         sendRow(i, tr);
@@ -661,9 +759,11 @@
   }
 
   function applySupportDim(tr, row) {
-    const dim = row.yard !== 'South';
+    // North supports Foreman + Skid-steer/Loader (via the sign-in sheet) but NOT Greaser.
+    // South supports all four. So on North, only the Greaser box is locked.
+    const north = row.yard !== 'South';
     tr.querySelectorAll('td.support-cell').forEach(function (td) {
-      td.classList.toggle('dim', dim);
+      td.classList.toggle('dim', north && td.classList.contains('greaser-cell'));
     });
   }
 
@@ -679,10 +779,133 @@
     }
   }
 
+  function refreshRosterNote(tr, row) {
+    const el = tr.querySelector('.roster-note');
+    if (el) el.textContent = row._rosterNote || '';
+  }
+
   function setRowStatus(tr, text, cls) {
     const el = tr.querySelector('.row-status');
     el.textContent = text;
     el.className = 'row-status ' + (cls || '');
+  }
+
+  /* ---------- Pull latest: read back minor changes foremen made on the roster pages
+     (different piler, Operator / Boom / Relief, foreman / skid on North).
+     Foremen can't change Yard or Shift, so a row's sentTo target is always still valid.
+     Rows with unsent local edits (dirty) are left alone. ---------- */
+  function fmtVal(v) {
+    if (v === true) return 'on';
+    if (v === false) return 'off';
+    if (v === '' || v == null) return '—';
+    return String(v);
+  }
+
+  async function fetchRaw(path) {
+    try {
+      const r = await fetch('https://raw.githubusercontent.com/' + GH.owner + '/' + GH.repo + '/' + GH.branch + '/' + path + '?_=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch (e) { return null; }
+  }
+
+  async function refreshFromRosters(opts) {
+    opts = opts || {};
+    const btn = document.getElementById('pullBtn');
+    const sentRows = sheet.filter(function (r) { return r.name.trim() && r.sentTo && TARGETS[r.sentTo]; });
+    if (!sentRows.length) {
+      if (!opts.silent) log('Nothing to pull — no rows have been sent to a roster yet.', 'info');
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (!opts.silent) log('Pulling latest from ' + Object.keys(sentRows.reduce(function (a, r) { a[r.sentTo] = 1; return a; }, {})).length + ' roster(s)…', 'info');
+
+    const need = {};
+    sentRows.forEach(function (r) { need[r.sentTo] = true; });
+    const docs = {};
+    await Promise.all(Object.keys(need).map(async function (tk) {
+      const t = TARGETS[tk];
+      docs[tk] = { main: await fetchRaw(t.path) };
+      if (t.signinPath) docs[tk].signin = await fetchRaw(t.signinPath);
+    }));
+
+    let changed = 0, gone = 0, skipped = 0;
+
+    sentRows.forEach(function (row) {
+      const t = TARGETS[row.sentTo];
+      const d = docs[row.sentTo];
+      if (!d || !d.main) return;
+      const nm = normName(row.name);
+
+      let next;
+      let northSigninOk = true;
+      if (t.shape === 'north') {
+        const hit = (d.main.rows || []).find(function (r) { return normName(r.name) === nm; });
+        if (!hit) { next = { missing: true }; }
+        else {
+          const sd = d.signin;
+          northSigninOk = !!sd;
+          next = {
+            piler: hit.piler == null ? '' : String(hit.piler),
+            operator: !!hit.operator, boom: !!hit.boom, relief: !!hit.relief,
+            foreman: !!sd && Array.isArray(sd.foreman) && sd.foreman.some(function (x) { return normName(x) === nm; }),
+            skidsteer: !!sd && Array.isArray(sd.skidSteer) && sd.skidSteer.some(function (x) { return normName(x) === nm; }),
+            out: !!hit.hidden
+          };
+        }
+      } else {
+        const hit = (d.main.assignments || []).find(function (a) { return normName(a.name) === nm; });
+        if (!hit) { next = { missing: true }; }
+        else {
+          next = {
+            piler: hit.piler == null ? '' : String(hit.piler),
+            operator: !!hit.operator, relief: !!hit.relief, boom: !!hit.boom,
+            foreman: !!hit.foreman, skidsteer: !!hit.skidsteer, loader: !!hit.loader, greaser: !!hit.greaser,
+            out: !!hit.hidden
+          };
+        }
+      }
+
+      if (next.missing) {
+        gone++;
+        row._rosterNote = '⚠ no longer on ' + t.label;
+        return;
+      }
+
+      if (row.dirty) {
+        skipped++;
+        row._rosterNote = 'unsent edits — not pulled (Send to push)';
+        return;
+      }
+
+      const fields = (t.shape === 'north')
+        ? (northSigninOk ? ['piler', 'operator', 'relief', 'boom', 'foreman', 'skidsteer']
+                         : ['piler', 'operator', 'relief', 'boom'])
+        : ['piler', 'operator', 'relief', 'boom', 'foreman', 'skidsteer', 'loader', 'greaser'];
+      const diffs = [];
+      fields.forEach(function (f) {
+        const cur = f === 'piler' ? (row.piler || '') : !!row[f];
+        const nv  = f === 'piler' ? (next.piler || '') : !!next[f];
+        if (cur !== nv) { diffs.push(f + ' ' + fmtVal(cur) + '→' + fmtVal(nv)); row[f] = nv; }
+      });
+      row._rosterNote = next.out ? 'marked OUT on ' + t.label
+                                 : (diffs.length ? 'pulled: ' + diffs.map(function (x) { return x.split(' ')[0]; }).join(', ') : '');
+      if (diffs.length) {
+        changed++;
+        log('↻ ' + row.name.trim() + ' — ' + diffs.join(', ') + '  (from ' + t.label + ')', 'ok');
+      }
+    });
+
+    saveSheet();
+    renderSheet();
+    if (btn) btn.disabled = false;
+
+    if (!opts.silent || changed || gone || skipped) {
+      log('Pull done — ' + changed + ' updated'
+        + (gone ? ', ' + gone + ' no longer on roster' : '')
+        + (skipped ? ', ' + skipped + ' skipped (unsent edits)' : '') + '.', 'info');
+    }
   }
 
   /* ---------- actions ---------- */
@@ -743,10 +966,18 @@
         }
       }
 
+      if (res.signinWarning) {
+        moveMsg += ' — ⚠ foreman/skid list not updated';
+        log('⚠ ' + res.target.label + ' roster saved, but the sign-in foreman/skid list failed: ' + res.signinWarning, 'err');
+      }
+
       if (moveOk) row.sentTo = tk;   // keep old sentTo if the removal failed, so a re-Send retries it
+      row.dirty = false;
+      row._rosterNote = '';
       saveSheet();
       refreshMoveHint(tr, row);
-      setRowStatus(tr, '✓ ' + res.target.label + moveMsg, moveOk ? 'ok' : 'err');
+      refreshRosterNote(tr, row);
+      setRowStatus(tr, '✓ ' + res.target.label + moveMsg, (moveOk && !res.signinWarning) ? 'ok' : 'err');
       log('✓ ' + row.name.trim() + ' saved to ' + res.target.label + ' (' + res.target.path + ').', 'ok');
     } catch (e) {
       setRowStatus(tr, '✗ failed', 'err');
@@ -798,10 +1029,15 @@
             }
           }
           if (moveOk) row.sentTo = k;
+          row.dirty = false;
+          row._rosterNote = '';
           const idx = sheet.indexOf(row);
-          if (idx >= 0 && rows[idx]) refreshMoveHint(rows[idx], row);
+          if (idx >= 0 && rows[idx]) { refreshMoveHint(rows[idx], row); refreshRosterNote(rows[idx], row); }
         }
         saveSheet();
+        if (res.signinWarning) {
+          log('⚠ ' + res.target.label + ' roster saved, but the sign-in foreman/skid list failed: ' + res.signinWarning, 'err');
+        }
         log('✓ ' + res.target.label + ': ' + res.count + ' sent (' + res.who + ').', 'ok');
       } catch (e) {
         log('✗ ' + TARGETS[k].label + ': ' + e.message, 'err');
@@ -951,6 +1187,7 @@
   renderSheet();
   renderTokenStatus();
   updateNameMemCount();
+  refreshFromRosters({ silent: true });   // pull in any minor changes foremen made since last visit
 </script>
 </body>
 </html>
