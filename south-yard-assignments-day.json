@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-02T11:56:46.730Z",
+  "lastUpdated": "2026-09-02T12:09:10.906Z",
   "assignments": [
     {
       "id": "mss9g0vw9ylyyt",
@@ -193,7 +193,7 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 2
+      "piler": 1
     },
     {
       "id": "mtj9e8b94r2nyf",
