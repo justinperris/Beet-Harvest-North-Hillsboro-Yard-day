@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-03T01:42:50.306Z",
+  "lastUpdated": "2026-09-03T01:42:56.021Z",
   "assignments": [
     {
       "id": "mtkugmbgoa1wpq",
@@ -264,6 +264,18 @@
       "loader": false,
       "greaser": false,
       "piler": null
+    },
+    {
+      "id": "mtkv1us56fsyyd",
+      "name": "Savanna",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
     }
   ]
 }
