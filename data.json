@@ -13,9 +13,9 @@
       "hidden": false
     },
     {
-      "name": "Savanna",
-      "piler": "3",
-      "operator": true,
+      "name": "",
+      "piler": "",
+      "operator": false,
       "boom": false,
       "relief": false,
       "hidden": false
@@ -186,5 +186,5 @@
     "Tom",
     "Tonya"
   ],
-  "lastUpdated": "2026-09-03T01:42:33.727Z"
+  "lastUpdated": "2026-09-03T01:42:57.086Z"
 }
