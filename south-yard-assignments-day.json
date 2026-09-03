@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-03T01:40:05.246Z",
+  "lastUpdated": "2026-09-03T01:42:32.563Z",
   "assignments": [
     {
       "id": "mtkugmbgoa1wpq",
@@ -240,6 +240,18 @@
       "loader": false,
       "greaser": false,
       "piler": 2
+    },
+    {
+      "id": "mtkv1cojvsyt3y",
+      "name": "Tom",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 1
     }
   ]
 }
