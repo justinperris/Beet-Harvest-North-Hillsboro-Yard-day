@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-03T01:45:32.392Z",
+  "lastUpdated": "2026-09-03T01:45:58.734Z",
   "assignments": [
     {
       "id": "mtkugmbgoa1wpq",
@@ -124,7 +124,7 @@
     {
       "id": "mtkugmbgm10g4n",
       "name": "Irene Silva",
-      "operator": false,
+      "operator": true,
       "relief": false,
       "boom": false,
       "foreman": false,
