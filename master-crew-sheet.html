@@ -304,10 +304,10 @@
       Name auto-complete is this sheet's own memory (starts empty, holds up to 80 names, keeps them after a send).
       Suggestions appear once you've typed 3 letters. Names are matched case-insensitively
       (&ldquo;dave stewart&rdquo; = &ldquo;Dave Stewart&rdquo;).
-      <strong>Foreman / Skid-steer / Loader / Greaser people may appear on several rows</strong> &mdash; multiple
-      assignments in one shift are fine, and each row becomes its own roster entry. A row is only flagged as a
-      duplicate when the same person is <em>piler crew</em> (Piler # or Operator / Relief / Boom) on two or more
-      rows for the same yard and shift; that's the only case Send asks you to confirm.
+      <strong>One person = one row per roster.</strong> Someone with several jobs (Foreman <em>and</em> Loader,
+      Operator on a piler, &hellip;) gets <em>one</em> row with all those boxes checked &mdash; not a row each.
+      The same name on two rows for the same yard + shift is flagged, and Send is blocked until you merge them
+      onto one row and delete the extras. The roster itself only ever updates an existing name, never adds a duplicate.
       <br><br>
       <strong>Moving someone:</strong> change their Yard and/or Shift on a row you've already sent, then Send again.
       They're added to the new roster and <strong>removed from the old one</strong> by name. The row shows
@@ -511,20 +511,12 @@
     people.forEach(function (p) {
       const nm = p.name.trim();
       if (!nm) return;
-      // Each master-sheet ROW owns one South entry (via _srcId), so the same
-      // person can hold several assignments (Foreman + Loader, two pilers, …)
-      // as separate rows/entries instead of collapsing into one.
-      let e = p.id && doc.assignments.find(function (a) { return a._srcId === p.id; });
+      // Name is the key on the South master list — one entry per person.
+      // A person's several jobs (Foreman + Loader, Operator on a piler, …) are
+      // the role checkboxes on that ONE entry, never separate entries.
+      let e = doc.assignments.find(function (a) { return (a.name || '').trim().toLowerCase() === nm.toLowerCase(); });
       if (!e) {
-        // first send of this row: adopt a single un-owned entry with the same
-        // name if one exists (e.g. added straight on the South page), else create one.
-        const unclaimed = doc.assignments.filter(function (a) {
-          return !a._srcId && (a.name || '').trim().toLowerCase() === nm.toLowerCase();
-        });
-        if (unclaimed.length === 1) { e = unclaimed[0]; e._srcId = p.id || null; }
-      }
-      if (!e) {
-        e = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8), _srcId: p.id || null };
+        e = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) };
         doc.assignments.push(e);
       }
       e.name = nm;
@@ -666,7 +658,7 @@
   }
 
   /* ---------- remove a person from a roster (used when a row is moved) ---------- */
-  function removePersonFrom(targetKey, name, srcId) {
+  function removePersonFrom(targetKey, name) {
     return ghQueue(async function () {
       const t = TARGETS[targetKey];
       if (!token()) throw new Error('No GitHub token saved.');
@@ -719,15 +711,10 @@
         return { removed: removed, target: t };
       }
 
-      // South — remove just this row's own entry (by _srcId); fall back to name
-      // only if the row was never id-linked (legacy data).
+      // South — one entry per name, so remove by name.
       const arr = got.doc.assignments || [];
       const before = arr.length;
-      if (srcId && arr.some(function (a) { return a._srcId === srcId; })) {
-        got.doc.assignments = arr.filter(function (a) { return a._srcId !== srcId; });
-      } else {
-        got.doc.assignments = arr.filter(function (a) { return normName(a.name) !== nm; });
-      }
+      got.doc.assignments = arr.filter(function (a) { return normName(a.name) !== nm; });
       removed = before - got.doc.assignments.length;
       if (!removed) return { removed: 0, target: t };
       got.doc.lastUpdated = new Date().toISOString();
@@ -767,7 +754,7 @@
       tr.className = row.yard === 'South' ? 'yard-south' : 'yard-north';
       tr.innerHTML =
         '<td class="num">' + (i + 1) + '</td>' +
-        '<td class="name-col"><input type="text" autocomplete="off" data-f="name" placeholder="Full name"><span class="dup-badge" title="Same person is piler crew on 2+ rows for this yard/shift">DUP</span><div class="name-suggestions"></div></td>' +
+        '<td class="name-col"><input type="text" autocomplete="off" data-f="name" placeholder="Full name"><span class="dup-badge" title="Same name on 2+ rows for this yard/shift — merge onto one row">DUP</span><div class="name-suggestions"></div></td>' +
         '<td class="yard-col"><select data-f="yard"><option>North</option><option>South</option></select></td>' +
         '<td><select data-f="shift"><option>Day</option><option>Night</option></select></td>' +
         '<td class="piler-col"><input type="text" data-f="piler" placeholder=""></td>' +
@@ -933,9 +920,7 @@
           };
         }
       } else {
-        const list = d.main.assignments || [];
-        const hit = list.find(function (a) { return a._srcId === row.id; })
-                 || list.find(function (a) { return !a._srcId && normName(a.name) === nm; });
+        const hit = (d.main.assignments || []).find(function (a) { return normName(a.name) === nm; });
         if (!hit) { next = { missing: true }; }
         else {
           next = {
@@ -1011,13 +996,13 @@
     if (!row.name.trim()) { setRowStatus(tr, 'Enter a name', 'err'); return; }
     if (!token()) { setRowStatus(tr, 'No token', 'err'); log('Cannot send — no GitHub token saved.', 'err'); return; }
 
-    if (isPilerCrewRow(row) && duplicateSet().has(dupKey(row))) {
-      const count = sheet.filter(function (r) { return isPilerCrewRow(r) && dupKey(r) === dupKey(row); }).length;
-      if (!confirm('"' + row.name.trim() + '" is a piler-crew assignment on ' + count + ' rows for ' + TARGETS[targetKeyFor(row)].label + '.\n\n(Foreman / skid / loader can be on several rows — this is two piler assignments.)\n\nSend this row anyway?')) {
-        setRowStatus(tr, 'cancelled — duplicate', 'err');
-        log('Send cancelled — "' + row.name.trim() + '" is piler crew on ' + count + ' rows for ' + TARGETS[targetKeyFor(row)].label + '.', 'err');
-        return;
-      }
+    if (duplicateSet().has(dupKey(row))) {
+      const count = sheet.filter(function (r) { return r.name.trim() && dupKey(r) === dupKey(row); }).length;
+      setRowStatus(tr, 'duplicate — merge first', 'err');
+      alert('"' + row.name.trim() + '" is on ' + count + ' rows for ' + TARGETS[targetKeyFor(row)].label + '.\n\n'
+        + 'One person = one row per roster. Put all their jobs (Foreman, Loader, Operator, piler #, …) on a single row and delete the extras, then Send.');
+      log('Blocked — "' + row.name.trim() + '" is on ' + count + ' rows for ' + TARGETS[targetKeyFor(row)].label + '. Merge onto one row.', 'err');
+      return;
     }
 
     const tk = targetKeyFor(row);
@@ -1034,7 +1019,7 @@
       let moveOk = true;
       if (movingFrom) {
         try {
-          const rm = await removePersonFrom(movingFrom, row.name, row.id);
+          const rm = await removePersonFrom(movingFrom, row.name);
           if (rm.removed) {
             moveMsg = ' — moved off ' + TARGETS[movingFrom].label;
             log('✓ Removed ' + row.name.trim() + ' from ' + TARGETS[movingFrom].label + ' (' + rm.target.path + ').', 'ok');
@@ -1088,10 +1073,11 @@
     const dups = duplicateSet();
     if (dups.size) {
       const names = Array.from(new Set(Array.from(dups).map(function (k) { return displayName(k.split('|')[0]); })));
-      if (!confirm('These people are piler crew on more than one row for the same yard/shift:\n\n' + names.join(', ') + '\n\n(Foreman / skid / loader on several rows is fine and not listed here.)\n\nSend everything anyway?')) {
-        log('Send ALL cancelled — piler-crew duplicates: ' + names.join(', '), 'err');
-        return;
-      }
+      markDuplicates();
+      alert('Send ALL blocked — these people are on more than one row for the same yard/shift:\n\n' + names.join(', ')
+        + '\n\nOne person = one row per roster. Merge each person onto a single row (all their jobs as checkboxes) and delete the extras, then Send ALL again.');
+      log('Send ALL blocked — duplicate names: ' + names.join(', ') + '. Merge onto one row each.', 'err');
+      return;
     }
 
     log('Sending all rows: ' + active.map(function (k) { return TARGETS[k].label + ' ×' + groups[k].length; }).join(', '), 'info');
@@ -1107,7 +1093,7 @@
           let moveOk = true;
           if (movingFrom) {
             try {
-              const rm = await removePersonFrom(movingFrom, row.name, row.id);
+              const rm = await removePersonFrom(movingFrom, row.name);
               log(rm.removed
                 ? '✓ Moved ' + row.name.trim() + ': removed from ' + TARGETS[movingFrom].label
                 : '~ ' + row.name.trim() + ' not found on ' + TARGETS[movingFrom].label + ' — nothing to remove.',
@@ -1250,10 +1236,9 @@
   }
 
   /* ---------- duplicate detection (case-insensitive) ----------
-     Foreman / Skid-steer / Loader / Greaser people are ALLOWED to appear on
-     several rows (multiple assignments in a shift). A row is only flagged as a
-     real conflict when the SAME name is PILER CREW (has a Piler # or Operator /
-     Relief / Boom) on 2+ rows for the SAME yard + shift. */
+     One entry per person per roster. A person's several jobs (Foreman + Loader,
+     Operator on a piler, …) are the role checkboxes on ONE row. So the SAME name
+     on 2+ rows for the SAME yard + shift is a conflict — merge it onto one row. */
   function isPilerCrewRow(r) {
     return (r.piler || '').trim() !== '' || !!r.operator || !!r.relief || !!r.boom;
   }
@@ -1262,7 +1247,7 @@
   function duplicateSet() {
     const counts = {};
     sheet.forEach(function (r) {
-      if (!r.name.trim() || !isPilerCrewRow(r)) return;
+      if (!r.name.trim()) return;
       const k = dupKey(r);
       counts[k] = (counts[k] || 0) + 1;
     });
@@ -1277,7 +1262,7 @@
     rows.forEach(function (tr, i) {
       const r = sheet[i];
       if (!r) return;
-      tr.classList.toggle('dup-row', isPilerCrewRow(r) && dups.has(dupKey(r)));
+      tr.classList.toggle('dup-row', !!r.name.trim() && dups.has(dupKey(r)));
     });
   }
 

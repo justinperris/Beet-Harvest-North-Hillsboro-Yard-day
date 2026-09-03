@@ -460,17 +460,35 @@
       }
     });
 
+    // One entry per person. Fold any same-name rows (case-insensitive) into one:
+    // roles OR together, first real piler # wins, "Out Today" if any copy was.
+    function dedupeAssignments(list) {
+      const out = [];
+      const byName = {};
+      (list || []).forEach((a) => {
+        const k = (a.name || '').trim().toLowerCase();
+        if (!k) { out.push(a); return; }
+        if (!byName[k]) { byName[k] = a; out.push(a); return; }
+        const e = byName[k];
+        ['operator', 'relief', 'boom', 'foreman', 'skidsteer', 'loader', 'greaser', 'hidden'].forEach((f) => {
+          e[f] = !!e[f] || !!a[f];
+        });
+        if ((e.piler === null || e.piler === undefined) && a.piler !== null && a.piler !== undefined) e.piler = a.piler;
+      });
+      return out;
+    }
+
     function loadAssignments() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
+        return dedupeAssignments(raw ? JSON.parse(raw) : []);
       } catch (e) {
         return [];
       }
     }
 
     function saveAssignments(list) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dedupeAssignments(list)));
       localStorage.setItem(LAST_UPDATED_KEY, new Date().toISOString());
     }
 
@@ -518,17 +536,21 @@
       }
       pilerInput.classList.remove('invalid');
 
-      const entry = {
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
-        name: name,
-        operator: document.getElementById('roleOperator').checked,
-        relief: document.getElementById('roleRelief').checked,
-        boom: document.getElementById('roleBoom').checked,
-        piler: piler === '?' ? '?' : parseInt(piler, 10)
-      };
-
+      // One entry per person — update the existing row if this name is already on
+      // the list, otherwise add a new one.
       const list = loadAssignments();
-      list.push(entry);
+      let entry = list.find(function (a) { return (a.name || '').trim().toLowerCase() === name.toLowerCase(); });
+      const isUpdate = !!entry;
+      if (!entry) {
+        entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8), name: name };
+        list.push(entry);
+      }
+      entry.name = name;
+      if (document.getElementById('roleOperator').checked) entry.operator = true;
+      if (document.getElementById('roleRelief').checked) entry.relief = true;
+      if (document.getElementById('roleBoom').checked) entry.boom = true;
+      entry.piler = piler === '?' ? '?' : parseInt(piler, 10);
+
       saveAssignments(list);
       rememberName(entry.name);
       renderLastUpdated();
@@ -538,7 +560,7 @@
       pilerInput.classList.remove('invalid');
 
       clearTimeout(successTimer);
-      successMsg.textContent = `Added "${entry.name}" — Piler #${entry.piler}.`;
+      successMsg.textContent = (isUpdate ? 'Updated "' : 'Added "') + entry.name + '" — Piler #' + entry.piler + '.';
       successMsg.classList.add('show');
       successTimer = setTimeout(() => successMsg.classList.remove('show'), 4000);
 
@@ -571,18 +593,21 @@
         return;
       }
 
-      const entry = {
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
-        name: name,
-        foreman: foreman,
-        skidsteer: skidsteer,
-        loader: loader,
-        greaser: greaser,
-        piler: null
-      };
-
+      // One entry per person — update the existing row if this name is already on
+      // the list, otherwise add a new one.
       const list = loadAssignments();
-      list.push(entry);
+      let entry = list.find(function (a) { return (a.name || '').trim().toLowerCase() === name.toLowerCase(); });
+      const isUpdate = !!entry;
+      if (!entry) {
+        entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8), name: name, piler: null };
+        list.push(entry);
+      }
+      entry.name = name;
+      if (foreman) entry.foreman = true;
+      if (skidsteer) entry.skidsteer = true;
+      if (loader) entry.loader = true;
+      if (greaser) entry.greaser = true;
+
       saveAssignments(list);
       rememberName(entry.name);
       renderLastUpdated();
@@ -591,7 +616,7 @@
 
       const roles = [foreman && 'Foreman', skidsteer && 'Skid-steer', loader && 'Loader', greaser && 'Greaser/Water'].filter(Boolean).join(' / ');
       clearTimeout(supportSuccessTimer);
-      supportSuccessMsg.textContent = `Added "${entry.name}" — ${roles}.`;
+      supportSuccessMsg.textContent = (isUpdate ? 'Updated "' : 'Added "') + entry.name + '" — ' + roles + '.';
       supportSuccessMsg.classList.add('show');
       supportSuccessTimer = setTimeout(() => supportSuccessMsg.classList.remove('show'), 4000);
 

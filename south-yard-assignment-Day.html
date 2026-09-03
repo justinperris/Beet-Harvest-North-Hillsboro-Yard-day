@@ -780,10 +780,25 @@
     checkForNewerData();
     setInterval(checkForNewerData, 15000);
 
+    // One entry per person — fold any same-name rows (case-insensitive) into one.
+    function dedupeAssignments(list) {
+      const out = [];
+      const byName = {};
+      (list || []).forEach((a) => {
+        const k = (a.name || '').trim().toLowerCase();
+        if (!k) { out.push(a); return; }
+        if (!byName[k]) { byName[k] = a; out.push(a); return; }
+        const e = byName[k];
+        ['operator','relief','boom','foreman','skidsteer','loader','greaser','hidden'].forEach((fld) => { e[fld] = !!e[fld] || !!a[fld]; });
+        if ((e.piler === null || e.piler === undefined) && a.piler !== null && a.piler !== undefined) e.piler = a.piler;
+      });
+      return out;
+    }
+
     function loadAssignments() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
+        return dedupeAssignments(raw ? JSON.parse(raw) : []);
       } catch (e) {
         return [];
       }

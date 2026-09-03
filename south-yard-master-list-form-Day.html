@@ -347,6 +347,7 @@
     </div>
 
     <div class="hidden-warning-banner no-print" id="hiddenWarningBanner"></div>
+    <div class="hidden-warning-banner no-print" id="dupWarningBanner"></div>
 
     <div class="toolbar no-print">
       <a class="btn btn-add" href="Assignment-input-Day.html">+ Add via Input Page</a>
@@ -497,20 +498,61 @@
       return 'unknown';
     }
 
+    // One entry per person. Fold any same-name rows (case-insensitive) into one:
+    // roles OR together, first real piler # wins, "Out Today" if any copy was.
+    function dedupeAssignments(list) {
+      const out = [];
+      const byName = {};
+      (list || []).forEach((a) => {
+        const k = (a.name || '').trim().toLowerCase();
+        if (!k) { out.push(a); return; }
+        if (!byName[k]) { byName[k] = a; out.push(a); return; }
+        const e = byName[k];
+        ['operator', 'relief', 'boom', 'foreman', 'skidsteer', 'loader', 'greaser', 'hidden'].forEach((f) => {
+          e[f] = !!e[f] || !!a[f];
+        });
+        if ((e.piler === null || e.piler === undefined) && a.piler !== null && a.piler !== undefined) e.piler = a.piler;
+      });
+      return out;
+    }
+
     function loadAssignments() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
+        return dedupeAssignments(raw ? JSON.parse(raw) : []);
       } catch (e) {
         return [];
       }
     }
 
     function persist(list) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      const clean = dedupeAssignments(list);
+      if (clean.length !== assignments.length) assignments = clean;   // keep memory + storage in step
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
       localStorage.setItem(LAST_UPDATED_KEY, new Date().toISOString());
       renderLastUpdated();
       updateHiddenWarningBanner();
+      updateDupWarningBanner();
+    }
+
+    function updateDupWarningBanner() {
+      const banner = document.getElementById('dupWarningBanner');
+      if (!banner) return;
+      const dl = getDuplicateNames(assignments);   // set of lower-cased names
+      const shown = [];
+      const seen = {};
+      assignments.forEach((a) => {
+        const n = (a.name || '').trim();
+        const k = n.toLowerCase();
+        if (n && dl.has(k) && !seen[k]) { seen[k] = 1; shown.push(n); }
+      });
+      if (shown.length) {
+        banner.textContent = 'Duplicate name(s): ' + shown.join(', ') + ' — keep one row per person and delete the extras.';
+        banner.classList.add('show');
+      } else {
+        banner.textContent = '';
+        banner.classList.remove('show');
+      }
     }
 
     function updateHiddenWarningBanner() {
@@ -604,7 +646,7 @@
     function getDuplicateNames(list) {
       const counts = {};
       list.forEach((a) => {
-        const n = (a.name || '').trim();
+        const n = (a.name || '').trim().toLowerCase();
         if (!n) return;
         counts[n] = (counts[n] || 0) + 1;
       });
@@ -616,7 +658,7 @@
       assignments.forEach((entry) => {
         const star = document.querySelector(`.dup-star[data-dup-for="${entry.id}"]`);
         if (!star) return;
-        star.classList.toggle('show', dupNames.has((entry.name || '').trim()));
+        star.classList.toggle('show', dupNames.has((entry.name || '').trim().toLowerCase()));
       });
     }
 
@@ -679,7 +721,37 @@
       const entry = findEntry(tr.dataset.id);
       if (!entry) return;
       const field = e.target.dataset.field;
-      if (!field || !RECOLOR_FIELDS.includes(field)) return;
+      if (!field) return;
+
+      // No duplicate names — one row per person. If the typed name is already on
+      // the list, clear this row and jump to the existing one so they edit that.
+      if (field === 'name') {
+        const typed = e.target.value.trim();
+        if (typed) {
+          const clash = assignments.find((a) =>
+            a.id !== entry.id && (a.name || '').trim().toLowerCase() === typed.toLowerCase());
+          if (clash) {
+            alert('"' + typed + '" is already on the list.\n\nEdit that person’s existing row — this row has been cleared.');
+            entry.name = '';
+            persist(assignments);
+            renderTable();
+            updateDuplicateMarks();
+            const existingRow = document.querySelector('#tableBody tr[data-id="' + clash.id + '"]');
+            if (existingRow) {
+              const ni = existingRow.querySelector('.name-input');
+              if (ni) {
+                ni.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                ni.focus();
+                ni.style.outline = '2px solid #c8102e';
+                setTimeout(() => { ni.style.outline = ''; }, 1500);
+              }
+            }
+          }
+        }
+        return;
+      }
+
+      if (!RECOLOR_FIELDS.includes(field)) return;
 
       if (field === 'piler') {
         entry.piler = normalizePiler(e.target.value);
@@ -831,6 +903,7 @@
       renderTable();
       renderLastUpdated();
       updateHiddenWarningBanner();
+      updateDupWarningBanner();
       statusEl.textContent = updated ? 'Loaded latest list from GitHub ✓' : 'Already up to date.';
     });
 
@@ -841,6 +914,7 @@
       renderTable();
       renderLastUpdated();
       updateHiddenWarningBanner();
+      updateDupWarningBanner();
     })();
   </script>
 </body>
