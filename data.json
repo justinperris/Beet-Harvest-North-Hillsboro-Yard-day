@@ -5,10 +5,10 @@
   "notes": "",
   "rows": [
     {
-      "name": "Tom",
-      "piler": "1",
+      "name": "",
+      "piler": "",
       "operator": false,
-      "boom": true,
+      "boom": false,
       "relief": false,
       "hidden": false
     },
@@ -186,5 +186,5 @@
     "Tom",
     "Tonya"
   ],
-  "lastUpdated": "2026-09-03T01:40:28.864Z"
+  "lastUpdated": "2026-09-03T01:42:33.727Z"
 }
