@@ -92,12 +92,30 @@
         </div>
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1.5">Location / Site</label>
-          <input id="location" type="text" placeholder="Yard location" 
-                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+          <select id="location" onchange="updateHeaderTitle()"
+                  class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white">
+            <option value="">Select yard location</option>
+            <option value="North Hillsboro Yard">North Hillsboro Yard</option>
+            <option value="South Hillsboro Yard">South Hillsboro Yard</option>
+            <option value="Reynolds Yard">Reynolds Yard</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Equipment Type</label>
+          <div class="flex items-center gap-5 px-1 py-2.5">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input id="equipTypeSkid" type="checkbox" class="w-4 h-4 accent-emerald-600" onchange="onEquipmentTypeChange('skid')">
+              <span class="text-sm font-medium text-slate-700">Skid Steer</span>
+            </label>
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input id="equipTypeLoader" type="checkbox" class="w-4 h-4 accent-emerald-600" onchange="onEquipmentTypeChange('loader')">
+              <span class="text-sm font-medium text-slate-700">Loader</span>
+            </label>
+          </div>
         </div>
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1.5">Equipment ID / Unit #</label>
-          <input id="forkliftId" type="text" placeholder="e.g. S=Skid L=Loader + Serial #" 
+          <input id="forkliftId" type="text" placeholder="e.g. Serial # / Unit #"
                  class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
         </div>
         <div>
@@ -291,6 +309,44 @@
       return 'ok';
     }
 
+    function getEquipmentTypeLabel() {
+      const skid = document.getElementById('equipTypeSkid');
+      const loader = document.getElementById('equipTypeLoader');
+      if (skid && skid.checked) return 'Skid Steer';
+      if (loader && loader.checked) return 'Loader';
+      return '';
+    }
+
+    // Skid and Loader are mutually exclusive - checking one clears the other -
+    // since each just picks which word goes in the title.
+    function onEquipmentTypeChange(which) {
+      const skid = document.getElementById('equipTypeSkid');
+      const loader = document.getElementById('equipTypeLoader');
+      if (which === 'skid' && skid.checked) {
+        loader.checked = false;
+      } else if (which === 'loader' && loader.checked) {
+        skid.checked = false;
+      }
+      updateHeaderTitle();
+    }
+
+    // Builds "North Hillsboro Yard Skid Steer" (either half optional) to prefix
+    // onto the base title, both on-screen and in the generated PDF.
+    function buildTitlePrefix() {
+      const locationSelect = document.getElementById('location');
+      const yardLabel = locationSelect ? locationSelect.value : '';
+      const equipmentLabel = getEquipmentTypeLabel();
+      return [yardLabel, equipmentLabel].filter(Boolean).join(' ');
+    }
+
+    function updateHeaderTitle() {
+      const headerTitle = document.getElementById('header-title');
+      if (!headerTitle) return;
+      const prefix = buildTitlePrefix();
+      const firstLine = prefix ? `${prefix} Equipment Pre-Operation` : 'Equipment Pre-Operation';
+      headerTitle.innerHTML = `${firstLine}<br>Safety Checklist`;
+    }
+
     function updateTopStatus() {
       const subtitle = document.getElementById('status-subtitle');
       const headerCard = document.getElementById('header-card');
@@ -370,6 +426,7 @@
       const data = {
         date: document.getElementById('date').value,
         location: document.getElementById('location').value.trim() || 'No Location',
+        equipmentType: getEquipmentTypeLabel() || 'N/A',
         forkliftId: document.getElementById('forkliftId').value.trim() || 'N/A',
         inspectorName: document.getElementById('inspectorName').value.trim() || 'Not Provided',
         overall: document.querySelector('input[name="overall"]:checked').value,
@@ -446,14 +503,33 @@
         headerBg = [16, 185, 129]; // emerald-600
       }
 
-      // Header
+      // Header - mirrors the on-screen title: yard + equipment type prefixed
+      // onto the base title when selected, wrapped to a second line since the
+      // full prefixed title is too long to fit one line at a readable size.
+      const titlePrefix = buildTitlePrefix();
+      const headerHeight = titlePrefix ? 28 : 22;
+
       doc.setFillColor(headerBg[0], headerBg[1], headerBg[2]);
-      doc.rect(0, 0, pageWidth, 22, 'F');
-      
+      doc.rect(0, 0, pageWidth, headerHeight, 'F');
+
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text('EQUIPMENT PRE-OPERATION SAFETY CHECKLIST', pageWidth / 2, 14, { align: 'center' });
+      if (titlePrefix) {
+        const maxHeaderWidth = pageWidth - 24;
+        const line1 = `${titlePrefix.toUpperCase()} EQUIPMENT PRE-OPERATION`;
+        let size1 = 14;
+        doc.setFontSize(size1);
+        while (size1 > 9 && doc.getTextWidth(line1) > maxHeaderWidth) {
+          size1 -= 0.5;
+          doc.setFontSize(size1);
+        }
+        doc.text(line1, pageWidth / 2, 12, { align: 'center' });
+        doc.setFontSize(14);
+        doc.text('SAFETY CHECKLIST', pageWidth / 2, 21, { align: 'center' });
+      } else {
+        doc.setFontSize(18);
+        doc.text('EQUIPMENT PRE-OPERATION SAFETY CHECKLIST', pageWidth / 2, 14, { align: 'center' });
+      }
 
       // Ensure base font for body content
       doc.setFont('helvetica', 'normal');
@@ -461,7 +537,7 @@
       doc.setTextColor(0, 0, 0);
 
       // Meta info
-      y = 30;
+      y = headerHeight + 8;
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
@@ -469,6 +545,7 @@
       const metaLines = [
         `Date: ${data.date || '–'}`,
         `Location: ${data.location}`,
+        `Equipment Type: ${data.equipmentType}`,
         `Forklift ID: ${data.forkliftId}`,
         `Inspector: ${data.inspectorName}`,
         `Status: ${data.overall === 'ok' ? 'SAFE TO OPERATE' : 'DEFECT FOUND - DO NOT USE'}`
@@ -668,9 +745,9 @@
       document.getElementById('inspectorName').value = '';
       document.getElementById('additionalComments').value = '';
 
-      // Uncheck all
+      // Uncheck all (includes the Skid/Loader equipment type checkboxes)
       document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-      
+
       // Clear notes
       document.querySelectorAll('input[id$="_notes"]').forEach(input => input.value = '');
 
@@ -678,6 +755,7 @@
       document.querySelector('input[name="overall"][value="ok"]').checked = true;
 
       if (typeof updateTopStatus === 'function') updateTopStatus();
+      if (typeof updateHeaderTitle === 'function') updateHeaderTitle();
     }
 
     function addKeyboardSupport() {
@@ -699,6 +777,7 @@
 
       // Initial status evaluation (will show warning until items are checked / no notes)
       updateTopStatus();
+      updateHeaderTitle();
 
       // Optional: prefill a demo location for convenience (can be removed)
       // document.getElementById('location').value = 'Main Warehouse';
