@@ -186,6 +186,19 @@
       <label class="block text-sm font-semibold text-slate-700 mb-1.5">Additional Comments / Deficiencies</label>
       <textarea id="additionalComments" rows="3" placeholder="List any other issues, repairs needed, or notes here..."
                 class="w-full px-4 py-3 border border-slate-300 rounded-2xl text-sm resize-y focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"></textarea>
+      <div class="flex flex-wrap gap-2 mt-3 no-print">
+        <button type="button" onclick="document.getElementById('cameraInput').click()"
+                class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl text-sm font-medium text-slate-700">📷 Take Photo</button>
+        <button type="button" onclick="document.getElementById('fileInput').click()"
+                class="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl text-sm font-medium text-slate-700">🖼️ Load from File</button>
+      </div>
+      <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotos(this)">
+      <input id="fileInput" type="file" accept="image/*" multiple class="hidden" onchange="addPhotos(this)">
+      <div id="photoPreview" class="flex flex-wrap gap-3 mt-3"></div>
+      <label class="inline-flex items-center gap-2 mt-2 cursor-pointer no-print">
+        <input id="fullResPhotos" type="checkbox" class="w-4 h-4 accent-emerald-600">
+        <span class="text-xs text-slate-600">Full resolution photos in PDF (larger file)</span>
+      </label>
       <label class="inline-flex items-center gap-2 mt-3 cursor-pointer">
         <input id="doNotOperate" type="checkbox" class="w-4 h-4 accent-red-600" onchange="updateTopStatus()">
         <span class="text-sm font-semibold text-red-700">This equipment should not be operated</span>
@@ -295,6 +308,80 @@
       // Format as YYYY-MM-DD for input type=date
       const formatted = today.toISOString().split('T')[0];
       dateInput.value = formatted;
+    }
+
+    // Photos attached to the report: [{ src: dataURL, w, h }], downscaled so the
+    // PDF stays a reasonable size.
+    let attachedPhotos = [];
+    const PHOTO_MAX_DIM = 1600;
+
+    function addPhotos(input) {
+      const files = Array.from(input.files || []);
+      input.value = ''; // allow re-picking the same file
+      files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, PHOTO_MAX_DIM / Math.max(img.naturalWidth, img.naturalHeight));
+            const w = Math.max(1, Math.round(img.naturalWidth * scale));
+            const h = Math.max(1, Math.round(img.naturalHeight * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            // Keep a native-resolution copy too, for click-to-view and the
+            // optional full-resolution PDF.
+            const full = document.createElement('canvas');
+            full.width = img.naturalWidth;
+            full.height = img.naturalHeight;
+            const fctx = full.getContext('2d');
+            fctx.fillStyle = '#fff';
+            fctx.fillRect(0, 0, full.width, full.height);
+            fctx.drawImage(img, 0, 0);
+            attachedPhotos.push({
+              src: canvas.toDataURL('image/jpeg', 0.85), w, h,
+              full: full.toDataURL('image/jpeg', 0.92), fw: full.width, fh: full.height
+            });
+            renderPhotoPreview();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function openPhoto(idx) {
+      const p = attachedPhotos[idx];
+      if (!p) return;
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);cursor:zoom-out;display:flex;align-items:center;justify-content:center;';
+      overlay.innerHTML = '<img src="' + p.full + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+      overlay.onclick = () => overlay.remove();
+      document.body.appendChild(overlay);
+    }
+
+    function removePhoto(idx) {
+      attachedPhotos.splice(idx, 1);
+      renderPhotoPreview();
+    }
+
+    function renderPhotoPreview() {
+      const box = document.getElementById('photoPreview');
+      if (!box) return;
+      box.innerHTML = '';
+      attachedPhotos.forEach((p, idx) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'relative';
+        wrap.innerHTML = `<img src="${p.src}" onclick="openPhoto(${idx})" title="Click to view full resolution" class="w-24 h-24 object-cover rounded-xl border border-slate-300 cursor-zoom-in">
+          <button type="button" onclick="removePhoto(${idx})" aria-label="Remove photo"
+                  class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white text-xs font-bold leading-none no-print">✕</button>`;
+        box.appendChild(wrap);
+      });
     }
 
     // Restricts a text input to digits and a single decimal point (an hour
@@ -793,6 +880,31 @@
       y += 4;
       doc.text('Form by Dave Stewart', 20, y);
 
+      // Attached photos: 4 per page (2x2), each scaled to fit its cell.
+      if (attachedPhotos.length) {
+        const margin = 20, gap = 6;
+        const cellW = (pageWidth - margin * 2 - gap) / 2;
+        const cellH = 105;
+        attachedPhotos.forEach((p, i) => {
+          const slot = i % 4;
+          if (slot === 0) {
+            doc.addPage();
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(51, 65, 85);
+            doc.text('PHOTOS', margin, 18);
+          }
+          const col = slot % 2, row = Math.floor(slot / 2);
+          const cellX = margin + col * (cellW + gap);
+          const cellY = 26 + row * (cellH + gap);
+          const useFull = document.getElementById('fullResPhotos').checked;
+          const pw = useFull ? p.fw : p.w, ph = useFull ? p.fh : p.h;
+          const ratio = Math.min(cellW / pw, cellH / ph);
+          const drawW = pw * ratio, drawH = ph * ratio;
+          doc.addImage(useFull ? p.full : p.src, 'JPEG', cellX + (cellW - drawW) / 2, cellY, drawW, drawH);
+        });
+      }
+
       // Generate filename from who filled it out, the yard, the equipment, and the date
       const namePart = sanitizeFilename(data.inspectorName);
       const locationPart = sanitizeFilename(data.location);
@@ -816,6 +928,8 @@
       document.getElementById('forkliftId').value = '';
       document.getElementById('inspectorName').value = '';
       document.getElementById('additionalComments').value = '';
+      attachedPhotos = [];
+      renderPhotoPreview();
 
       // Uncheck all (includes the Skid/Loader equipment type checkboxes)
       document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
