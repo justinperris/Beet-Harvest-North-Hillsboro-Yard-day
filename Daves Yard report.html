@@ -110,7 +110,7 @@
                 border: none;
                 page-break-inside: auto;
             }
-            button, #drop-zone, .images, #annotate-modal { display: none !important; }
+            button, #drop-zone, .images, #annotate-modal, .hr-option { display: none !important; }
         }
     </style>
 </head>
@@ -164,7 +164,12 @@
         </div>
         
         <div class="images" id="image-preview"></div>
-        
+
+        <label class="hr-option" style="display:flex; align-items:center; gap:8px; font-weight:normal; margin:0 0 10px;">
+            <input type="checkbox" id="high-res-export" style="width:auto; margin:0;">
+            High resolution photos in PNG/PDF export (bigger files, slower — may struggle on older phones)
+        </label>
+
         <button onclick="if (requireYardAndShift()) generatePreview()">Update Preview</button>
         <button onclick="if (requireYardAndShift()) exportAsImage()">Export as Image (PNG)</button>
         <button onclick="if (requireYardAndShift()) exportAsPDF()">Download PDF</button>
@@ -701,6 +706,15 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 wrap.className = 'thumb-wrap';
                 const img = document.createElement('img');
                 img.src = src;
+                img.title = 'Click to view full resolution';
+                img.style.cursor = 'zoom-in';
+                img.onclick = () => {
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);cursor:zoom-out;display:flex;align-items:center;justify-content:center;';
+                    overlay.innerHTML = '<img src="' + uploadedImages[idx] + '" style="max-width:100%;max-height:100%;object-fit:contain;border:none;">';
+                    overlay.onclick = () => overlay.remove();
+                    document.body.appendChild(overlay);
+                };
                 const annotateBtn = document.createElement('button');
                 annotateBtn.type = 'button';
                 annotateBtn.className = 'annotate-btn';
@@ -817,8 +831,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         // page actually needs (native resolution), while capping it so the
         // resulting canvas stays within safe memory limits for mobile browsers.
         function computeCaptureScale(pageEl, widthPx) {
-            const CANVAS_SAFE_MAX_WIDTH = 4200;
-            const ABS_MAX_SCALE = 6;
+            // "High resolution" lifts the safety caps so photos can reach their
+            // native pixel size; otherwise stay within limits mobile browsers handle.
+            const highRes = document.getElementById('high-res-export').checked;
+            const CANVAS_SAFE_MAX_WIDTH = highRes ? 8000 : 4200;
+            const ABS_MAX_SCALE = highRes ? 12 : 6;
             const widthCap = Math.max(BASE_CAPTURE_SCALE, Math.floor(CANVAS_SAFE_MAX_WIDTH / widthPx));
 
             let neededScale = BASE_CAPTURE_SCALE;
@@ -1087,7 +1104,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 const img = new Image();
                 img.onload = () => {
                     annSourceImg = img;
-                    const MAX = 1920;
+                    const MAX = document.getElementById('high-res-export').checked ? 4096 : 1920;
                     const scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
                     annCanvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
                     annCanvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
