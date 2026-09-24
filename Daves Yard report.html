@@ -752,6 +752,15 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
                 img.style.width = '100%';
                 img.style.height = 'auto';
                 img.style.border = '1px solid #ddd';
+                img.style.cursor = 'zoom-in';
+                img.title = 'Click to view full resolution';
+                img.onclick = () => {
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);cursor:zoom-out;display:flex;align-items:center;justify-content:center;';
+                    overlay.innerHTML = '<img src="' + src + '" style="width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;border:none;">';
+                    overlay.onclick = () => overlay.remove();
+                    document.body.appendChild(overlay);
+                };
                 previewImages.appendChild(img);
             });
         }
