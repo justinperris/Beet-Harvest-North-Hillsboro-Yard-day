@@ -1,9 +1,9 @@
 {
-  "lastUpdated": "2026-09-03T01:45:58.734Z",
+  "lastUpdated": "2026-10-02T01:14:24.592Z",
   "assignments": [
     {
-      "id": "mtkugmbgoa1wpq",
-      "name": "Celia Delgado",
+      "id": "mtkugmbgbs7xgm",
+      "name": "Ernestina Garza",
       "operator": true,
       "relief": false,
       "boom": false,
@@ -11,23 +11,11 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 4
+      "piler": 1
     },
     {
-      "id": "mtkugmbg5h3fsz",
-      "name": "Aracely Delgado",
-      "operator": false,
-      "relief": false,
-      "boom": true,
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 4
-    },
-    {
-      "id": "mtkugmbgxefvkf",
-      "name": "Sabrina Delgado",
+      "id": "muq9svkf1gwmc",
+      "name": "Craig Hughes",
       "operator": false,
       "relief": true,
       "boom": false,
@@ -35,59 +23,11 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 4
+      "piler": 1
     },
     {
-      "id": "mtkugmbgas5ymi",
-      "name": "Tina Miranda",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 2
-    },
-    {
-      "id": "mtkugmbgqs42g3",
-      "name": "Nathan Lain",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 2
-    },
-    {
-      "id": "mtkugmbgak5hz8",
-      "name": "Tonya Pruneda",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 4
-    },
-    {
-      "id": "mtkugmbgx7lqgd",
-      "name": "Natassja Oberhardt",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 3
-    },
-    {
-      "id": "mtkugmbg3u8gsj",
-      "name": "Nora Villarreal",
+      "id": "muq9svkf21749",
+      "name": "Allison Hughes",
       "operator": false,
       "relief": false,
       "boom": true,
@@ -95,11 +35,11 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 3
+      "piler": 1
     },
     {
-      "id": "mtkugmbg5p37lg",
-      "name": "Roxana Cortez",
+      "id": "muq9svkf3hcq3",
+      "name": "Itzel Morales",
       "operator": false,
       "relief": false,
       "boom": false,
@@ -107,11 +47,11 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 3
+      "piler": 1
     },
     {
-      "id": "mtkugmbgpn3fuk",
-      "name": "Silvia Benavides",
+      "id": "muq9svkf4iov3",
+      "name": "Erica Morales",
       "operator": false,
       "relief": false,
       "boom": false,
@@ -119,7 +59,7 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 3
+      "piler": 1
     },
     {
       "id": "mtkugmbgm10g4n",
@@ -134,8 +74,56 @@
       "piler": 2
     },
     {
-      "id": "mtkugmbgbs7xgm",
-      "name": "Ernestina Garza",
+      "id": "muq9svkf667yq",
+      "name": "Daniel Cox",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 2
+    },
+    {
+      "id": "muq9svkf7plxo",
+      "name": "Madison Smith",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 2
+    },
+    {
+      "id": "muq9svkf8ikm5",
+      "name": "Sara Waggoner",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 2
+    },
+    {
+      "id": "muq9svkf9yx00",
+      "name": "Amelia Attebury",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 2
+    },
+    {
+      "id": "muq9svkfa5y9q",
+      "name": "Miranda Spann",
       "operator": true,
       "relief": false,
       "boom": false,
@@ -143,11 +131,119 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 1
+      "piler": 3
     },
     {
-      "id": "mtkugmbgkvvwvd",
-      "name": "Andre Mikkelsen",
+      "id": "muq9svkfbuzft",
+      "name": "Jaroed Cox",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
+    },
+    {
+      "id": "muq9svkfczuo3",
+      "name": "Nora Villareal",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
+    },
+    {
+      "id": "muq9svkfdi0a2",
+      "name": "Alondra Villareal",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
+    },
+    {
+      "id": "muq9svkfej009",
+      "name": "Prisila Garcia",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
+    },
+    {
+      "id": "muq9svkffhndf",
+      "name": "Elijah Clark",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
+    },
+    {
+      "id": "muq9svkfgqb6f",
+      "name": "Pat Mooney",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": true,
+      "loader": false,
+      "greaser": false,
+      "piler": 3
+    },
+    {
+      "id": "mtkugmbgkveec1",
+      "name": "Monica Cortez",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 4
+    },
+    {
+      "id": "muq9svkfiup4o",
+      "name": "Caleb Parker",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 4
+    },
+    {
+      "id": "muq9svkfjikvq",
+      "name": "Silvia Benvidez",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 4
+    },
+    {
+      "id": "muq9svkfk56bw",
+      "name": "Ben Reddington",
       "operator": false,
       "relief": false,
       "boom": false,
@@ -158,8 +254,8 @@
       "piler": 4
     },
     {
-      "id": "mtkugmbgkveec1",
-      "name": "Monica Cortez",
+      "id": "muq9svkflqphy",
+      "name": "Tom Vickery",
       "operator": false,
       "relief": false,
       "boom": false,
@@ -167,107 +263,23 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 3
+      "piler": 4
     },
     {
-      "id": "mtkugmbg1b7hyu",
-      "name": "Dave Umland",
+      "id": "muq9svkfmmct3",
+      "name": "Zander Duvenmuehler",
       "operator": false,
       "relief": false,
       "boom": false,
       "foreman": false,
       "skidsteer": false,
       "loader": false,
-      "greaser": true,
-      "piler": null
-    },
-    {
-      "id": "mtkugmbgonnts8",
-      "name": "Ely Sam (Ed)",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": false,
-      "skidsteer": true,
-      "loader": false,
       "greaser": false,
-      "piler": null
+      "piler": 4
     },
     {
-      "id": "mtkugmbggoozi2",
-      "name": "John D",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": false,
-      "skidsteer": true,
-      "loader": false,
-      "greaser": false,
-      "piler": 2
-    },
-    {
-      "id": "mtkugmbglq2bps",
-      "name": "Doug G",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": true,
-      "skidsteer": false,
-      "loader": true,
-      "greaser": false,
-      "piler": 1
-    },
-    {
-      "id": "mtkugmbgw4p7f4",
-      "name": "Marisela Q",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": true,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": null
-    },
-    {
-      "id": "mtkugmbg1dvcnw",
-      "name": "Dave Stewart",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": true,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 2
-    },
-    {
-      "id": "mtkv1cojvsyt3y",
-      "name": "Tom",
-      "operator": false,
-      "relief": false,
-      "boom": true,
-      "foreman": false,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": 1
-    },
-    {
-      "id": "mtkv1jy9h5enow",
-      "name": "Chuck",
-      "operator": false,
-      "relief": false,
-      "boom": false,
-      "foreman": true,
-      "skidsteer": false,
-      "loader": false,
-      "greaser": false,
-      "piler": null
-    },
-    {
-      "id": "mtkv1us56fsyyd",
-      "name": "Savanna",
+      "id": "mtkugmbgoa1wpq",
+      "name": "Celia Delgado",
       "operator": true,
       "relief": false,
       "boom": false,
@@ -275,7 +287,151 @@
       "skidsteer": false,
       "loader": false,
       "greaser": false,
-      "piler": 3
+      "piler": 5
+    },
+    {
+      "id": "mtkugmbgxefvkf",
+      "name": "Sabrina Delgado",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 5
+    },
+    {
+      "id": "mtkugmbg5h3fsz",
+      "name": "Aracely Delgado",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 5
+    },
+    {
+      "id": "muq9svkfq7i0c",
+      "name": "Jack Witte",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 5
+    },
+    {
+      "id": "muq9svkfrbmkn",
+      "name": "Katerina Witte",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 5
+    },
+    {
+      "id": "muq9svkfsdiio",
+      "name": "Gavin Beliles",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 5
+    },
+    {
+      "id": "muq9svkftomxq",
+      "name": "Savana Easterling",
+      "operator": true,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 6
+    },
+    {
+      "id": "muq9svkfusx7u",
+      "name": "Natassaja Eberhardt",
+      "operator": false,
+      "relief": true,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 6
+    },
+    {
+      "id": "muq9svkfvn0qi",
+      "name": "Stephanie Norris",
+      "operator": false,
+      "relief": false,
+      "boom": true,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 6
+    },
+    {
+      "id": "muq9svkfwr9m8",
+      "name": "Michelle Easterling",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": 6
+    },
+    {
+      "id": "muq9svkfx0503",
+      "name": "Ed Sura",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": false,
+      "skidsteer": true,
+      "loader": false,
+      "greaser": false,
+      "piler": null
+    },
+    {
+      "id": "muq9svkfynk5p",
+      "name": "Chuck Punton",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": null
+    },
+    {
+      "id": "muq9svkfzx3ww",
+      "name": "Doug Gardner",
+      "operator": false,
+      "relief": false,
+      "boom": false,
+      "foreman": true,
+      "skidsteer": false,
+      "loader": false,
+      "greaser": false,
+      "piler": null
     }
   ]
 }
