@@ -1,13 +1,13 @@
 {
   "sender_name": "Hillsboro North Yard",
-  "test_enabled": true,
+  "test_enabled": false,
   "test_recipients": [
     "calstage1@gmail.com"
   ],
   "crystal_sugar_enabled_from": "2026-10-01",
   "crystal_sugar": {
-    "day_enabled": true,
-    "night_enabled": true,
+    "day_enabled": false,
+    "night_enabled": false,
     "day_test_once": false,
     "day_recipients": [
       "KKyllo@crystalsugar.com"
@@ -18,8 +18,8 @@
   },
   "south_yard": {
     "enabled_from": "2026-10-01",
-    "day_enabled": true,
-    "night_enabled": true,
+    "day_enabled": false,
+    "night_enabled": false,
     "day_test_once": false,
     "day_recipients": [
       "KKyllo@crystalsugar.com"
